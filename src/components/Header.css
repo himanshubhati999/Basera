@@ -178,6 +178,183 @@
   font-weight: bold;
 }
 
+/* Hamburger Menu Button */
+.hamburger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+}
+
+.hamburger-line {
+  width: 100%;
+  height: 3px;
+  background: #333;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-btn .hamburger-line.open:nth-child(1) {
+  transform: translateY(10.5px) rotate(45deg);
+}
+
+.hamburger-btn .hamburger-line.open:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-btn .hamburger-line.open:nth-child(3) {
+  transform: translateY(-10.5px) rotate(-45deg);
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  display: none;
+}
+
+.mobile-menu.active {
+  display: block;
+}
+
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1100;
+  animation: fadeIn 0.3s ease;
+}
+
+.mobile-menu.closing .mobile-menu-overlay {
+  animation: fadeOut 0.3s ease;
+}
+
+.mobile-menu-content {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100%;
+  background: white;
+  z-index: 1101;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  animation: slideInRight 0.3s ease;
+  overflow-y: auto;
+}
+
+.mobile-menu.closing .mobile-menu-content {
+  animation: slideOutRight 0.3s ease;
+}
+
+.close-mobile-menu {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+
+.close-mobile-menu:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.mobile-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 80px 30px 30px;
+  gap: 10px;
+}
+
+.mobile-nav a {
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 15px 20px;
+  border-radius: 8px;
+  transition: all 0.3s;
+  background: #f8f8f8;
+}
+
+.mobile-nav a:hover {
+  background: #ff0000;
+  color: white;
+}
+
+.mobile-add-property-btn {
+  background: #ff0000;
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s;
+  margin-top: 10px;
+}
+
+.mobile-add-property-btn:hover {
+  background: #e60000;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
 @media (max-width: 1024px) {
   .main-nav {
     gap: 20px;
@@ -190,12 +367,45 @@
 
 @media (max-width: 768px) {
   .header-main-content {
-    flex-direction: column;
-    gap: 20px;
+    padding: 15px 20px;
+  }
+
+  .hamburger-btn {
+    display: flex;
+    margin-left: auto;
   }
   
   .main-nav {
-    flex-wrap: wrap;
-    justify-content: center;
+    display: none;
+  }
+
+  .add-property-btn {
+    display: none;
+  }
+
+  .header-nav-arrows {
+    display: none;
+  }
+
+  .header-top-right {
+    gap: 10px;
+  }
+
+  .wishlist-btn,
+  .login-btn {
+    font-size: 12px;
+  }
+
+  .logo img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logo-sunshine {
+    font-size: 16px;
+  }
+
+  .logo-real-estate {
+    font-size: 12px;
   }
 }
