@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import './PropertyDetail.css';
 
 const PropertyDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
-  const [isHubSpotLoaded, setIsHubSpotLoaded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Sample project data - in a real app, this would come from an API or context
@@ -371,11 +369,6 @@ const PropertyDetail = () => {
 
   // Find the current project
   const project = projects.find(p => p.id === parseInt(id)) || projects[0];
-
-  useEffect(() => {
-    // Form is always ready - we're using direct API submission
-    setIsHubSpotLoaded(true);
-  }, []);
 
   const [formData, setFormData] = useState({
     name: '',

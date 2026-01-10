@@ -7,80 +7,61 @@ const Contact = () => {
   const propertyName = location.state?.propertyName || 'General Inquiry';
 
   useEffect(() => {
-    // Clear any existing form content first
-    const formContainer = document.getElementById('hubspot-form-container');
-    if (formContainer) {
-      formContainer.innerHTML = '';
-    }
-
-    // Load HubSpot form script
+    // Load HubSpot forms embed script
     const script = document.createElement('script');
-    script.src = 'https://js-na2.hsforms.net/forms/embed/244826787.js';
-    script.defer = true;
+    script.src = 'https://js-na2.hsforms.net/forms/embed/v2.js';
+    script.charset = 'utf-8';
+    script.type = 'text/javascript';
+    script.async = true;
+    
     script.onload = () => {
-      // Create HubSpot form with property name
+      console.log('HubSpot script loaded successfully');
+      
+      // Initialize the form using the embedded approach
       if (window.hbspt) {
-        // Generate unique submission ID
-        const submissionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        
+        console.log('Creating HubSpot form...');
         window.hbspt.forms.create({
           region: "na2",
           portalId: "244826787",
           formId: "1dc60e00-39fd-403e-b865-4cc88a315b03",
           target: "#hubspot-form-container",
           onFormReady: function($form) {
-            // Set the property name in a hidden field or custom field
-            // You'll need to create a custom property in HubSpot called "property_inquiry" or similar
-            const propertyField = $form.find('input[name="property_inquiry"]');
-            if (propertyField.length) {
-              propertyField.val(propertyName);
-            }
+            console.log('HubSpot form is ready');
             
-            // Add submission ID to help track individual submissions
-            const submissionIdField = $form.find('input[name="submission_id"]');
-            if (submissionIdField.length) {
-              submissionIdField.val(submissionId);
+            // Set the property name if available
+            if (propertyName !== 'General Inquiry') {
+              const propertyField = $form.find('input[name="property_inquiry"]');
+              if (propertyField.length) {
+                propertyField.val(propertyName);
+              }
             }
           },
-          onFormSubmit: function($form) {
-            // Capture the name at submission time
-            const nameField = $form.find('input[name="firstname"]');
-            const lastNameField = $form.find('input[name="lastname"]');
-            const submittedNameField = $form.find('input[name="submitted_name"]');
-            
-            if (nameField.length && submittedNameField.length) {
-              const fullName = nameField.val() + (lastNameField.length ? ' ' + lastNameField.val() : '');
-              submittedNameField.val(fullName);
-            }
-            
+          onFormSubmit: function() {
             console.log('Form submitted for property:', propertyName);
-            // Reset form after a short delay
-            setTimeout(() => {
-              if ($form && $form.length) {
-                const formElement = $form[0];
-                if (formElement && typeof formElement.reset === 'function') {
-                  formElement.reset();
-                }
-              }
-            }, 1000);
           },
           onFormSubmitted: function() {
-            // Additional cleanup after submission is complete
             console.log('Form submission complete');
           }
         });
+      } else {
+        console.error('HubSpot object not found');
       }
     };
-    document.body.appendChild(script);
+    
+    script.onerror = () => {
+      console.error('Failed to load HubSpot script');
+    };
+
+    document.head.appendChild(script);
 
     return () => {
-      // Cleanup: Clear form container and remove script
+      // Cleanup
       const container = document.getElementById('hubspot-form-container');
       if (container) {
         container.innerHTML = '';
       }
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
       }
     };
   }, [propertyName]);

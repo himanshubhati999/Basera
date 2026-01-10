@@ -10,8 +10,8 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
         // In dev, we'll handle this differently
-        configure: (proxy, options) => {
-          proxy.on('error', (err, req, res) => {
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
             console.log('Proxy error (expected in dev):', err.message);
           });
         }
