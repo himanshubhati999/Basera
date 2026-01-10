@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import './Contact.css';
 
-const Contact = () => {
+const ContactHubSpot = () => {
   const location = useLocation();
-  const propertyName = location.state?.propertyName || 'General Inquiry';
+  const propertyName = location.state?.propertyName || '';
   const formContainerRef = useRef(null);
   const scriptLoadedRef = useRef(false);
   const [formStatus, setFormStatus] = useState('loading');
@@ -13,31 +13,46 @@ const Contact = () => {
     const containerElement = formContainerRef.current;
     
     // Prevent multiple script loads
-    if (scriptLoadedRef.current) {
+    if (scriptLoadedRef.current && window.hbspt) {
       createForm();
       return;
     }
 
-    // Load HubSpot script
+    // Load HubSpot embed script
     const loadHubSpotScript = () => {
       // Check if script already exists
-      const existingScript = document.querySelector('script[src*="hsforms.net"]');
-      if (existingScript) {
+      const existingScript = document.querySelector('script[src*="hsforms.net/forms/embed/244826787.js"]');
+      if (existingScript && window.hbspt) {
         scriptLoadedRef.current = true;
         createForm();
         return;
       }
 
       const script = document.createElement('script');
-      script.src = 'https://js-na2.hsforms.net/forms/embed/v3.js';
-      script.charset = 'utf-8';
-      script.type = 'text/javascript';
+      script.src = 'https://js-na2.hsforms.net/forms/embed/244826787.js';
+      script.defer = true;
       
       script.onload = () => {
-        console.log('✅ HubSpot script loaded');
+        console.log('✅ HubSpot embed script loaded');
         scriptLoadedRef.current = true;
-        setFormStatus('ready');
-        createForm();
+        
+        // Wait for hbspt to be available
+        const checkHbspt = setInterval(() => {
+          if (window.hbspt) {
+            clearInterval(checkHbspt);
+            setFormStatus('ready');
+            createForm();
+          }
+        }, 100);
+
+        // Timeout after 5 seconds
+        setTimeout(() => {
+          clearInterval(checkHbspt);
+          if (!window.hbspt) {
+            setFormStatus('error');
+            console.error('❌ HubSpot object not available');
+          }
+        }, 5000);
       };
       
       script.onerror = () => {
@@ -50,7 +65,7 @@ const Contact = () => {
 
     // Create form function
     const createForm = () => {
-      if (!window.hbspt || !formContainerRef.current) {
+      if (!window.hbspt || !window.hbspt.forms || !formContainerRef.current) {
         setTimeout(createForm, 100);
         return;
       }
@@ -63,40 +78,62 @@ const Contact = () => {
           region: "na2",
           portalId: "244826787",
           formId: "1dc60e00-39fd-403e-b865-4cc88a315b03",
-          target: "#hubspot-form-container",
+          target: "#hubspot-form-direct",
           onFormReady: function($form) {
-            console.log('✅ Form ready');
+            console.log('✅ HubSpot form ready and rendered');
             setFormStatus('loaded');
             
-            // Pre-fill property name if available
-            if (propertyName !== 'General Inquiry') {
+            // Pre-fill property field if available
+            if (propertyName) {
               setTimeout(() => {
                 const propertyField = $form.find('input[name="property_inquiry"]');
                 if (propertyField.length) {
                   propertyField.val(propertyName);
+                  console.log('Pre-filled property:', propertyName);
                 }
               }, 100);
             }
           },
-          onFormSubmit: function() {
-            console.log('🚀 Submitting form...');
+          onFormSubmit: function($form, formData) {
+            console.log('🚀 Form is being submitted to HubSpot');
             setFormStatus('submitting');
+            
+            // Send to our backend for local tracking
+            const submissionData = {};
+            formData.forEach(field => {
+              submissionData[field.name] = field.value;
+            });
+            
+            // Track locally (non-blocking)
+            fetch('/api/track-submission', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...submissionData,
+                property: propertyName || submissionData.property_inquiry,
+                source: 'hubspot-form',
+                timestamp: new Date().toISOString()
+              })
+            }).catch(err => console.warn('Local tracking failed:', err));
           },
           onFormSubmitted: function() {
-            console.log('✅ Form submitted successfully');
+            console.log('✅ Form submitted successfully to HubSpot');
             setFormStatus('success');
+            
+            // Show success message
             setTimeout(() => {
-              alert('Thank you! Your message has been received.');
+              alert('✅ Thank you! Your inquiry has been received. We will contact you shortly.');
+              setFormStatus('loaded');
             }, 100);
           },
           onFormSubmitError: function(error) {
-            console.error('❌ Submission error:', error);
+            console.error('❌ Form submission error:', error);
             setFormStatus('error');
-            alert('There was an error. Please try again.');
+            alert('❌ There was an error submitting the form. Please try again or call us directly.');
           }
         });
       } catch (error) {
-        console.error('❌ Error creating form:', error);
+        console.error('❌ Error creating HubSpot form:', error);
         setFormStatus('error');
       }
     };
@@ -131,22 +168,41 @@ const Contact = () => {
           <div className="info-item">
             <p><strong>Email:</strong> <a href="mailto:harshsingh08.hs@gmail.com">harshsingh08.hs@gmail.com</a></p>
           </div>
+          <div className="info-section">
+            <h3>Business Hours</h3>
+            <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
+            <p>Saturday: 10:00 AM - 4:00 PM</p>
+            <p>Sunday: Closed</p>
+          </div>
         </div>
 
         <div className="contact-form-section">
           <h2>HOW WE CAN HELP YOU?</h2>
-          {propertyName !== 'General Inquiry' && (
-            <p className="property-inquiry">Inquiring about: <strong>{propertyName}</strong></p>
-          )}
           
+          {propertyName && (
+            <p className="property-inquiry">
+              Inquiring about: <strong>{propertyName}</strong>
+            </p>
+          )}
+
           {formStatus === 'loading' && (
-            <div className="form-loading">Loading form...</div>
+            <div className="form-loading">
+              <div className="loading-spinner"></div>
+              <p>Loading form...</p>
+            </div>
+          )}
+
+          {formStatus === 'error' && (
+            <div className="form-error">
+              <p>⚠️ Form failed to load. Please call us directly at <a href="tel:9720444418">9720444418</a></p>
+            </div>
           )}
           
           <div 
-            id="hubspot-form-container"
+            id="hubspot-form-direct"
             ref={formContainerRef}
             className="hs-form-container"
+            style={{ display: formStatus === 'loading' || formStatus === 'error' ? 'none' : 'block' }}
           ></div>
         </div>
       </div>
@@ -170,4 +226,4 @@ const Contact = () => {
   );
 };
 
-export default Contact;
+export default ContactHubSpot;
