@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import './HeroSection.css';
 
-const HeroSection = () => {
-  const [activeTab, setActiveTab] = useState('projects');
+const HeroSection = ({ onCategoryChange, selectedCategory }) => {
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -10,9 +9,15 @@ const HeroSection = () => {
   const [priceFrom, setPriceFrom] = useState('');
   const [priceTo, setPriceTo] = useState('');
 
+  const handleTabClick = (tab) => {
+    if (onCategoryChange) {
+      onCategoryChange(tab);
+    }
+  };
+
   const handleSearch = () => {
     console.log('Searching...', { 
-      activeTab, 
+      activeTab: selectedCategory, 
       keyword, 
       location, 
       category, 
@@ -28,20 +33,20 @@ const HeroSection = () => {
         <div className="search-container">
           <div className="search-tabs">
             <button 
-              className={`search-tab ${activeTab === 'projects' ? 'active' : ''}`}
-              onClick={() => setActiveTab('projects')}
+              className={`search-tab ${selectedCategory === 'projects' ? 'active' : ''}`}
+              onClick={() => handleTabClick('projects')}
             >
               Projects
             </button>
             <button 
-              className={`search-tab ${activeTab === 'sale' ? 'active' : ''}`}
-              onClick={() => setActiveTab('sale')}
+              className={`search-tab ${selectedCategory === 'sale' ? 'active' : ''}`}
+              onClick={() => handleTabClick('sale')}
             >
               Sale
             </button>
             <button 
-              className={`search-tab ${activeTab === 'rent' ? 'active' : ''}`}
-              onClick={() => setActiveTab('rent')}
+              className={`search-tab ${selectedCategory === 'rent' ? 'active' : ''}`}
+              onClick={() => handleTabClick('rent')}
             >
               Rent
             </button>

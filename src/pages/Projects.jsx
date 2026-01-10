@@ -18,7 +18,8 @@ const Projects = () => {
       image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80',
       badge: 'BEST',
       type: 'residential',
-      bhk: '2bhk'
+      bhk: '2bhk',
+      floors: '3'
     },
     {
       id: 2,
@@ -29,7 +30,8 @@ const Projects = () => {
       image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80',
       badge: 'PREMIUM',
       type: 'villa',
-      bhk: '3bhk'
+      bhk: '3bhk',
+      floors: '2'
     },
     {
       id: 3,
@@ -40,7 +42,8 @@ const Projects = () => {
       image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80',
       badge: 'FEATURED',
       type: 'apartment',
-      bhk: '2bhk'
+      bhk: '2bhk',
+      floors: '4+'
     },
     {
       id: 4,
@@ -51,7 +54,8 @@ const Projects = () => {
       image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80',
       badge: 'NEW',
       type: 'residential',
-      bhk: '3bhk'
+      bhk: '3bhk',
+      floors: '3'
     },
     {
       id: 5,
@@ -62,7 +66,8 @@ const Projects = () => {
       image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&q=80',
       badge: 'COMMERCIAL',
       type: 'commercial',
-      bhk: ''
+      bhk: '',
+      floors: '4+'
     },
     {
       id: 6,
@@ -73,7 +78,8 @@ const Projects = () => {
       image: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=80',
       badge: 'LUXURY',
       type: 'villa',
-      bhk: '4bhk'
+      bhk: '4bhk',
+      floors: '2'
     },
     {
       id: 7,
@@ -84,7 +90,8 @@ const Projects = () => {
       image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80',
       badge: 'FEATURED',
       type: 'apartment',
-      bhk: '2bhk'
+      bhk: '2bhk',
+      floors: '3'
     },
     {
       id: 8,
@@ -95,7 +102,8 @@ const Projects = () => {
       image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80',
       badge: 'INVESTMENT',
       type: 'land',
-      bhk: ''
+      bhk: '',
+      floors: ''
     },
     {
       id: 9,
@@ -106,12 +114,64 @@ const Projects = () => {
       image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=80',
       badge: 'BEST',
       type: 'residential',
-      bhk: '3bhk'
+      bhk: '3bhk',
+      floors: '4+'
     }
   ]);
 
+  const [filteredProjects, setFilteredProjects] = useState(projectsList);
+
   const handleSearch = () => {
-    console.log('Searching...', { keyword, location, choices, floors, flatRange });
+    let filtered = [...projectsList];
+
+    // Filter by keyword (searches in name and location)
+    if (keyword.trim()) {
+      filtered = filtered.filter(project => 
+        project.name.toLowerCase().includes(keyword.toLowerCase()) ||
+        project.location.toLowerCase().includes(keyword.toLowerCase())
+      );
+    }
+
+    // Filter by location
+    if (location.trim()) {
+      filtered = filtered.filter(project => 
+        project.location.toLowerCase().includes(location.toLowerCase())
+      );
+    }
+
+    // Filter by choices (type/category)
+    if (choices) {
+      filtered = filtered.filter(project => 
+        project.type === choices
+      );
+    }
+
+    // Filter by floors (you can add floors property to projects if needed)
+    if (floors) {
+      filtered = filtered.filter(project => 
+        project.floors === floors
+      );
+    }
+
+    // Filter by flat range (BHK)
+    if (flatRange) {
+      filtered = filtered.filter(project => 
+        project.bhk === flatRange
+      );
+    }
+
+    setFilteredProjects(filtered);
+    console.log('Search results:', filtered.length, 'projects found');
+  };
+
+  // Reset filters
+  const handleReset = () => {
+    setKeyword('');
+    setLocation('');
+    setChoices('');
+    setFloors('');
+    setFlatRange('');
+    setFilteredProjects(projectsList);
   };
 
   return (
@@ -188,11 +248,14 @@ const Projects = () => {
         <button className="search-btn" onClick={handleSearch}>
           Search
         </button>
+        <button className="reset-btn" onClick={handleReset} style={{ marginLeft: '10px' }}>
+          Reset
+        </button>
       </div>
 
       <div className="projects-controls">
         <div className="showing">
-          <button className="dropdown-btn">Showing ▼</button>
+          <p>Showing {filteredProjects.length} of {projectsList.length} projects</p>
         </div>
         <div className="sort-by">
           <button className="dropdown-btn">Sort by ▼</button>
@@ -200,18 +263,25 @@ const Projects = () => {
       </div>
 
       <div className="projects-grid">
-        {projectsList.map(project => (
-          <div key={project.id} className="project-card">
-            <div className="project-badge">{project.badge}</div>
-            <img src={project.image} alt={project.name} />
-            <div className="project-info">
-              <h3>{project.name}</h3>
-              <p>📍 {project.location}</p>
-              <p>Area: {project.area}</p>
-              <p>Starting price: {project.price}</p>
+        {filteredProjects.length > 0 ? (
+          filteredProjects.map(project => (
+            <div key={project.id} className="project-card">
+              <div className="project-badge">{project.badge}</div>
+              <img src={project.image} alt={project.name} />
+              <div className="project-info">
+                <h3>{project.name}</h3>
+                <p>📍 {project.location}</p>
+                <p>Area: {project.area}</p>
+                <p>Starting price: {project.price}</p>
+              </div>
             </div>
+          ))
+        ) : (
+          <div className="no-results">
+            <h3>No projects found</h3>
+            <p>Try adjusting your search filters</p>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

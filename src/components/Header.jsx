@@ -1,31 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
 
 const Header = () => {
   const [wishlistCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const controlNavbar = () => {
+      // Only apply scroll behavior on desktop (width > 768px)
+      if (window.innerWidth <= 768) {
+        setIsVisible(true);
+        return;
+      }
+
+      const currentScrollY = window.scrollY;
+      
+      // Show navbar when at top
+      if (currentScrollY < 10) {
+        setIsVisible(true);
+      }
+      // Hide when scrolling down, show when scrolling up
+      else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', controlNavbar);
+    window.addEventListener('resize', controlNavbar);
+    return () => {
+      window.removeEventListener('scroll', controlNavbar);
+      window.removeEventListener('resize', controlNavbar);
+    };
+  }, [lastScrollY]);
 
   const toggleMobileMenu = () => {
-    if (isMobileMenuOpen) {
-      closeMobileMenu();
-    } else {
-      setIsMobileMenuOpen(true);
-      setIsClosing(false);
-    }
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   const closeMobileMenu = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setIsMobileMenuOpen(false);
-      setIsClosing(false);
-    }, 300); // Match animation duration
+    setIsMobileMenuOpen(false);
   };
 
   return (
-    <header className="header">
+    <header className={`header ${isVisible ? 'visible' : 'hidden'}`}>
       <div className="header-top">
         <div className="header-top-content">
           <div className="header-nav-arrows">
@@ -51,15 +75,19 @@ const Header = () => {
             </div>
           </Link>
           
-          <button className="hamburger-btn" onClick={toggleMobileMenu}>
-            <span className={`hamburger-line ${isMobileMenuOpen ? 'open' : ''}`}></span>
-            <span className={`hamburger-line ${isMobileMenuOpen ? 'open' : ''}`}></span>
-            <span className={`hamburger-line ${isMobileMenuOpen ? 'open' : ''}`}></span>
+          <button 
+            className={`hamburger-menu ${isMobileMenuOpen ? 'active' : ''}`} 
+            onClick={toggleMobileMenu}
+            aria-label="Toggle menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
           </button>
 
           <nav className="main-nav">
             <Link to="/projects">Projects</Link>
-            <a href="#properties">Properties</a>
+            <Link to="/properties">Properties</Link>
             <a href="#agents">Agents</a>
             <a href="#news">News</a>
             <a href="#careers">Careers</a>
@@ -69,27 +97,32 @@ const Header = () => {
           <button className="add-property-btn">
             <span className="plus-icon">+</span> Add Property
           </button>
-
-          {/* Mobile Menu */}
-          <div className={`mobile-menu ${isMobileMenuOpen ? 'active' : ''} ${isClosing ? 'closing' : ''}`}>
-            <div className="mobile-menu-overlay" onClick={closeMobileMenu}></div>
-            <div className="mobile-menu-content">
-              <button className="close-mobile-menu" onClick={closeMobileMenu}>✕</button>
-              <nav className="mobile-nav">
-                <Link to="/projects" onClick={closeMobileMenu}>Projects</Link>
-                <a href="#properties" onClick={closeMobileMenu}>Properties</a>
-                <a href="#agents" onClick={closeMobileMenu}>Agents</a>
-                <a href="#news" onClick={closeMobileMenu}>News</a>
-                <a href="#careers" onClick={closeMobileMenu}>Careers</a>
-                <Link to="/contact" onClick={closeMobileMenu}>Contact</Link>
-                <button className="mobile-add-property-btn">
-                  <span className="plus-icon">+</span> Add Property
-                </button>
-              </nav>
-            </div>
-          </div>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <>
+          <div className="mobile-overlay" onClick={closeMobileMenu}></div>
+          <div className="mobile-menu-panel">
+            <div className="mobile-menu-header">
+              <span className="mobile-menu-title">Menu</span>
+              <button className="close-btn" onClick={closeMobileMenu}>✕</button>
+            </div>
+            <nav className="mobile-nav">
+              <Link to="/projects" onClick={closeMobileMenu}>Projects</Link>
+              <Link to="/properties" onClick={closeMobileMenu}>Properties</Link>
+              <a href="#agents" onClick={closeMobileMenu}>Agents</a>
+              <a href="#news" onClick={closeMobileMenu}>News</a>
+              <a href="#careers" onClick={closeMobileMenu}>Careers</a>
+              <Link to="/contact" onClick={closeMobileMenu}>Contact</Link>
+            </nav>
+            <button className="mobile-add-property-btn" onClick={closeMobileMenu}>
+              <span className="plus-icon">+</span> Add Property
+            </button>
+          </div>
+        </>
+      )}
     </header>
   );
 };

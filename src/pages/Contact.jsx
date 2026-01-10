@@ -41,13 +41,13 @@ const Contact = () => {
         <div className="contact-info">
           <h2>CONTACT INFORMATION</h2>
           <div className="info-item">
-            <p><strong>Address:</strong> SF-23, parasnath bibhab plaza, Alpha-I Commercial Belt, Block A, Alpha I, Greater Noida, Uttar Pradesh 201310</p>
+            <p><strong>Address:</strong> 2A,54/13 Awas Vikas 1st DM Road</p>
           </div>
           <div className="info-item">
-            <p><strong>Hotline:</strong> <a href="tel:8527469336">8527469336</a></p>
+            <p><strong>Hotline:</strong> <a href="tel:9720444418">9720444418</a></p>
           </div>
           <div className="info-item">
-            <p><strong>Email:</strong> <a href="mailto:info@sunshinerealestatepvtltd.com">info@sunshinerealestatepvtltd.com</a></p>
+            <p><strong>Email:</strong> <a href="mailto:harshsingh08.hs@gmail.com">harshsingh08.hs@gmail.com</a></p>
           </div>
         </div>
 
