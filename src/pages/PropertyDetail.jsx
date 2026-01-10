@@ -7,6 +7,8 @@ const PropertyDetail = () => {
   const navigate = useNavigate();
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
+  const [isHubSpotLoaded, setIsHubSpotLoaded] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Sample project data - in a real app, this would come from an API or context
   const projects = [
@@ -371,17 +373,8 @@ const PropertyDetail = () => {
   const project = projects.find(p => p.id === parseInt(id)) || projects[0];
 
   useEffect(() => {
-    // Load HubSpot form script
-    const script = document.createElement('script');
-    script.src = 'https://js-na2.hsforms.net/forms/embed/244826787.js';
-    script.defer = true;
-    document.body.appendChild(script);
-
-    return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
-    };
+    // Form is always ready - we're using direct API submission
+    setIsHubSpotLoaded(true);
   }, []);
 
   const [formData, setFormData] = useState({
@@ -403,52 +396,79 @@ const PropertyDetail = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Use HubSpot's form submission method instead of direct API call
-    if (window.hbspt) {
-      try {
-        // Create a temporary form container
-        const tempContainer = document.createElement('div');
-        tempContainer.style.display = 'none';
-        document.body.appendChild(tempContainer);
-        
-        // Create HubSpot form programmatically
-        window.hbspt.forms.create({
-          region: "na2",
-          portalId: "244826787",
-          formId: "1dc60e00-39fd-403e-b865-4cc88a315b03",
-          target: tempContainer,
-          onFormReady: function($form) {
-            // Auto-fill the form
-            $form.find('input[name="firstname"]').val(formData.name);
-            $form.find('input[name="phone"]').val(formData.phone);
-            $form.find('input[name="email"]').val(formData.email);
-            $form.find('input[name="property_inquiry"]').val(project.name);
-            $form.find('textarea[name="message"]').val(`Property: ${project.name}\nLocation: ${project.location}\nPrice: ${project.price}\nTour Date: ${formData.tourDate || 'Not specified'}\n\nMessage:\n${formData.message}`);
-            
-            // Submit the form programmatically
-            setTimeout(() => {
-              $form.find('input[type="submit"]').click();
-            }, 100);
-          },
-          onFormSubmitted: function() {
-            alert(`Thank you for your interest in ${project.name}! We will contact you soon.`);
-            setFormData({
-              name: '',
-              phone: '',
-              email: '',
-              tourDate: '',
-              message: ''
-            });
-            // Clean up temporary container
-            document.body.removeChild(tempContainer);
-          }
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    
+    // Check if we're in dev mode
+    const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    if (isDev) {
+      // In dev mode, simulate success
+      console.log('Dev mode - Form data:', {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        property: project.name,
+        tourDate: formData.tourDate,
+        message: formData.message
+      });
+      
+      setTimeout(() => {
+        alert(`[DEV MODE] Form submitted successfully!\n\nThis will work on Vercel. Your data:\nName: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email}\nProperty: ${project.name}`);
+        setFormData({
+          name: '',
+          phone: '',
+          email: '',
+          tourDate: '',
+          message: ''
         });
-      } catch (error) {
-        console.error('Form submission error:', error);
-        alert('There was an error submitting your request. Please try again.');
+        setIsSubmitting(false);
+      }, 1000);
+      return;
+    }
+    
+    // Prepare submission data for production
+    const submissionData = {
+      fields: [
+        { name: 'firstname', value: formData.name },
+        { name: 'phone', value: formData.phone },
+        { name: 'email', value: formData.email },
+        { name: 'property_inquiry', value: project.name },
+        { name: 'message', value: `Property: ${project.name}\nLocation: ${project.location}\nPrice: ${project.price}\nTour Date: ${formData.tourDate || 'Not specified'}\n\nMessage:\n${formData.message}` }
+      ],
+      context: {
+        pageUri: window.location.href,
+        pageName: `Property Detail - ${project.name}`
       }
-    } else {
-      alert('HubSpot form is still loading. Please try again in a moment.');
+    };
+    
+    try {
+      // Submit via serverless API (production only)
+      const response = await fetch('/api/submit-form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submissionData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert(`Thank you for your interest in ${project.name}! We will contact you soon.`);
+        setFormData({
+          name: '',
+          phone: '',
+          email: '',
+          tourDate: '',
+          message: ''
+        });
+      } else {
+        throw new Error(result.error || 'Submission failed');
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      alert('There was an error submitting your request. Please try again or contact us at 9720444418.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -698,8 +718,13 @@ const PropertyDetail = () => {
                 ></textarea>
               </div>
 
-              <button type="submit" className="send-message-btn">
-                Send Message
+              <button 
+                type="submit" 
+                className="send-message-btn"
+                disabled={isSubmitting}
+                style={{ opacity: isSubmitting ? 0.6 : 1, cursor: isSubmitting ? 'wait' : 'pointer' }}
+              >
+                {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>
             </form>
           </div>

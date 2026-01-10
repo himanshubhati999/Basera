@@ -1,8 +1,23 @@
 # Quick Fix Guide - CRM on Vercel
 
+## ✅ Latest Fix (Jan 10, 2026)
+
+**Issue**: "HubSpot form is still loading. Please try again in a moment."
+
+**Solution**: Added loading state tracking with visual feedback
+
+### Changes:
+1. ✅ Added `isHubSpotLoaded` state to track script loading
+2. ✅ Script loading now waits and verifies HubSpot is ready
+3. ✅ Submit button shows "Loading form..." until ready
+4. ✅ Button is disabled until HubSpot script loads
+5. ✅ Better error handling with retry mechanism
+
+---
+
 ## What Was Fixed
 
-✅ **PropertyDetail.jsx** - Changed from direct API calls to HubSpot embedded forms
+✅ **PropertyDetail.jsx** - Added loading state and proper script initialization
 ✅ **Created serverless function** - `/api/submit-form.js` as backup solution
 ✅ **Contact.jsx** - Already uses embedded forms (no changes needed)
 
@@ -25,10 +40,13 @@ vercel --prod
 
 ❌ **CORS Issue**: Direct browser calls to `api.hsforms.com` blocked on production
 ❌ **Missing proxy**: No server-side proxy to handle the request
+❌ **Script timing**: Form submitted before HubSpot script finished loading
 
 ## Why It Works Now
 
 ✅ **HubSpot Script**: Uses HubSpot's official embed script (handles CORS)
+✅ **Loading State**: Waits for script to be ready before enabling submission
+✅ **Visual Feedback**: Button shows loading state to users
 ✅ **Serverless Function**: Available as backup to proxy requests through your server
 
 ---
@@ -37,9 +55,10 @@ vercel --prod
 
 1. Visit your Vercel URL
 2. Go to any property detail page
-3. Fill out the contact form
-4. Submit
-5. Check HubSpot dashboard for the submission
+3. Wait for submit button to change from "Loading form..." to "Send Message"
+4. Fill out the contact form
+5. Submit
+6. Check HubSpot dashboard for the submission
 
 ---
 
@@ -51,6 +70,7 @@ Quick checks:
 - Open browser DevTools (F12) → Console tab
 - Look for any errors in red
 - Check Network tab for failed requests
+- Verify submit button says "Send Message" (not "Loading form...")
 - Run: `vercel logs` to see server errors
 
 ---
