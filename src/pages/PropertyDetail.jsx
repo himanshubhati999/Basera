@@ -403,50 +403,52 @@ const PropertyDetail = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Prepare data with property name
-    const submissionData = {
-      fields: [
-        { name: 'firstname', value: formData.name },
-        { name: 'phone', value: formData.phone },
-        { name: 'email', value: formData.email },
-        { name: 'property_inquiry', value: project.name },
-        { name: 'message', value: `Property: ${project.name}\nLocation: ${project.location}\nPrice: ${project.price}\nTour Date: ${formData.tourDate || 'Not specified'}\n\nMessage:\n${formData.message}` }
-      ],
-      context: {
-        pageUri: window.location.href,
-        pageName: `Property Detail - ${project.name}`
-      }
-    };
-    
-    try {
-      // Submit to HubSpot via API
-      const response = await fetch(
-        `https://api.hsforms.com/submissions/v3/integration/submit/244826787/1dc60e00-39fd-403e-b865-4cc88a315b03`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+    // Use HubSpot's form submission method instead of direct API call
+    if (window.hbspt) {
+      try {
+        // Create a temporary form container
+        const tempContainer = document.createElement('div');
+        tempContainer.style.display = 'none';
+        document.body.appendChild(tempContainer);
+        
+        // Create HubSpot form programmatically
+        window.hbspt.forms.create({
+          region: "na2",
+          portalId: "244826787",
+          formId: "1dc60e00-39fd-403e-b865-4cc88a315b03",
+          target: tempContainer,
+          onFormReady: function($form) {
+            // Auto-fill the form
+            $form.find('input[name="firstname"]').val(formData.name);
+            $form.find('input[name="phone"]').val(formData.phone);
+            $form.find('input[name="email"]').val(formData.email);
+            $form.find('input[name="property_inquiry"]').val(project.name);
+            $form.find('textarea[name="message"]').val(`Property: ${project.name}\nLocation: ${project.location}\nPrice: ${project.price}\nTour Date: ${formData.tourDate || 'Not specified'}\n\nMessage:\n${formData.message}`);
+            
+            // Submit the form programmatically
+            setTimeout(() => {
+              $form.find('input[type="submit"]').click();
+            }, 100);
           },
-          body: JSON.stringify(submissionData)
-        }
-      );
-      
-      if (response.ok) {
-        alert(`Thank you for your interest in ${project.name}! We will contact you soon.`);
-        setFormData({
-          name: '',
-          phone: '',
-          email: '',
-          tourDate: '',
-          message: ''
+          onFormSubmitted: function() {
+            alert(`Thank you for your interest in ${project.name}! We will contact you soon.`);
+            setFormData({
+              name: '',
+              phone: '',
+              email: '',
+              tourDate: '',
+              message: ''
+            });
+            // Clean up temporary container
+            document.body.removeChild(tempContainer);
+          }
         });
-      } else {
-        console.error('Form submission failed:', await response.text());
+      } catch (error) {
+        console.error('Form submission error:', error);
         alert('There was an error submitting your request. Please try again.');
       }
-    } catch (error) {
-      console.error('Form submission error:', error);
-      alert('There was an error submitting your request. Please try again.');
+    } else {
+      alert('HubSpot form is still loading. Please try again in a moment.');
     }
   };
 
