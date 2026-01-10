@@ -7,60 +7,82 @@ const Contact = () => {
   const propertyName = location.state?.propertyName || 'General Inquiry';
 
   useEffect(() => {
-    // Load HubSpot forms embed script
+    // Clear any existing form first
+    const container = document.getElementById('hubspot-form-container');
+    if (container) {
+      container.innerHTML = '';
+    }
+
+    // Load HubSpot forms embed script - using the exact script from your embed code
     const script = document.createElement('script');
-    script.src = 'https://js-na2.hsforms.net/forms/embed/v2.js';
-    script.charset = 'utf-8';
-    script.type = 'text/javascript';
-    script.async = true;
+    script.src = 'https://js-na2.hsforms.net/forms/embed/244826787.js';
+    script.defer = true;
     
     script.onload = () => {
-      console.log('HubSpot script loaded successfully');
+      console.log('✅ HubSpot script loaded successfully');
+      console.log('Window.hbspt available:', !!window.hbspt);
       
-      // Initialize the form using the embedded approach
-      if (window.hbspt) {
-        console.log('Creating HubSpot form...');
-        window.hbspt.forms.create({
-          region: "na2",
-          portalId: "244826787",
-          formId: "1dc60e00-39fd-403e-b865-4cc88a315b03",
-          target: "#hubspot-form-container",
-          onFormReady: function($form) {
-            console.log('HubSpot form is ready');
-            
-            // Set the property name if available
-            if (propertyName !== 'General Inquiry') {
-              const propertyField = $form.find('input[name="property_inquiry"]');
-              if (propertyField.length) {
-                propertyField.val(propertyName);
+      // Give HubSpot a moment to initialize
+      setTimeout(() => {
+        if (window.hbspt && window.hbspt.forms) {
+          console.log('✅ Creating HubSpot form with ID: 1dc60e00-39fd-403e-b865-4cc88a315b03');
+          
+          try {
+            window.hbspt.forms.create({
+              region: "na2",
+              portalId: "244826787",
+              formId: "1dc60e00-39fd-403e-b865-4cc88a315b03",
+              target: "#hubspot-form-container",
+              onFormReady: function($form) {
+                console.log('✅ HubSpot form is ready and visible!');
+                console.log('Form element:', $form);
+                
+                // Set the property name if available
+                if (propertyName !== 'General Inquiry') {
+                  const propertyField = $form.find('input[name="property_inquiry"]');
+                  if (propertyField.length) {
+                    propertyField.val(propertyName);
+                    console.log('Set property inquiry to:', propertyName);
+                  }
+                }
+              },
+              onFormSubmit: function($form, data) {
+                console.log('🚀 Form is being submitted...');
+                console.log('Form data:', data);
+                console.log('Property:', propertyName);
+              },
+              onFormSubmitted: function($form, data) {
+                console.log('✅ Form submission SUCCESSFUL!');
+                console.log('Submitted data:', data);
+                alert('Thank you! Your message has been sent to our CRM.');
+              },
+              onFormSubmitError: function(error) {
+                console.error('❌ Form submission ERROR:', error);
+                alert('There was an error submitting the form. Please try again.');
               }
-            }
-          },
-          onFormSubmit: function() {
-            console.log('Form submitted for property:', propertyName);
-          },
-          onFormSubmitted: function() {
-            console.log('Form submission complete');
+            });
+          } catch (error) {
+            console.error('❌ Error creating form:', error);
           }
-        });
-      } else {
-        console.error('HubSpot object not found');
-      }
+        } else {
+          console.error('❌ HubSpot object not available after script load');
+        }
+      }, 500);
     };
     
-    script.onerror = () => {
-      console.error('Failed to load HubSpot script');
+    script.onerror = (error) => {
+      console.error('❌ Failed to load HubSpot script:', error);
     };
 
-    document.head.appendChild(script);
+    document.body.appendChild(script);
 
     return () => {
       // Cleanup
-      const container = document.getElementById('hubspot-form-container');
-      if (container) {
-        container.innerHTML = '';
+      const cleanContainer = document.getElementById('hubspot-form-container');
+      if (cleanContainer) {
+        cleanContainer.innerHTML = '';
       }
-      if (script.parentNode) {
+      if (script && script.parentNode) {
         script.parentNode.removeChild(script);
       }
     };
