@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Projects from './pages/Projects';
 import Properties from './pages/Properties';
 import Contact from './pages/Contact';
+import PropertyDetail from './pages/PropertyDetail';
 import './App.css';
 
 function App() {
@@ -16,7 +17,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:id" element={<PropertyDetail />} />
           <Route path="/properties" element={<Properties />} />
+          <Route path="/properties/:id" element={<PropertyDetail />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>
         <Footer />

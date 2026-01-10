@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Properties.css';
 
 const Properties = () => {
@@ -329,20 +330,22 @@ const Properties = () => {
       <div className="properties-grid">
         {filteredProperties.length > 0 ? (
           filteredProperties.map(property => (
-            <div key={property.id} className="property-card">
-              <div className="property-badge">{property.badge}</div>
-              <img src={property.image} alt={property.name} />
-              <div className="property-info">
-                <h3>{property.name}</h3>
-                <p>📍 {property.location}</p>
-                <p>Area: {property.area}</p>
-                {property.bedrooms && <p>🛏️ {property.bedrooms} BHK | 🚿 {property.bathrooms} Bath</p>}
-                <p className="property-price">{property.price}</p>
-                <span className={`status-badge ${property.status}`}>
-                  {property.status === 'ready-to-move' ? 'Ready to Move' : 'Under Construction'}
-                </span>
+            <Link to={`/properties/${property.id}`} key={property.id} className="property-card-link">
+              <div className="property-card">
+                <div className="property-badge">{property.badge}</div>
+                <img src={property.image} alt={property.name} />
+                <div className="property-info">
+                  <h3>{property.name}</h3>
+                  <p>📍 {property.location}</p>
+                  <p>Area: {property.area}</p>
+                  {property.bedrooms && <p>🛏️ {property.bedrooms} BHK | 🚿 {property.bathrooms} Bath</p>}
+                  <p className="property-price">{property.price}</p>
+                  <span className={`status-badge ${property.status}`}>
+                    {property.status === 'ready-to-move' ? 'Ready to Move' : 'Under Construction'}
+                  </span>
+                </div>
               </div>
-            </div>
+            </Link>
           ))
         ) : (
           <div className="no-results">

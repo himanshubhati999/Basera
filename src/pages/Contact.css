@@ -118,6 +118,22 @@
   letter-spacing: -0.5px;
 }
 
+.property-inquiry {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  padding: 15px 20px;
+  border-radius: 8px;
+  border-left: 4px solid #ff6b00;
+  margin-bottom: 25px;
+  font-size: 15px;
+  color: #333;
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.1);
+}
+
+.property-inquiry strong {
+  color: #ff0000;
+  font-weight: 700;
+}
+
 .contact-form {
   display: flex;
   flex-direction: column;

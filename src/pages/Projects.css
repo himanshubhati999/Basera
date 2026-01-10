@@ -177,17 +177,27 @@
   gap: 30px;
 }
 
+.project-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.project-card-link:hover {
+  transform: translateY(-5px);
+}
+
+.project-card-link:hover .project-card {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
 .project-card {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s;
   position: relative;
-}
-
-.project-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  background: white;
 }
 
 .project-badge {

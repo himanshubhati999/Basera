@@ -1,33 +1,89 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import './Contact.css';
 
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    address: '',
-    phone: '',
-    subject: '',
-    message: ''
-  });
-  const [agreed, setAgreed] = useState(false);
+  const location = useLocation();
+  const propertyName = location.state?.propertyName || 'General Inquiry';
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!agreed) {
-      alert('Please agree to the Terms and Privacy Policy');
-      return;
+  useEffect(() => {
+    // Clear any existing form content first
+    const formContainer = document.getElementById('hubspot-form-container');
+    if (formContainer) {
+      formContainer.innerHTML = '';
     }
-    console.log('Form submitted:', formData);
-    // Add your form submission logic here
-  };
+
+    // Load HubSpot form script
+    const script = document.createElement('script');
+    script.src = 'https://js-na2.hsforms.net/forms/embed/244826787.js';
+    script.defer = true;
+    script.onload = () => {
+      // Create HubSpot form with property name
+      if (window.hbspt) {
+        // Generate unique submission ID
+        const submissionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        
+        window.hbspt.forms.create({
+          region: "na2",
+          portalId: "244826787",
+          formId: "1dc60e00-39fd-403e-b865-4cc88a315b03",
+          target: "#hubspot-form-container",
+          onFormReady: function($form) {
+            // Set the property name in a hidden field or custom field
+            // You'll need to create a custom property in HubSpot called "property_inquiry" or similar
+            const propertyField = $form.find('input[name="property_inquiry"]');
+            if (propertyField.length) {
+              propertyField.val(propertyName);
+            }
+            
+            // Add submission ID to help track individual submissions
+            const submissionIdField = $form.find('input[name="submission_id"]');
+            if (submissionIdField.length) {
+              submissionIdField.val(submissionId);
+            }
+          },
+          onFormSubmit: function($form) {
+            // Capture the name at submission time
+            const nameField = $form.find('input[name="firstname"]');
+            const lastNameField = $form.find('input[name="lastname"]');
+            const submittedNameField = $form.find('input[name="submitted_name"]');
+            
+            if (nameField.length && submittedNameField.length) {
+              const fullName = nameField.val() + (lastNameField.length ? ' ' + lastNameField.val() : '');
+              submittedNameField.val(fullName);
+            }
+            
+            console.log('Form submitted for property:', propertyName);
+            // Reset form after a short delay
+            setTimeout(() => {
+              if ($form && $form.length) {
+                const formElement = $form[0];
+                if (formElement && typeof formElement.reset === 'function') {
+                  formElement.reset();
+                }
+              }
+            }, 1000);
+          },
+          onFormSubmitted: function() {
+            // Additional cleanup after submission is complete
+            console.log('Form submission complete');
+          }
+        });
+      }
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup: Clear form container and remove script
+      const container = document.getElementById('hubspot-form-container');
+      if (container) {
+        container.innerHTML = '';
+      }
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, [propertyName]);
 
   return (
     <div className="contact-page">
@@ -53,68 +109,13 @@ const Contact = () => {
 
         <div className="contact-form-section">
           <h2>HOW WE CAN HELP YOU?</h2>
-          <form onSubmit={handleSubmit} className="contact-form">
-            <div className="form-row">
-              <input
-                type="text"
-                name="name"
-                placeholder="Name *"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Email *"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <input
-              type="text"
-              name="address"
-              placeholder="Address"
-              value={formData.address}
-              onChange={handleChange}
-            />
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Phone"
-              value={formData.phone}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="subject"
-              placeholder="Subject"
-              value={formData.subject}
-              onChange={handleChange}
-            />
-            <textarea
-              name="message"
-              placeholder="Message *"
-              value={formData.message}
-              onChange={handleChange}
-              rows="6"
-              required
-            ></textarea>
-            <div className="form-checkbox">
-              <input
-                type="checkbox"
-                id="agree"
-                checked={agreed}
-                onChange={(e) => setAgreed(e.target.checked)}
-                required
-              />
-              <label htmlFor="agree">
-                I agree to the <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>
-              </label>
-            </div>
-            <button type="submit" className="submit-btn">Send message</button>
-          </form>
+          {propertyName !== 'General Inquiry' && (
+            <p className="property-inquiry">Inquiring about: <strong>{propertyName}</strong></p>
+          )}
+          <div 
+            id="hubspot-form-container"
+            className="hs-form-frame"
+          ></div>
         </div>
       </div>
 

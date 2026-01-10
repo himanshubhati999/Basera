@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Projects.css';
 
 const Projects = () => {
@@ -265,16 +266,18 @@ const Projects = () => {
       <div className="projects-grid">
         {filteredProjects.length > 0 ? (
           filteredProjects.map(project => (
-            <div key={project.id} className="project-card">
-              <div className="project-badge">{project.badge}</div>
-              <img src={project.image} alt={project.name} />
-              <div className="project-info">
-                <h3>{project.name}</h3>
-                <p>📍 {project.location}</p>
-                <p>Area: {project.area}</p>
-                <p>Starting price: {project.price}</p>
+            <Link to={`/projects/${project.id}`} key={project.id} className="project-card-link">
+              <div className="project-card">
+                <div className="project-badge">{project.badge}</div>
+                <img src={project.image} alt={project.name} />
+                <div className="project-info">
+                  <h3>{project.name}</h3>
+                  <p>📍 {project.location}</p>
+                  <p>Area: {project.area}</p>
+                  <p>Starting price: {project.price}</p>
+                </div>
               </div>
-            </div>
+            </Link>
           ))
         ) : (
           <div className="no-results">

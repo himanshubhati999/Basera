@@ -177,6 +177,12 @@
   gap: 30px;
 }
 
+.property-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .property-card {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
