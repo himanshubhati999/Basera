@@ -1,115 +1,113 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import './Contact.css';
 
 const Contact = () => {
   const location = useLocation();
-  const propertyName = location.state?.propertyName || 'General Inquiry';
-  const formContainerRef = useRef(null);
-  const scriptLoadedRef = useRef(false);
-  const [formStatus, setFormStatus] = useState('loading');
+  const propertyName = location.state?.propertyName || '';
+  const formRef = useRef(null);
+  const [formLoaded, setFormLoaded] = useState(false);
+
+  const createForm = useCallback(() => {
+    if (!window.hbspt || !window.hbspt.forms || !formRef.current) {
+      console.error('❌ Cannot create form - hbspt not ready or ref not available');
+      return;
+    }
+
+    // Prevent double form creation
+    if (formLoaded) {
+      console.log('⚠️ Form already loaded, skipping...');
+      return;
+    }
+
+    try {
+      // Clear any existing form
+      formRef.current.innerHTML = '';
+
+      window.hbspt.forms.create({
+        region: "na2",
+        portalId: "244826787",
+        formId: "1dc60e00-39fd-403e-b865-4cc88a315b03",
+        target: "#hubspot-form-container",
+        onFormReady: function($form) {
+          console.log('✅ HubSpot form rendered successfully');
+          setFormLoaded(true);
+          
+          // Pre-fill property field if available
+          if (propertyName) {
+            setTimeout(() => {
+              const propertyField = $form.find('input[name="property_inquiry"]');
+              if (propertyField.length) {
+                propertyField.val(propertyName);
+                console.log('✅ Pre-filled property:', propertyName);
+              }
+            }, 100);
+          }
+        },
+        onFormSubmit: function() {
+          console.log('🚀 Form is being submitted to HubSpot');
+        },
+        onFormSubmitted: function() {
+          console.log('✅ Form submitted successfully to HubSpot CRM');
+          alert('✅ Thank you! Your message has been received. We will contact you shortly.');
+        }
+      });
+    } catch (error) {
+      console.error('❌ Error creating HubSpot form:', error);
+    }
+  }, [propertyName, formLoaded]);
 
   useEffect(() => {
-    const containerElement = formContainerRef.current;
+    // Capture ref value when effect runs
+    const currentFormRef = formRef.current;
     
-    // Prevent multiple script loads
-    if (scriptLoadedRef.current) {
+    // Check if script already exists (with correct URL pattern)
+    const existingScript = document.querySelector('script[src*="js-na2.hsforms.net/forms/embed/244826787.js"]');
+    
+    if (existingScript && window.hbspt) {
+      // Script already loaded, create form immediately
       createForm();
       return;
     }
 
-    // Load HubSpot script
-    const loadHubSpotScript = () => {
-      // Check if script already exists
-      const existingScript = document.querySelector('script[src*="hsforms.net"]');
-      if (existingScript) {
-        scriptLoadedRef.current = true;
-        createForm();
-        return;
-      }
+    // Load HubSpot embed script
+    const script = document.createElement('script');
+    script.src = 'https://js-na2.hsforms.net/forms/embed/244826787.js';
+    script.charset = 'utf-8';
+    script.type = 'text/javascript';
+    
+    script.onload = () => {
+      console.log('✅ HubSpot script loaded successfully');
+      // Wait for hbspt object to be available
+      const checkHbspt = setInterval(() => {
+        if (window.hbspt && window.hbspt.forms) {
+          clearInterval(checkHbspt);
+          createForm();
+        }
+      }, 100);
 
-      const script = document.createElement('script');
-      script.src = 'https://js-na2.hsforms.net/forms/embed/v3.js';
-      script.charset = 'utf-8';
-      script.type = 'text/javascript';
-      
-      script.onload = () => {
-        console.log('✅ HubSpot script loaded');
-        scriptLoadedRef.current = true;
-        setFormStatus('ready');
-        createForm();
-      };
-      
-      script.onerror = () => {
-        console.error('❌ Failed to load HubSpot script');
-        setFormStatus('error');
-      };
-
-      document.body.appendChild(script);
+      // Timeout after 5 seconds
+      setTimeout(() => {
+        clearInterval(checkHbspt);
+        if (!window.hbspt) {
+          console.error('❌ HubSpot object not available after 5 seconds');
+        }
+      }, 5000);
     };
-
-    // Create form function
-    const createForm = () => {
-      if (!window.hbspt || !formContainerRef.current) {
-        setTimeout(createForm, 100);
-        return;
-      }
-
-      // Clear container
-      formContainerRef.current.innerHTML = '';
-
-      try {
-        window.hbspt.forms.create({
-          region: "na2",
-          portalId: "244826787",
-          formId: "1dc60e00-39fd-403e-b865-4cc88a315b03",
-          target: "#hubspot-form-container",
-          onFormReady: function($form) {
-            console.log('✅ Form ready');
-            setFormStatus('loaded');
-            
-            // Pre-fill property name if available
-            if (propertyName !== 'General Inquiry') {
-              setTimeout(() => {
-                const propertyField = $form.find('input[name="property_inquiry"]');
-                if (propertyField.length) {
-                  propertyField.val(propertyName);
-                }
-              }, 100);
-            }
-          },
-          onFormSubmit: function() {
-            console.log('🚀 Submitting form...');
-            setFormStatus('submitting');
-          },
-          onFormSubmitted: function() {
-            console.log('✅ Form submitted successfully');
-            setFormStatus('success');
-            setTimeout(() => {
-              alert('Thank you! Your message has been received.');
-            }, 100);
-          },
-          onFormSubmitError: function(error) {
-            console.error('❌ Submission error:', error);
-            setFormStatus('error');
-            alert('There was an error. Please try again.');
-          }
-        });
-      } catch (error) {
-        console.error('❌ Error creating form:', error);
-        setFormStatus('error');
-      }
+    
+    script.onerror = () => {
+      console.error('❌ Failed to load HubSpot script');
     };
-
-    loadHubSpotScript();
+    
+    document.body.appendChild(script);
 
     return () => {
-      // Cleanup
-      if (containerElement) {
-        containerElement.innerHTML = '';
+      // Use captured ref value in cleanup
+      if (currentFormRef) {
+        currentFormRef.innerHTML = '';
       }
     };
-  }, [propertyName]);
+  }, [createForm]);
 
   return (
     <div className="contact-page">
@@ -131,23 +129,36 @@ const Contact = () => {
           <div className="info-item">
             <p><strong>Email:</strong> <a href="mailto:harshsingh08.hs@gmail.com">harshsingh08.hs@gmail.com</a></p>
           </div>
+          <div className="info-section">
+            <h3>Business Hours</h3>
+            <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
+            <p>Saturday: 10:00 AM - 4:00 PM</p>
+            <p>Sunday: Closed</p>
+          </div>
         </div>
 
         <div className="contact-form-section">
           <h2>HOW WE CAN HELP YOU?</h2>
-          {propertyName !== 'General Inquiry' && (
+          {propertyName && (
             <p className="property-inquiry">Inquiring about: <strong>{propertyName}</strong></p>
           )}
           
-          {formStatus === 'loading' && (
-            <div className="form-loading">Loading form...</div>
-          )}
-          
+          {/* HubSpot Form Container */}
           <div 
             id="hubspot-form-container"
-            ref={formContainerRef}
-            className="hs-form-container"
-          ></div>
+            ref={formRef}
+            style={{ minHeight: '400px' }}
+          >
+            {!formLoaded && (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px', 
+                color: '#666' 
+              }}>
+                Loading form...
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

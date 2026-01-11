@@ -1,13 +1,7 @@
-// Complete CRM Backend API - Handles form submissions with dual storage
-// Stores in local JSON file AND syncs to HubSpot CRM
+// Complete CRM Backend API - Handles form submissions with local storage
 
 import fs from 'fs';
 import path from 'path';
-
-// HubSpot Configuration
-const HUBSPOT_PORTAL_ID = '244826787';
-const HUBSPOT_FORM_ID = '1dc60e00-39fd-403e-b865-4cc88a315b03';
-const HUBSPOT_API_URL = `https://api.hsforms.com/submissions/v3/integration/submit/${HUBSPOT_PORTAL_ID}/${HUBSPOT_FORM_ID}`;
 
 // Local storage path for submissions
 const STORAGE_DIR = '/tmp/crm-submissions';
@@ -46,37 +40,6 @@ function saveSubmission(submission) {
   } catch (error) {
     console.error('Error saving submission:', error);
     return false;
-  }
-}
-
-// Submit to HubSpot CRM
-async function submitToHubSpot(formData) {
-  try {
-    const response = await fetch(HUBSPOT_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fields: formData.fields,
-        context: {
-          pageUri: formData.pageUri || '',
-          pageName: formData.pageName || 'Contact Form'
-        }
-      })
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      return { success: true, data };
-    } else {
-      const errorText = await response.text();
-      console.error('HubSpot API error:', errorText);
-      return { success: false, error: errorText };
-    }
-  } catch (error) {
-    console.error('HubSpot submission error:', error);
-    return { success: false, error: error.message };
   }
 }
 
@@ -154,25 +117,8 @@ export default async function handler(req, res) {
         source: 'website'
       };
 
-      // Save to local storage first (guaranteed)
+      // Save to local storage
       const localSaved = saveSubmission(submission);
-
-      // Format for HubSpot
-      const hubspotData = {
-        fields: [
-          { name: 'firstname', value: name.split(' ')[0] },
-          { name: 'lastname', value: name.split(' ').slice(1).join(' ') || name },
-          { name: 'email', value: email },
-          { name: 'phone', value: phone },
-          { name: 'property_inquiry', value: property },
-          { name: 'message', value: message }
-        ],
-        pageUri: req.headers.referer || '',
-        pageName: 'Contact Form'
-      };
-
-      // Submit to HubSpot (async, don't block response)
-      const hubspotResult = await submitToHubSpot(hubspotData);
 
       // Send email notification (async)
       sendEmailNotification(submission).catch(console.error);
@@ -186,8 +132,7 @@ export default async function handler(req, res) {
           timestamp: submission.timestamp
         },
         storage: {
-          local: localSaved,
-          hubspot: hubspotResult.success
+          local: localSaved
         }
       });
 

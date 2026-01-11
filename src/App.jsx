@@ -5,7 +5,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
 import Properties from './pages/Properties';
-import ContactHubSpot from './pages/ContactHubSpot';
+import Contact from './pages/Contact';
 import PropertyDetail from './pages/PropertyDetail';
 import AdminDashboard from './pages/AdminDashboard';
 import './App.css';
@@ -21,7 +21,7 @@ function App() {
           <Route path="/projects/:id" element={<PropertyDetail />} />
           <Route path="/properties" element={<Properties />} />
           <Route path="/properties/:id" element={<PropertyDetail />} />
-          <Route path="/contact" element={<ContactHubSpot />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
         <Footer />
