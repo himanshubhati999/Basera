@@ -1,15 +1,71 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Projects.css';
+import '../components/ButtonGlare.css';
+import ShinyText from '../components/ShinyText';
 
 const Projects = () => {
+  const { isAuthenticated, toggleWishlist, isInWishlist } = useAuth();
+  const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
   const [choices, setChoices] = useState('');
   const [floors, setFloors] = useState('');
   const [flatRange, setFlatRange] = useState('');
 
-  const [projectsList] = useState([
+  const [projectsList, setProjectsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch properties from database
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5000/api/properties');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch properties');
+      }
+      
+      const data = await response.json();
+      
+      // Transform backend data to match frontend format and filter only projects
+      const transformedProjects = data.properties
+        .filter(prop => prop.propertyType === 'project') // Only show projects
+        .map(prop => ({
+          id: prop._id,
+          name: prop.title,
+          location: prop.location?.city || prop.location?.address || 'Location not specified',
+          area: prop.area ? `${prop.area} sqm` : 'Area not specified',
+          price: `₹${prop.price.toLocaleString('en-IN')}`,
+          image: prop.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80',
+          badge: prop.status === 'available' ? 'AVAILABLE' : 'SOLD',
+          type: prop.propertyType?.toLowerCase() || 'residential',
+          bhk: prop.bedrooms ? `${prop.bedrooms}bhk` : '',
+          floors: '3',
+          status: 'sale'
+        }));
+      
+      setProjectsList(transformedProjects);
+      setFilteredProjects(transformedProjects);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching projects:', err);
+      setError(err.message);
+      // Keep empty array if fetch fails
+      setProjectsList([]);
+      setFilteredProjects([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const [oldProjectsList] = useState([
     {
       id: 1,
       name: 'Yamuna Sector 20',
@@ -20,7 +76,8 @@ const Projects = () => {
       badge: 'BEST',
       type: 'residential',
       bhk: '2bhk',
-      floors: '3'
+      floors: '3',
+      status: 'sale'
     },
     {
       id: 2,
@@ -32,7 +89,8 @@ const Projects = () => {
       badge: 'PREMIUM',
       type: 'villa',
       bhk: '3bhk',
-      floors: '2'
+      floors: '2',
+      status: 'sale'
     },
     {
       id: 3,
@@ -44,7 +102,8 @@ const Projects = () => {
       badge: 'FEATURED',
       type: 'apartment',
       bhk: '2bhk',
-      floors: '4+'
+      floors: '4+',
+      status: 'rent'
     },
     {
       id: 4,
@@ -56,7 +115,8 @@ const Projects = () => {
       badge: 'NEW',
       type: 'residential',
       bhk: '3bhk',
-      floors: '3'
+      floors: '3',
+      status: 'sale'
     },
     {
       id: 5,
@@ -68,7 +128,8 @@ const Projects = () => {
       badge: 'COMMERCIAL',
       type: 'commercial',
       bhk: '',
-      floors: '4+'
+      floors: '4+',
+      status: 'rent'
     },
     {
       id: 6,
@@ -80,7 +141,8 @@ const Projects = () => {
       badge: 'LUXURY',
       type: 'villa',
       bhk: '4bhk',
-      floors: '2'
+      floors: '2',
+      status: 'sale'
     },
     {
       id: 7,
@@ -92,7 +154,8 @@ const Projects = () => {
       badge: 'FEATURED',
       type: 'apartment',
       bhk: '2bhk',
-      floors: '3'
+      floors: '3',
+      status: 'rent'
     },
     {
       id: 8,
@@ -104,7 +167,8 @@ const Projects = () => {
       badge: 'INVESTMENT',
       type: 'land',
       bhk: '',
-      floors: ''
+      floors: '',
+      status: 'sale'
     },
     {
       id: 9,
@@ -116,11 +180,12 @@ const Projects = () => {
       badge: 'BEST',
       type: 'residential',
       bhk: '3bhk',
-      floors: '4+'
+      floors: '4+',
+      status: 'rent'
     }
   ]);
 
-  const [filteredProjects, setFilteredProjects] = useState(projectsList);
+  const [filteredProjects, setFilteredProjects] = useState([]);
 
   const handleSearch = () => {
     let filtered = [...projectsList];
@@ -175,10 +240,35 @@ const Projects = () => {
     setFilteredProjects(projectsList);
   };
 
+  const handleWishlistToggle = (e, projectId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/projects' } });
+      return;
+    }
+
+    const result = toggleWishlist(projectId);
+    if (!result.success && result.error) {
+      alert(result.error);
+    }
+  };
+
   return (
     <div className="projects-page">
       <div className="projects-hero">
-        <h1>DISCOVER OUR PROJECTS</h1>
+        <h1>
+          <ShinyText
+            text="DISCOVER OUR PROJECTS"
+            speed={3}
+            delay={0}
+            color="#ffffff"
+            shineColor="#ff0000"
+            spread={120}
+            direction="left"
+          />
+        </h1>
         <p>We make the best choices with the hottest and most prestigious projects, please visit the details below to find out more</p>
         <div className="breadcrumb">
           <a href="/">Home</a> / <span>Projects</span>
@@ -246,10 +336,10 @@ const Projects = () => {
           </select>
         </div>
 
-        <button className="search-btn" onClick={handleSearch}>
+        <button className="search-btn btn-glare" onClick={handleSearch}>
           Search
         </button>
-        <button className="reset-btn" onClick={handleReset} style={{ marginLeft: '10px' }}>
+        <button className="reset-btn btn-glare" onClick={handleReset} style={{ marginLeft: '10px' }}>
           Reset
         </button>
       </div>
@@ -259,16 +349,33 @@ const Projects = () => {
           <p>Showing {filteredProjects.length} of {projectsList.length} projects</p>
         </div>
         <div className="sort-by">
-          <button className="dropdown-btn">Sort by ▼</button>
+          <button className="dropdown-btn btn-glare">Sort by ▼</button>
         </div>
       </div>
 
       <div className="projects-grid">
-        {filteredProjects.length > 0 ? (
+        {loading ? (
+          <div className="loading-state">
+            <p>Loading projects...</p>
+          </div>
+        ) : error ? (
+          <div className="error-state">
+            <h3>Error loading projects</h3>
+            <p>{error}</p>
+            <button onClick={fetchProjects} className="btn-glare">Retry</button>
+          </div>
+        ) : filteredProjects.length > 0 ? (
           filteredProjects.map(project => (
             <Link to={`/projects/${project.id}`} key={project.id} className="project-card-link">
               <div className="project-card">
                 <div className="project-badge">{project.badge}</div>
+                <button 
+                  className={`wishlist-heart ${isInWishlist(project.id) ? 'active' : ''}`}
+                  onClick={(e) => handleWishlistToggle(e, project.id)}
+                  title={isInWishlist(project.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  {isInWishlist(project.id) ? '❤️' : '🤍'}
+                </button>
                 <img src={project.image} alt={project.name} />
                 <div className="project-info">
                   <h3>{project.name}</h3>

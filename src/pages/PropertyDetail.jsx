@@ -1,14 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './PropertyDetail.css';
+import ShinyText from '../components/ShinyText';
+import '../components/ButtonGlare.css';
 
 const PropertyDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated, toggleWishlist, isInWishlist } = useAuth();
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Sample project data - in a real app, this would come from an API or context
+  // Fetch property data from database
+  useEffect(() => {
+    const fetchProperty = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`http://localhost:5000/api/properties/${id}`);
+        
+        if (!response.ok) {
+          throw new Error('Property not found');
+        }
+        
+        const data = await response.json();
+        setProperty(data.property);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching property:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperty();
+  }, [id]);
+
+  // Scroll to top when component mounts or id changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
+  // Sample project data - used as fallback
   const projects = [
     {
       id: 1,
@@ -367,8 +405,29 @@ const PropertyDetail = () => {
     }
   ];
 
-  // Find the current project
-  const project = projects.find(p => p.id === parseInt(id)) || projects[0];
+  // Transform database property to match expected format
+  const displayProperty = property ? {
+    id: property._id,
+    name: property.title,
+    location: property.location?.city || property.location?.address || 'Location not specified',
+    date: new Date(property.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    area: property.area ? `${property.area.value} ${property.area.unit}` : 'Area not specified',
+    price: `₹${(property.price / 100000).toFixed(0)} Lac`,
+    status: property.status === 'available' ? 'Available' : 'Sold',
+    category: property.propertyType || 'Property',
+    image: property.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80',
+    gallery: property.images || ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80'],
+    description: {
+      intro: property.description || 'No description available.',
+      location: `Located in ${property.location?.city || 'a prime location'}, this property offers excellent connectivity and amenities.`,
+      layout: `This ${property.propertyType} features ${property.bedrooms} bedrooms and ${property.bathrooms} bathrooms, spanning ${property.area?.value} ${property.area?.unit}.`,
+      ideal: ['Modern living', 'Prime location', 'Great investment'],
+      conclusion: 'A perfect choice for your next home or investment.'
+    },
+    features: property.amenities?.map(amenity => ({ icon: '✓', name: amenity })) || [],
+    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3511.123456789!2d77.7123456!3d28.1234567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDA3JzI0LjQiTiA3N8KwNDInNDQuNCJF!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+  } : (projects.find(p => p.id === parseInt(id)) || projects[0]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -401,13 +460,13 @@ const PropertyDetail = () => {
         name: formData.name,
         phone: formData.phone,
         email: formData.email,
-        property: project.name,
+        property: displayProperty.name,
         tourDate: formData.tourDate,
         message: formData.message
       });
       
       setTimeout(() => {
-        alert(`[DEV MODE] Form submitted successfully!\n\nThis will work on Vercel. Your data:\nName: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email}\nProperty: ${project.name}`);
+        alert(`[DEV MODE] Form submitted successfully!\n\nThis will work on Vercel. Your data:\nName: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email}\nProperty: ${displayProperty.name}`);
         setFormData({
           name: '',
           phone: '',
@@ -426,12 +485,12 @@ const PropertyDetail = () => {
         { name: 'firstname', value: formData.name },
         { name: 'phone', value: formData.phone },
         { name: 'email', value: formData.email },
-        { name: 'property_inquiry', value: project.name },
-        { name: 'message', value: `Property: ${project.name}\nLocation: ${project.location}\nPrice: ${project.price}\nTour Date: ${formData.tourDate || 'Not specified'}\n\nMessage:\n${formData.message}` }
+        { name: 'property_inquiry', value: displayProperty.name },
+        { name: 'message', value: `Property: ${displayProperty.name}\nLocation: ${displayProperty.location}\nPrice: ${displayProperty.price}\nTour Date: ${formData.tourDate || 'Not specified'}\n\nMessage:\n${formData.message}` }
       ],
       context: {
         pageUri: window.location.href,
-        pageName: `Property Detail - ${project.name}`
+        pageName: `Property Detail - ${displayProperty.name}`
       }
     };
     
@@ -446,7 +505,7 @@ const PropertyDetail = () => {
       const result = await response.json();
       
       if (result.success) {
-        alert(`Thank you for your interest in ${project.name}! We will contact you soon.`);
+        alert(`Thank you for your interest in ${displayProperty.name}! We will contact you soon.`);
         setFormData({
           name: '',
           phone: '',
@@ -471,26 +530,69 @@ const PropertyDetail = () => {
     alert('Please log in to write review!');
   };
 
+  const handleWishlistToggle = () => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: `/properties/${id}` } });
+      return;
+    }
+
+    const result = toggleWishlist(parseInt(id));
+    if (!result.success && result.error) {
+      alert(result.error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="property-detail-page">
+        <div style={{ textAlign: 'center', padding: '100px 20px' }}>
+          <h2>Loading property details...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !displayProperty) {
+    return (
+      <div className="property-detail-page">
+        <div style={{ textAlign: 'center', padding: '100px 20px' }}>
+          <h2>Property not found</h2>
+          <p>{error || 'The property you are looking for does not exist.'}</p>
+          <button onClick={() => navigate('/properties')} className="btn-glare" style={{ marginTop: '20px' }}>
+            Back to Properties
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="property-detail-page">
       {/* Hero Image Gallery */}
       <div className="hero-gallery">
         <div className="main-image">
-          <img src={project.image} alt={project.name} />
+          <img src={displayProperty.image} alt={displayProperty.name} />
         </div>
         <div className="thumbnail-gallery">
-          {project.gallery.map((img, index) => (
+          {displayProperty.gallery.map((img, index) => (
             <div key={index} className="thumbnail">
-              <img src={img} alt={`${project.name} ${index + 1}`} />
+              <img src={img} alt={`${displayProperty.name} ${index + 1}`} />
             </div>
           ))}
         </div>
         <div className="gallery-actions">
-          <button className="gallery-btn">
+          <button className="gallery-btn btn-glare">
             <span className="icon">▶️</span> YouTube
           </button>
-          <button className="gallery-btn">
+          <button className="gallery-btn btn-glare">
             <span className="icon">🖼️</span> Gallery
+          </button>
+          <button 
+            className={`gallery-btn btn-glare wishlist-toggle ${isInWishlist(parseInt(id)) ? 'active' : ''}`}
+            onClick={handleWishlistToggle}
+          >
+            <span className="icon">{isInWishlist(parseInt(id)) ? '❤️' : '🤍'}</span>
+            {isInWishlist(parseInt(id)) ? 'In Wishlist' : 'Add to Wishlist'}
           </button>
         </div>
       </div>
@@ -500,15 +602,25 @@ const PropertyDetail = () => {
         <div className="content-left">
           {/* Property Header */}
           <div className="property-header">
-            <h1>{project.name}</h1>
+            <h1>
+              <ShinyText
+                text={displayProperty.name}
+                speed={3}
+                delay={0}
+                color="#333"
+                shineColor="#ff0000"
+                spread={120}
+                direction="left"
+              />
+            </h1>
             <div className="rating">
               {[1, 2, 3, 4, 5].map((star) => (
                 <span key={star} className="star">☆</span>
               ))}
             </div>
             <div className="property-meta">
-              <span className="location">📍 {project.location}</span>
-              <span className="date">📅 {project.date}</span>
+              <span className="location">📍 {displayProperty.location}</span>
+              <span className="date">📅 {displayProperty.date}</span>
             </div>
           </div>
 
@@ -518,15 +630,15 @@ const PropertyDetail = () => {
             <div className="overview-details">
               <div className="detail-item">
                 <span className="label">Last Updated:</span>
-                <span className="value">{project.date}</span>
+                <span className="value">{displayProperty.date}</span>
               </div>
               <div className="detail-item">
                 <span className="label">Status:</span>
-                <span className="status-badge">{project.status}</span>
+                <span className="status-badge">{displayProperty.status}</span>
               </div>
               <div className="detail-item">
                 <span className="label">Category:</span>
-                <span className="value">{project.category}</span>
+                <span className="value">{displayProperty.category}</span>
               </div>
             </div>
           </div>
@@ -535,24 +647,24 @@ const PropertyDetail = () => {
           <div className="description-section">
             <h2>Description</h2>
             <p className="description-text">
-              <strong>{project.name}</strong> {project.description.intro}
+              <strong>{displayProperty.name}</strong> {displayProperty.description.intro}
             </p>
             <p className="description-text">
-              {project.description.location}
+              {displayProperty.description.location}
             </p>
             <p className="description-text">
-              {project.description.layout}
+              {displayProperty.description.layout}
             </p>
             <p className="description-text">
-              <strong>{project.name} plots are ideal for:</strong>
+              <strong>{displayProperty.name} plots are ideal for:</strong>
             </p>
             <ul className="ideal-list">
-              {project.description.ideal.map((item, index) => (
+              {displayProperty.description.ideal.map((item, index) => (
                 <li key={index}>{item}</li>
               ))}
             </ul>
             <p className="description-text">
-              {project.description.conclusion}
+              {displayProperty.description.conclusion}
             </p>
           </div>
 
@@ -560,7 +672,7 @@ const PropertyDetail = () => {
           <div className="features-section">
             <h2>Features</h2>
             <div className="features-grid">
-              {project.features.map((feature, index) => (
+              {displayProperty.features.map((feature, index) => (
                 <div key={index} className="feature-item">
                   <span className="feature-icon">✓</span>
                   <span className="feature-name">{feature.name}</span>
@@ -572,7 +684,7 @@ const PropertyDetail = () => {
           {/* Map Section */}
           <div className="map-section">
             <iframe
-              src={project.mapUrl}
+              src={displayProperty.mapUrl}
               width="100%"
               height="400"
               style={{ border: 0 }}
@@ -587,18 +699,18 @@ const PropertyDetail = () => {
           <div className="video-section">
             <h2>Project video</h2>
             <div className="video-container">
-              <img src={project.image} alt="Video thumbnail" className="video-thumbnail" />
-              <button className="play-button">▶</button>
+              <img src={displayProperty.image} alt="Video thumbnail" className="video-thumbnail" />
+              <button className="play-button btn-glare-radial">▶</button>
             </div>
             <div className="share-section">
               <p>Share this project:</p>
               <div className="social-buttons">
-                <button className="social-btn facebook">f</button>
-                <button className="social-btn twitter">𝕏</button>
-                <button className="social-btn pinterest">P</button>
-                <button className="social-btn linkedin">in</button>
-                <button className="social-btn whatsapp">W</button>
-                <button className="social-btn email">@</button>
+                <button className="social-btn facebook btn-glare-radial">f</button>
+                <button className="social-btn twitter btn-glare-radial">𝕏</button>
+                <button className="social-btn pinterest btn-glare-radial">P</button>
+                <button className="social-btn linkedin btn-glare-radial">in</button>
+                <button className="social-btn whatsapp btn-glare-radial">W</button>
+                <button className="social-btn email btn-glare-radial">@</button>
               </div>
             </div>
           </div>
@@ -625,7 +737,7 @@ const PropertyDetail = () => {
                 rows="5"
               ></textarea>
               <p className="login-message">Please log in to write review!</p>
-              <button type="submit" className="submit-review-btn">Submit review</button>
+              <button type="submit" className="submit-review-btn btn-glare">Submit review</button>
             </form>
           </div>
         </div>
@@ -688,10 +800,10 @@ const PropertyDetail = () => {
               </div>
 
               <div className="form-group">
-                <label>{project.name}</label>
+                <label>{displayProperty.name}</label>
                 <input
                   type="text"
-                  value={project.name}
+                  value={displayProperty.name}
                   disabled
                   className="disabled-input"
                 />
@@ -713,7 +825,7 @@ const PropertyDetail = () => {
 
               <button 
                 type="submit" 
-                className="send-message-btn"
+                className="send-message-btn btn-glare"
                 disabled={isSubmitting}
                 style={{ opacity: isSubmitting ? 0.6 : 1, cursor: isSubmitting ? 'wait' : 'pointer' }}
               >

@@ -1,113 +1,142 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import './Contact.css';
+import './ContactCRM.css';
+import ShinyText from '../components/ShinyText';
+import '../components/ButtonGlare.css';
 
 const Contact = () => {
   const location = useLocation();
   const propertyName = location.state?.propertyName || '';
-  const formRef = useRef(null);
-  const [formLoaded, setFormLoaded] = useState(false);
 
-  const createForm = useCallback(() => {
-    if (!window.hbspt || !window.hbspt.forms || !formRef.current) {
-      console.error('❌ Cannot create form - hbspt not ready or ref not available');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    property: propertyName,
+    message: ''
+  });
+
+  const [formState, setFormState] = useState({
+    status: 'idle', // idle, submitting, success, error
+    message: ''
+  });
+
+  const [errors, setErrors] = useState({});
+
+  // Validation functions
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    const re = /^[\d\s\-+()]{10,}$/;
+    return re.test(phone);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!validatePhone(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate form
+    if (!validateForm()) {
+      setFormState({
+        status: 'error',
+        message: 'Please fix the errors above'
+      });
       return;
     }
 
-    // Prevent double form creation
-    if (formLoaded) {
-      console.log('⚠️ Form already loaded, skipping...');
-      return;
-    }
+    setFormState({
+      status: 'submitting',
+      message: 'Submitting your inquiry...'
+    });
 
     try {
-      // Clear any existing form
-      formRef.current.innerHTML = '';
-
-      window.hbspt.forms.create({
-        region: "na2",
-        portalId: "244826787",
-        formId: "1dc60e00-39fd-403e-b865-4cc88a315b03",
-        target: "#hubspot-form-container",
-        onFormReady: function($form) {
-          console.log('✅ HubSpot form rendered successfully');
-          setFormLoaded(true);
-          
-          // Pre-fill property field if available
-          if (propertyName) {
-            setTimeout(() => {
-              const propertyField = $form.find('input[name="property_inquiry"]');
-              if (propertyField.length) {
-                propertyField.val(propertyName);
-                console.log('✅ Pre-filled property:', propertyName);
-              }
-            }, 100);
-          }
+      // Submit to our CRM API
+      const response = await fetch('/api/crm-submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        onFormSubmit: function() {
-          console.log('🚀 Form is being submitted to HubSpot');
-        },
-        onFormSubmitted: function() {
-          console.log('✅ Form submitted successfully to HubSpot CRM');
-          alert('✅ Thank you! Your message has been received. We will contact you shortly.');
-        }
+        body: JSON.stringify(formData)
       });
-    } catch (error) {
-      console.error('❌ Error creating HubSpot form:', error);
-    }
-  }, [propertyName, formLoaded]);
 
-  useEffect(() => {
-    // Capture ref value when effect runs
-    const currentFormRef = formRef.current;
-    
-    // Check if script already exists (with correct URL pattern)
-    const existingScript = document.querySelector('script[src*="js-na2.hsforms.net/forms/embed/244826787.js"]');
-    
-    if (existingScript && window.hbspt) {
-      // Script already loaded, create form immediately
-      createForm();
-      return;
-    }
+      const result = await response.json();
 
-    // Load HubSpot embed script
-    const script = document.createElement('script');
-    script.src = 'https://js-na2.hsforms.net/forms/embed/244826787.js';
-    script.charset = 'utf-8';
-    script.type = 'text/javascript';
-    
-    script.onload = () => {
-      console.log('✅ HubSpot script loaded successfully');
-      // Wait for hbspt object to be available
-      const checkHbspt = setInterval(() => {
-        if (window.hbspt && window.hbspt.forms) {
-          clearInterval(checkHbspt);
-          createForm();
-        }
-      }, 100);
+      if (response.ok && result.success) {
+        setFormState({
+          status: 'success',
+          message: 'Thank you! Your message has been received. We will contact you shortly.'
+        });
 
-      // Timeout after 5 seconds
-      setTimeout(() => {
-        clearInterval(checkHbspt);
-        if (!window.hbspt) {
-          console.error('❌ HubSpot object not available after 5 seconds');
-        }
-      }, 5000);
-    };
-    
-    script.onerror = () => {
-      console.error('❌ Failed to load HubSpot script');
-    };
-    
-    document.body.appendChild(script);
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          property: '',
+          message: ''
+        });
 
-    return () => {
-      // Use captured ref value in cleanup
-      if (currentFormRef) {
-        currentFormRef.innerHTML = '';
+        // Show success for 5 seconds then reset
+        setTimeout(() => {
+          setFormState({ status: 'idle', message: '' });
+        }, 5000);
+
+      } else {
+        throw new Error(result.error || 'Submission failed');
       }
-    };
-  }, [createForm]);
+
+    } catch (error) {
+      console.error('Submission error:', error);
+      setFormState({
+        status: 'error',
+        message: 'Failed to submit form. Please try again or call us directly.'
+      });
+    }
+  };
 
   return (
     <div className="contact-page">
@@ -119,7 +148,17 @@ const Contact = () => {
 
       <div className="contact-container">
         <div className="contact-info">
-          <h2>CONTACT INFORMATION</h2>
+          <h2>
+            <ShinyText
+              text="CONTACT INFORMATION"
+              speed={3}
+              delay={0}
+              color="#333"
+              shineColor="#ff0000"
+              spread={120}
+              direction="left"
+            />
+          </h2>
           <div className="info-item">
             <p><strong>Address:</strong> 2A,54/13 Awas Vikas 1st DM Road</p>
           </div>
@@ -138,27 +177,129 @@ const Contact = () => {
         </div>
 
         <div className="contact-form-section">
-          <h2>HOW WE CAN HELP YOU?</h2>
-          {propertyName && (
-            <p className="property-inquiry">Inquiring about: <strong>{propertyName}</strong></p>
-          )}
+          <h2>
+            <ShinyText
+              text="HOW WE CAN HELP YOU?"
+              speed={3}
+              delay={0}
+              color="#333"
+              shineColor="#ff0000"
+              spread={120}
+              direction="left"
+            />
+          </h2>
           
-          {/* HubSpot Form Container */}
-          <div 
-            id="hubspot-form-container"
-            ref={formRef}
-            style={{ minHeight: '400px' }}
-          >
-            {!formLoaded && (
-              <div style={{ 
-                textAlign: 'center', 
-                padding: '40px', 
-                color: '#666' 
-              }}>
-                Loading form...
+          {propertyName && (
+            <p className="property-inquiry">
+              Inquiring about: <strong>{propertyName}</strong>
+            </p>
+          )}
+
+          {formState.status === 'success' && (
+            <div className="form-message success-message">
+              ✓ {formState.message}
+            </div>
+          )}
+
+          {formState.status === 'error' && (
+            <div className="form-message error-message">
+              ✗ {formState.message}
+            </div>
+          )}
+
+          <form className="contact-form-crm" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="name">Full Name *</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter your full name"
+                className={errors.name ? 'error' : ''}
+                disabled={formState.status === 'submitting'}
+              />
+              {errors.name && <span className="error-text">{errors.name}</span>}
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="email">Email Address *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="your.email@example.com"
+                  className={errors.email ? 'error' : ''}
+                  disabled={formState.status === 'submitting'}
+                />
+                {errors.email && <span className="error-text">{errors.email}</span>}
               </div>
-            )}
-          </div>
+
+              <div className="form-group">
+                <label htmlFor="phone">Phone Number *</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="+91 9720444418"
+                  className={errors.phone ? 'error' : ''}
+                  disabled={formState.status === 'submitting'}
+                />
+                {errors.phone && <span className="error-text">{errors.phone}</span>}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="property">Property Interest</label>
+              <input
+                type="text"
+                id="property"
+                name="property"
+                value={formData.property}
+                onChange={handleChange}
+                placeholder="Which property are you interested in?"
+                disabled={formState.status === 'submitting'}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="message">Your Message</label>
+              <textarea
+                id="message"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                placeholder="Tell us about your requirements..."
+                rows="5"
+                disabled={formState.status === 'submitting'}
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              className="submit-btn-crm btn-glare"
+              disabled={formState.status === 'submitting'}
+            >
+              {formState.status === 'submitting' ? (
+                <>
+                  <span className="spinner"></span>
+                  Submitting...
+                </>
+              ) : (
+                'Send Message'
+              )}
+            </button>
+
+            <p className="form-note">
+              * Required fields. Your information is secure and will only be used to contact you about your inquiry.
+            </p>
+          </form>
         </div>
       </div>
 

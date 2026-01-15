@@ -1,15 +1,73 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Properties.css';
+import '../components/ButtonGlare.css';
+import ShinyText from '../components/ShinyText';
 
 const Properties = () => {
+  const { isAuthenticated, toggleWishlist, isInWishlist } = useAuth();
+  const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
   const [propertyType, setPropertyType] = useState('');
+  const [listingType, setListingType] = useState('');
   const [bedrooms, setBedrooms] = useState('');
   const [priceRange, setPriceRange] = useState('');
 
-  const [propertiesList] = useState([
+  const [propertiesList, setPropertiesList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch properties from database
+  useEffect(() => {
+    fetchProperties();
+  }, []);
+
+  const fetchProperties = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5000/api/properties');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch properties');
+      }
+      
+      const data = await response.json();
+      
+      // Transform backend data to match frontend format and exclude projects
+      const transformedProperties = data.properties
+        .filter(prop => prop.propertyType !== 'project') // Exclude projects from properties page
+        .map(prop => ({
+          id: prop._id,
+          name: prop.title,
+          location: prop.location?.city || prop.location?.address || 'Location not specified',
+          area: prop.area ? `${prop.area} sqft` : 'N/A',
+          price: `₹${prop.price.toLocaleString('en-IN')}`,
+          image: prop.images?.[0] || 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&q=80',
+          badge: prop.status === 'available' ? 'AVAILABLE' : 'SOLD',
+          type: prop.propertyType?.toLowerCase() || 'apartment',
+          listingType: prop.listingType || 'sale',
+          bedrooms: prop.bedrooms?.toString() || '',
+          bathrooms: prop.bathrooms?.toString() || '',
+          status: prop.status || 'ready-to-move'
+        }));
+      
+      setPropertiesList(transformedProperties);
+      setFilteredProperties(transformedProperties);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching properties:', err);
+      setError(err.message);
+      // Keep empty array if fetch fails
+      setPropertiesList([]);
+      setFilteredProperties([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const [oldPropertiesList] = useState([
     {
       id: 1,
       name: 'Modern Apartment in Sector 62',
@@ -168,7 +226,7 @@ const Properties = () => {
     }
   ]);
 
-  const [filteredProperties, setFilteredProperties] = useState(propertiesList);
+  const [filteredProperties, setFilteredProperties] = useState([]);
 
   const handleSearch = () => {
     let filtered = [...propertiesList];
@@ -192,6 +250,13 @@ const Properties = () => {
     if (propertyType) {
       filtered = filtered.filter(property => 
         property.type === propertyType
+      );
+    }
+
+    // Filter by listing type (sale/rent)
+    if (listingType) {
+      filtered = filtered.filter(property => 
+        property.listingType === listingType
       );
     }
 
@@ -231,15 +296,41 @@ const Properties = () => {
     setKeyword('');
     setLocation('');
     setPropertyType('');
+    setListingType('');
     setBedrooms('');
     setPriceRange('');
     setFilteredProperties(propertiesList);
   };
 
+  const handleWishlistToggle = (e, propertyId) => {
+    e.preventDefault(); // Prevent navigation to property detail
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/properties' } });
+      return;
+    }
+
+    const result = toggleWishlist(propertyId);
+    if (!result.success && result.error) {
+      alert(result.error);
+    }
+  };
+
   return (
     <div className="properties-page">
       <div className="properties-hero">
-        <h1>PROPERTIES FOR SALE</h1>
+        <h1>
+          <ShinyText
+            text="PROPERTIES FOR SALE"
+            speed={3}
+            delay={0}
+            color="#ffffff"
+            shineColor="#ff0000"
+            spread={120}
+            direction="left"
+          />
+        </h1>
         <p>Find your dream home from our extensive collection of premium properties across prime locations</p>
         <div className="breadcrumb">
           <a href="/">Home</a> / <span>Properties</span>
@@ -288,6 +379,15 @@ const Properties = () => {
         </div>
 
         <div className="filter-group">
+          <label>Listing Type</label>
+          <select value={listingType} onChange={(e) => setListingType(e.target.value)}>
+            <option value="">All</option>
+            <option value="sale">For Sale</option>
+            <option value="rent">For Rent</option>
+          </select>
+        </div>
+
+        <div className="filter-group">
           <label>Bedrooms</label>
           <select value={bedrooms} onChange={(e) => setBedrooms(e.target.value)}>
             <option value="">Any</option>
@@ -310,10 +410,10 @@ const Properties = () => {
           </select>
         </div>
 
-        <button className="search-btn" onClick={handleSearch}>
+        <button className="search-btn btn-glare" onClick={handleSearch}>
           Search
         </button>
-        <button className="reset-btn" onClick={handleReset} style={{ marginLeft: '10px' }}>
+        <button className="reset-btn btn-glare" onClick={handleReset} style={{ marginLeft: '10px' }}>
           Reset
         </button>
       </div>
@@ -323,16 +423,36 @@ const Properties = () => {
           <p>Showing {filteredProperties.length} of {propertiesList.length} properties</p>
         </div>
         <div className="sort-by">
-          <button className="dropdown-btn">Sort by ▼</button>
+          <button className="dropdown-btn btn-glare">Sort by ▼</button>
         </div>
       </div>
 
       <div className="properties-grid">
-        {filteredProperties.length > 0 ? (
+        {loading ? (
+          <div className="loading-state">
+            <p>Loading properties...</p>
+          </div>
+        ) : error ? (
+          <div className="error-state">
+            <h3>Error loading properties</h3>
+            <p>{error}</p>
+            <button onClick={fetchProperties} className="btn-glare">Retry</button>
+          </div>
+        ) : filteredProperties.length > 0 ? (
           filteredProperties.map(property => (
             <Link to={`/properties/${property.id}`} key={property.id} className="property-card-link">
               <div className="property-card">
                 <div className="property-badge">{property.badge}</div>
+                <div className={`listing-type-badge ${property.listingType}`}>
+                  {property.listingType === 'sale' ? 'FOR SALE' : 'FOR RENT'}
+                </div>
+                <button 
+                  className={`wishlist-heart ${isInWishlist(property.id) ? 'active' : ''}`}
+                  onClick={(e) => handleWishlistToggle(e, property.id)}
+                  title={isInWishlist(property.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  {isInWishlist(property.id) ? '❤️' : '🤍'}
+                </button>
                 <img src={property.image} alt={property.name} />
                 <div className="property-info">
                   <h3>{property.name}</h3>

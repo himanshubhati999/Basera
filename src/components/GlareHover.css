@@ -1,0 +1,32 @@
+.glare-hover-container {
+  position: relative;
+  display: inline-block;
+  overflow: visible;
+}
+
+.glare-hover-container > * {
+  position: relative;
+  overflow: hidden;
+}
+
+.glare-hover-container::before {
+  content: '';
+  position: absolute;
+  top: var(--glare-y, -100px);
+  left: var(--glare-x, -100px);
+  width: var(--glare-size, 300px);
+  height: var(--glare-size, 300px);
+  background: radial-gradient(
+    circle,
+    var(--glare-color, #ffffff) 0%,
+    transparent 70%
+  );
+  opacity: var(--glare-opacity, 0.3);
+  transform: translate(-50%, -50%) rotate(var(--glare-angle, -30deg));
+  pointer-events: none;
+  transition: opacity var(--transition-duration, 800ms) ease,
+              top var(--transition-duration, 800ms) ease,
+              left var(--transition-duration, 800ms) ease;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}

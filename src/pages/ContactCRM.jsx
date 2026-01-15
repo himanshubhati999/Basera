@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import './Contact.css';
 import './ContactCRM.css';
+import ShinyText from '../components/ShinyText';
+import '../components/ButtonGlare.css';
 
 const ContactCRM = () => {
   const location = useLocation();
@@ -146,7 +148,17 @@ const ContactCRM = () => {
 
       <div className="contact-container">
         <div className="contact-info">
-          <h2>CONTACT INFORMATION</h2>
+          <h2>
+            <ShinyText
+              text="CONTACT INFORMATION"
+              speed={3}
+              delay={0}
+              color="#333"
+              shineColor="#ff0000"
+              spread={120}
+              direction="left"
+            />
+          </h2>
           <div className="info-item">
             <p><strong>Address:</strong> 2A,54/13 Awas Vikas 1st DM Road</p>
           </div>
@@ -165,7 +177,17 @@ const ContactCRM = () => {
         </div>
 
         <div className="contact-form-section">
-          <h2>HOW WE CAN HELP YOU?</h2>
+          <h2>
+            <ShinyText
+              text="HOW WE CAN HELP YOU?"
+              speed={3}
+              delay={0}
+              color="#333"
+              shineColor="#ff0000"
+              spread={120}
+              direction="left"
+            />
+          </h2>
           
           {propertyName && (
             <p className="property-inquiry">
@@ -261,7 +283,7 @@ const ContactCRM = () => {
 
             <button
               type="submit"
-              className="submit-btn-crm"
+              className="submit-btn-crm btn-glare"
               disabled={formState.status === 'submitting'}
             >
               {formState.status === 'submitting' ? (

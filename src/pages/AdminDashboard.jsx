@@ -1,242 +1,546 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
-  const [submissions, setSubmissions] = useState([]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [filter, setFilter] = useState('all'); // all, today, week, month
+  const [stats, setStats] = useState(null);
+  const [properties, setProperties] = useState([]);
+  const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchSubmissions();
-  }, []);
+    // Check if user is admin
+    if (!user) {
+      navigate('/login');
+      return;
+    }
 
-  const fetchSubmissions = async () => {
+    // Check if user has admin role
+    if (user.role !== 'admin') {
+      alert('Access denied. Admin privileges required.');
+      navigate('/');
+      return;
+    }
+
+    fetchDashboardData();
+  }, [user, navigate]);
+
+  const fetchDashboardData = async () => {
     setLoading(true);
+    setError('');
+    
     try {
-      // Fetch from tracking API
-      const response = await fetch('/api/track-submission');
-      const data = await response.json();
+      const token = localStorage.getItem('token');
       
-      if (data.success) {
-        setSubmissions(data.submissions);
-      } else {
-        setError('Failed to load submissions');
+      // Fetch stats
+      const statsResponse = await fetch('http://localhost:5000/api/admin/stats', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        setStats(statsData.stats);
+      }
+
+      // Fetch properties
+      const propsResponse = await fetch('http://localhost:5000/api/admin/properties', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (propsResponse.ok) {
+        const propsData = await propsResponse.json();
+        setProperties(propsData.properties);
+      }
+
+      // Fetch users
+      const usersResponse = await fetch('http://localhost:5000/api/admin/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (usersResponse.ok) {
+        const usersData = await usersResponse.json();
+        setUsers(usersData.users);
       }
     } catch (err) {
-      setError('Error connecting to server');
-      console.error(err);
+      console.error('Error fetching dashboard data:', err);
+      setError('Failed to load admin data. Please make sure the backend is running.');
     } finally {
       setLoading(false);
     }
   };
 
-  const filterSubmissions = () => {
-    let filtered = [...submissions];
+  const handleDeleteProperty = async (propertyId) => {
+    if (!window.confirm('Are you sure you want to delete this property?')) {
+      return;
+    }
 
-    // Time filter
-    const now = new Date();
-    if (filter === 'today') {
-      filtered = filtered.filter(sub => {
-        const subDate = new Date(sub.timestamp);
-        return subDate.toDateString() === now.toDateString();
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/admin/properties/${propertyId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
-    } else if (filter === 'week') {
-      const weekAgo = new Date(now.setDate(now.getDate() - 7));
-      filtered = filtered.filter(sub => new Date(sub.timestamp) >= weekAgo);
-    } else if (filter === 'month') {
-      const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
-      filtered = filtered.filter(sub => new Date(sub.timestamp) >= monthAgo);
-    }
 
-    // Search filter
-    if (searchTerm) {
-      const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(sub =>
-        (sub.name && sub.name.toLowerCase().includes(search)) ||
-        (sub.firstname && sub.firstname.toLowerCase().includes(search)) ||
-        (sub.lastname && sub.lastname.toLowerCase().includes(search)) ||
-        (sub.email && sub.email.toLowerCase().includes(search)) ||
-        (sub.phone && sub.phone.includes(search)) ||
-        (sub.property && sub.property.toLowerCase().includes(search)) ||
-        (sub.property_inquiry && sub.property_inquiry.toLowerCase().includes(search))
-      );
+      if (response.ok) {
+        setProperties(properties.filter(p => p._id !== propertyId));
+        alert('Property deleted successfully');
+      } else {
+        alert('Failed to delete property');
+      }
+    } catch (err) {
+      console.error('Error deleting property:', err);
+      alert('Error deleting property');
     }
-
-    return filtered;
   };
 
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleString('en-US', {
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setUsers(users.filter(u => u._id !== userId));
+        alert('User deleted successfully');
+      } else {
+        alert('Failed to delete user');
+      }
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      alert('Error deleting user');
+    }
+  };
+
+  const handleUpdatePropertyStatus = async (propertyId, newStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/admin/properties/${propertyId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProperties(properties.map(p => 
+          p._id === propertyId ? data.property : p
+        ));
+        alert('Property status updated successfully');
+      } else {
+        alert('Failed to update property status');
+      }
+    } catch (err) {
+      console.error('Error updating property status:', err);
+      alert('Error updating property status');
+    }
+  };
+
+  const handleToggleFeatured = async (propertyId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/admin/properties/${propertyId}/featured`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProperties(properties.map(p => 
+          p._id === propertyId ? data.property : p
+        ));
+        alert(data.message);
+      } else {
+        alert('Failed to toggle featured status');
+      }
+    } catch (err) {
+      console.error('Error toggling featured status:', err);
+      alert('Error toggling featured status');
+    }
+  };
+
+  const filteredProperties = properties.filter(property =>
+    property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    property.location?.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    property.postedBy?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: 'numeric'
     });
   };
 
-  const exportToCSV = () => {
-    const filtered = filterSubmissions();
-    const headers = ['ID', 'Name', 'Email', 'Phone', 'Property', 'Message', 'Timestamp'];
-    const csv = [
-      headers.join(','),
-      ...filtered.map(sub => [
-        sub.id,
-        `"${sub.name}"`,
-        sub.email,
-        sub.phone,
-        `"${sub.property}"`,
-        `"${sub.message}"`,
-        sub.timestamp
-      ].join(','))
-    ].join('\n');
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `submissions-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0
+    }).format(price);
   };
 
-  const filteredSubmissions = filterSubmissions();
+  if (loading) {
+    return (
+      <div className="admin-dashboard">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading admin dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="admin-dashboard">
+        <div className="error-container">
+          <p className="error-message">{error}</p>
+          <button onClick={fetchDashboardData} className="action-btn view">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-dashboard">
-      <div className="dashboard-header">
-        <h1>CRM Dashboard</h1>
-        <p>Manage and view all property inquiries</p>
-      </div>
-
-      <div className="dashboard-stats">
-        <div className="stat-card">
-          <div className="stat-number">{submissions.length}</div>
-          <div className="stat-label">Total Submissions</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-number">
-            {submissions.filter(s => {
-              const date = new Date(s.timestamp);
-              return date.toDateString() === new Date().toDateString();
-            }).length}
-          </div>
-          <div className="stat-label">Today</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-number">
-            {submissions.filter(s => {
-              const date = new Date(s.timestamp);
-              const weekAgo = new Date();
-              weekAgo.setDate(weekAgo.getDate() - 7);
-              return date >= weekAgo;
-            }).length}
-          </div>
-          <div className="stat-label">This Week</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-number">
-            {submissions.filter(s => {
-              const date = new Date(s.timestamp);
-              const monthAgo = new Date();
-              monthAgo.setMonth(monthAgo.getMonth() - 1);
-              return date >= monthAgo;
-            }).length}
-          </div>
-          <div className="stat-label">This Month</div>
-        </div>
-      </div>
-
-      <div className="dashboard-controls">
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Search by name, email, phone, or property..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <div className="admin-container">
+        <div className="admin-header">
+          <h1>Admin Dashboard</h1>
+          <p>Manage properties, users, and view statistics</p>
         </div>
 
-        <div className="filter-buttons">
-          <button
-            className={filter === 'all' ? 'active' : ''}
-            onClick={() => setFilter('all')}
-          >
-            All
-          </button>
-          <button
-            className={filter === 'today' ? 'active' : ''}
-            onClick={() => setFilter('today')}
-          >
-            Today
-          </button>
-          <button
-            className={filter === 'week' ? 'active' : ''}
-            onClick={() => setFilter('week')}
-          >
-            This Week
-          </button>
-          <button
-            className={filter === 'month' ? 'active' : ''}
-            onClick={() => setFilter('month')}
-          >
-            This Month
-          </button>
-        </div>
-
-        <button className="export-btn" onClick={exportToCSV}>
-          Export to CSV
-        </button>
-      </div>
-
-      {loading ? (
-        <div className="loading">Loading submissions...</div>
-      ) : error ? (
-        <div className="error-box">{error}</div>
-      ) : (
-        <div className="submissions-list">
-          {filteredSubmissions.length === 0 ? (
-            <div className="no-data">No submissions found</div>
-          ) : (
-            filteredSubmissions.map((submission) => (
-              <div key={submission.id} className="submission-card">
-                <div className="submission-header">
-                  <div className="submission-id">#{submission.id}</div>
-                  <div className="submission-date">{formatDate(submission.timestamp)}</div>
-                </div>
-                <div className="submission-body">
-                  <div className="submission-row">
-                    <strong>Name:</strong> {submission.firstname} {submission.lastname || submission.name || ''}
-                  </div>
-                  <div className="submission-row">
-                    <strong>Email:</strong> 
-                    <a href={`mailto:${submission.email}`}>{submission.email}</a>
-                  </div>
-                  <div className="submission-row">
-                    <strong>Phone:</strong> 
-                    <a href={`tel:${submission.phone}`}>{submission.phone || 'Not provided'}</a>
-                  </div>
-                  <div className="submission-row">
-                    <strong>Property:</strong> {submission.property || submission.property_inquiry || 'General Inquiry'}
-                  </div>
-                  {submission.message && (
-                    <div className="submission-message">
-                      <strong>Message:</strong>
-                      <p>{submission.message}</p>
-                    </div>
-                  )}
-                </div>
-                <div className="submission-footer">
-                  <span className="source-badge">{submission.source}</span>
-                  <span className="status-badge">{submission.status}</span>
-                </div>
+        {/* Stats Cards */}
+        {stats && (
+          <div className="stats-grid">
+            <div className="stat-card properties">
+              <div className="stat-card-header">
+                <span className="stat-label">Total Properties</span>
+                <span className="stat-icon">🏠</span>
               </div>
-            ))
-          )}
+              <div className="stat-value">{stats.totalProperties}</div>
+            </div>
+
+            <div className="stat-card users">
+              <div className="stat-card-header">
+                <span className="stat-label">Total Users</span>
+                <span className="stat-icon">👥</span>
+              </div>
+              <div className="stat-value">{stats.totalUsers}</div>
+            </div>
+
+            <div className="stat-card available">
+              <div className="stat-card-header">
+                <span className="stat-label">Available</span>
+                <span className="stat-icon">✅</span>
+              </div>
+              <div className="stat-value">{stats.availableProperties}</div>
+            </div>
+
+            <div className="stat-card sold">
+              <div className="stat-card-header">
+                <span className="stat-label">Sold</span>
+                <span className="stat-icon">💰</span>
+              </div>
+              <div className="stat-value">{stats.soldProperties}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Tabs */}
+        <div className="admin-tabs">
+          <button
+            className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            📊 Overview
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'properties' ? 'active' : ''}`}
+            onClick={() => setActiveTab('properties')}
+          >
+            🏠 Properties ({properties.length})
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+            onClick={() => setActiveTab('users')}
+          >
+            👥 Users ({users.length})
+          </button>
         </div>
-      )}
+
+        {/* Overview Tab */}
+        {activeTab === 'overview' && stats && (
+          <div className="admin-section">
+            <div className="section-header">
+              <h2>Recent Activity</h2>
+            </div>
+
+            <h3 style={{ marginTop: '30px', marginBottom: '15px', color: '#2c3e50' }}>
+              Recent Properties
+            </h3>
+            <div className="data-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Property</th>
+                    <th>Posted By</th>
+                    <th>Price</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.recentProperties.map(property => (
+                    <tr key={property._id}>
+                      <td>
+                        <div className="property-title">{property.title}</div>
+                        <div className="property-location">
+                          {property.location?.city}, {property.location?.state}
+                        </div>
+                      </td>
+                      <td>{property.postedBy?.name}</td>
+                      <td className="price">{formatPrice(property.price)}</td>
+                      <td>{formatDate(property.createdAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <h3 style={{ marginTop: '30px', marginBottom: '15px', color: '#2c3e50' }}>
+              Recent Users
+            </h3>
+            <div className="data-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Joined</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.recentUsers.map(user => (
+                    <tr key={user._id}>
+                      <td>{user.name}</td>
+                      <td>{user.email}</td>
+                      <td>
+                        <span className={`role-badge ${user.role}`}>
+                          {user.role}
+                        </span>
+                      </td>
+                      <td>{formatDate(user.createdAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Properties Tab */}
+        {activeTab === 'properties' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <h2>All Properties</h2>
+              <input
+                type="text"
+                className="search-box"
+                placeholder="Search properties..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {filteredProperties.length === 0 ? (
+              <div className="no-data">No properties found</div>
+            ) : (
+              <div className="data-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Property</th>
+                      <th>Type</th>
+                      <th>Price</th>
+                      <th>Owner Contact</th>
+                      <th>Posted By</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredProperties.map(property => (
+                      <tr key={property._id}>
+                        <td>
+                          <div className="property-title">{property.title}</div>
+                          <div className="property-location">
+                            {property.location?.address && `${property.location.address}, `}
+                            {property.location?.city}, {property.location?.state}
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`type-badge ${property.propertyType}`}>
+                            {property.propertyType}
+                          </span>
+                        </td>
+                        <td className="price">{formatPrice(property.price)}</td>
+                        <td>
+                          <div className="contact-info">
+                            <div className="contact-item">
+                              <span>📞</span> {property.ownerPhone}
+                            </div>
+                            <div className="contact-item">
+                              <span>📧</span> {property.ownerEmail}
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div>{property.postedBy?.name}</div>
+                          <div style={{ fontSize: '0.85rem', color: '#7f8c8d' }}>
+                            {property.postedBy?.email}
+                          </div>
+                        </td>
+                        <td>
+                          <select
+                            className={`status-badge ${property.status}`}
+                            value={property.status}
+                            onChange={(e) => handleUpdatePropertyStatus(property._id, e.target.value)}
+                          >
+                            <option value="available">Available</option>
+                            <option value="sold">Sold</option>
+                            <option value="rented">Rented</option>
+                            <option value="under-contract">Under Contract</option>
+                          </select>
+                        </td>
+                        <td>{formatDate(property.createdAt)}</td>
+                        <td>
+                          <div className="action-buttons">
+                            <button
+                              className={`action-btn ${property.isFeatured ? 'featured' : 'feature'}`}
+                              onClick={() => handleToggleFeatured(property._id)}
+                              title={property.isFeatured ? 'Remove from featured' : 'Add to featured'}
+                            >
+                              {property.isFeatured ? '⭐ Featured' : '☆ Feature'}
+                            </button>
+                            <button
+                              className="action-btn view"
+                              onClick={() => navigate(`/properties/${property._id}`)}
+                            >
+                              View
+                            </button>
+                            <button
+                              className="action-btn delete"
+                              onClick={() => handleDeleteProperty(property._id)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Users Tab */}
+        {activeTab === 'users' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <h2>All Users</h2>
+              <input
+                type="text"
+                className="search-box"
+                placeholder="Search users..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {filteredUsers.length === 0 ? (
+              <div className="no-data">No users found</div>
+            ) : (
+              <div className="data-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Wishlist</th>
+                      <th>Joined</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map(user => (
+                      <tr key={user._id}>
+                        <td>{user.name}</td>
+                        <td>{user.email}</td>
+                        <td>
+                          <span className={`role-badge ${user.role}`}>
+                            {user.role}
+                          </span>
+                        </td>
+                        <td>{user.wishlist?.length || 0} items</td>
+                        <td>{formatDate(user.createdAt)}</td>
+                        <td>
+                          <div className="action-buttons">
+                            <button
+                              className="action-btn delete"
+                              onClick={() => handleDeleteUser(user._id)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

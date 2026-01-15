@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './HeroSection.css';
+import './ButtonGlare.css';
 
 const HeroSection = ({ onCategoryChange, selectedCategory }) => {
   const [keyword, setKeyword] = useState('');
@@ -30,27 +31,28 @@ const HeroSection = ({ onCategoryChange, selectedCategory }) => {
     <section className="hero-section">
       <div className="hero-overlay"></div>
       <div className="hero-content">
-        <div className="search-container">
-          <div className="search-tabs">
+        <div className="search-tabs">
             <button 
-              className={`search-tab ${selectedCategory === 'projects' ? 'active' : ''}`}
+              className={`search-tab btn-glare ${selectedCategory === 'projects' ? 'active' : ''}`}
               onClick={() => handleTabClick('projects')}
             >
               Projects
             </button>
             <button 
-              className={`search-tab ${selectedCategory === 'sale' ? 'active' : ''}`}
+              className={`search-tab btn-glare ${selectedCategory === 'sale' ? 'active' : ''}`}
               onClick={() => handleTabClick('sale')}
             >
               Sale
             </button>
             <button 
-              className={`search-tab ${selectedCategory === 'rent' ? 'active' : ''}`}
+              className={`search-tab btn-glare ${selectedCategory === 'rent' ? 'active' : ''}`}
               onClick={() => handleTabClick('rent')}
             >
               Rent
             </button>
           </div>
+        <div className="search-container">
+          
           
           <div className="search-form">
             <div className="search-input-group">
@@ -77,13 +79,13 @@ const HeroSection = ({ onCategoryChange, selectedCategory }) => {
               />
             </div>
             
-            <button className="search-button" onClick={handleSearch}>
+            <button className="search-button btn-glare" onClick={handleSearch}>
               Search
             </button>
           </div>
           
           <button 
-            className="advanced-toggle"
+            className="advanced-toggle btn-glare"
             onClick={() => setShowAdvanced(!showAdvanced)}
           >
             Advanced {showAdvanced ? '▲' : '▼'}

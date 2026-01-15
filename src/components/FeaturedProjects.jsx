@@ -1,8 +1,92 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './FeaturedProjects.css';
+import ShinyText from './ShinyText';
+import './ButtonGlare.css';
 
 const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
-  const [projects] = useState([
+  const { isAuthenticated, toggleWishlist, isInWishlist } = useAuth();
+  const navigate = useNavigate();
+  
+  const [projects, setProjects] = useState([]);
+  const [saleProperties, setSaleProperties] = useState([]);
+  const [rentProperties, setRentProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch properties from database
+  useEffect(() => {
+    fetchProperties();
+  }, []);
+
+  const fetchProperties = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5000/api/properties');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch properties');
+      }
+      
+      const data = await response.json();
+      
+      // Filter only featured properties
+      const featuredProperties = data.properties.filter(prop => prop.isFeatured);
+      
+      // Transform properties based on type
+      const transformedProjects = featuredProperties
+        .filter(prop => prop.propertyType === 'project' || prop.propertyType === 'residential')
+        .slice(0, 6)
+        .map(prop => ({
+          id: prop._id,
+          name: prop.title,
+          location: prop.location?.city || prop.location?.address || 'Location not specified',
+          image: prop.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80',
+          isFavorite: false,
+          type: 'projects'
+        }));
+
+      const transformedSaleProps = featuredProperties
+        .filter(prop => prop.status === 'available' && prop.listingType === 'sale')
+        .slice(0, 6)
+        .map(prop => ({
+          id: prop._id,
+          name: prop.title,
+          location: prop.location?.city || prop.location?.address || 'Location not specified',
+          image: prop.images?.[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&q=80',
+          price: `₹${prop.price.toLocaleString('en-IN')}`,
+          type: 'sale'
+        }));
+
+      const transformedRentProps = featuredProperties
+        .filter(prop => prop.listingType === 'rent')
+        .slice(0, 6)
+        .map(prop => ({
+          id: prop._id,
+          name: prop.title,
+          location: prop.location?.city || prop.location?.address || 'Location not specified',
+          image: prop.images?.[0] || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80',
+          price: `₹${prop.price.toLocaleString('en-IN')}/month`,
+          type: 'rent'
+        }));
+
+      // Use featured properties if available, otherwise use fallback
+      setProjects(transformedProjects.length > 0 ? transformedProjects : oldProjects);
+      setSaleProperties(transformedSaleProps.length > 0 ? transformedSaleProps : oldSaleProperties);
+      setRentProperties(transformedRentProps.length > 0 ? transformedRentProps : oldRentProperties);
+    } catch (err) {
+      console.error('Error fetching properties:', err);
+      // Use fallback mock data if fetch fails
+      setProjects(oldProjects);
+      setSaleProperties(oldSaleProperties);
+      setRentProperties(oldRentProperties);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fallback mock data
+  const oldProjects = [
     {
       id: 1,
       name: 'Yamuna Sector 20',
@@ -51,9 +135,9 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
       isFavorite: false,
       type: 'projects'
     }
-  ]);
+  ];
 
-  const [saleProperties] = useState([
+  const oldSaleProperties = [
     {
       id: 7,
       name: '3 BHK Luxury Apartment',
@@ -102,9 +186,9 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
       price: '₹35 Lakhs',
       type: 'sale'
     }
-  ]);
+  ];
 
-  const [rentProperties] = useState([
+  const oldRentProperties = [
     {
       id: 13,
       name: '2 BHK Furnished Apartment',
@@ -153,16 +237,21 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
       price: '₹40,000/month',
       type: 'rent'
     }
-  ]);
+  ];
 
-  const [favorites, setFavorites] = useState([]);
+  const handleWishlistToggle = (e, projectId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/' } });
+      return;
+    }
 
-  const toggleFavorite = (projectId) => {
-    setFavorites(prev => 
-      prev.includes(projectId) 
-        ? prev.filter(id => id !== projectId)
-        : [...prev, projectId]
-    );
+    const result = toggleWishlist(projectId);
+    if (!result.success && result.error) {
+      alert(result.error);
+    }
   };
 
   // Get the appropriate data based on selected category
@@ -182,7 +271,17 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
   return (
     <section className="featured-projects">
       <div className="featured-projects-container">
-        <h2 className="section-title">{title}</h2>
+        <h2 className="section-title">
+          <ShinyText
+            text={title}
+            speed={3}
+            delay={0}
+            color="#333"
+            shineColor="#ff0000"
+            spread={120}
+            direction="left"
+          />
+        </h2>
         <p className="section-description">
           {selectedCategory === 'projects' 
             ? 'We make the best choices with the hottest and most prestigious projects, please visit the details below to find out more.'
@@ -192,30 +291,44 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
           }
         </p>
         
-        <div className="projects-grid">
-          {data.map(project => (
-            <div key={project.id} className="project-card">
-              <div className="project-image">
-                <img src={project.image} alt={project.name} />
-                <button 
-                  className={`favorite-btn ${favorites.includes(project.id) ? 'active' : ''}`}
-                  onClick={() => toggleFavorite(project.id)}
-                >
-                  ❤
-                </button>
-                {project.price && (
-                  <div className="price-badge">{project.price}</div>
-                )}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <p>Loading properties...</p>
+          </div>
+        ) : (
+          <div className="projects-grid">
+            {data.map(project => (
+            <Link 
+              key={project.id} 
+              to={`/projects/${project.id}`} 
+              className="project-card-link"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <div className="project-card">
+                <div className="project-image">
+                  <img src={project.image} alt={project.name} />
+                  <button 
+                    className={`favorite-btn btn-glare-radial ${isInWishlist(project.id) ? 'active' : ''}`}
+                    onClick={(e) => handleWishlistToggle(e, project.id)}
+                    title={isInWishlist(project.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                  >
+                    {isInWishlist(project.id) ? '❤️' : '🤍'}
+                  </button>
+                  {project.price && (
+                    <div className="price-badge">{project.price}</div>
+                  )}
+                </div>
+                <div className="project-info">
+                  <h3 className="project-name">{project.name}</h3>
+                  <p className="project-location">
+                    📍 {project.location}
+                  </p>
+                </div>
               </div>
-              <div className="project-info">
-                <h3 className="project-name">{project.name}</h3>
-                <p className="project-location">
-                  📍 {project.location}
-                </p>
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

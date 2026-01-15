@@ -1,6 +1,6 @@
 .footer {
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  padding: 80px 20px 20px;
+  padding: 50px 20px 20px;
   border-top: 3px solid var(--primary-color);
   position: relative;
   overflow: hidden;
@@ -27,8 +27,8 @@
   margin: 0 auto;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 50px;
-  margin-bottom: 40px;
+  gap: 35px;
+  margin-bottom: 30px;
 }
 
 .footer-column {
@@ -39,13 +39,13 @@
 .footer-logo {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 25px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 .footer-logo img {
-  width: 45px;
-  height: 45px;
+  width: 36px;
+  height: 36px;
 }
 
 .footer-logo-text {
@@ -55,13 +55,13 @@
 }
 
 .footer-logo-sunshine {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   color: #ff8c00;
 }
 
 .footer-logo-real-estate {
-  font-size: 13px;
+  font-size: 11px;
   color: #d4a574;
   font-weight: 600;
 }
@@ -69,15 +69,15 @@
 .footer-contact {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
 .footer-address,
 .footer-phone,
 .footer-email {
-  font-size: 14px;
+  font-size: 13px;
   color: rgba(255, 255, 255, 0.7);
-  line-height: 1.8;
+  line-height: 1.6;
 }
 
 .footer-phone a,
@@ -95,12 +95,12 @@
 }
 
 .footer-heading {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   color: white;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   position: relative;
   display: inline-block;
 }

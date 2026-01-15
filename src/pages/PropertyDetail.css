@@ -76,6 +76,24 @@
   background: rgba(0, 0, 0, 0.9);
 }
 
+.gallery-btn.wishlist-toggle.active {
+  background: rgba(255, 0, 0, 0.85);
+  animation: wishlistPulse 0.5s ease;
+}
+
+.gallery-btn.wishlist-toggle.active:hover {
+  background: rgba(255, 0, 0, 1);
+}
+
+@keyframes wishlistPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
 /* Main Content Layout */
 .property-content {
   max-width: 1400px;

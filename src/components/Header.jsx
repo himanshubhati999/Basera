@@ -1,12 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import AuthModal from './AuthModal';
 import './Header.css';
+import './ButtonGlare.css';
 
 const Header = () => {
-  const [wishlistCount] = useState(0);
+  const { user, logout, wishlist } = useAuth();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const headlines = [
+    'Join Us for Exclusive Open House Events This Weekend and Find Your Perfect Home!',
+    'Discover Your Dream Home with Our Latest Listings and Personalized Services!',
+    'Take Advantage of Limited-Time Offers on Luxury Homes with Stunning Features!',
+    'Explore Our Exciting New Property Listings Now Available in Prime Locations!'
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % headlines.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [headlines.length]);
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -48,19 +70,79 @@ const Header = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const handleLogout = () => {
+    logout();
+    setShowUserMenu(false);
+    closeMobileMenu();
+    navigate('/');
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showUserMenu && !event.target.closest('.user-menu-container')) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showUserMenu]);
+
+  const handlePrevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + headlines.length) % headlines.length);
+  };
+
+  const handleNextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % headlines.length);
+  };
+
   return (
     <header className={`header ${isVisible ? 'visible' : 'hidden'}`}>
       <div className="header-top">
         <div className="header-top-content">
           <div className="header-nav-arrows">
-            <button className="nav-arrow">←</button>
-            <button className="nav-arrow">→</button>
+            <button className="nav-arrow btn-glare" onClick={handlePrevSlide}>←</button>
+            <button className="nav-arrow btn-glare" onClick={handleNextSlide}>→</button>
+            <div className="header-headline">{headlines[currentSlide]}</div>
+            {user ? (
+              <div className="user-menu-container ">
+                <button 
+                  className="user-btn btn-glare" 
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                >
+                  👤 {user.name}
+                </button>
+                {showUserMenu && (
+                  <div className="user-dropdown">
+                    <Link to="/profile" onClick={() => setShowUserMenu(false)}>
+                      👤 Profile
+                    </Link>
+                    <Link to="/wishlist" onClick={() => setShowUserMenu(false)}>
+                      ❤️ My Wishlist
+                    </Link>
+                    
+                    {user.role === 'admin' && (
+                      <Link to="/admin/dashboard" onClick={() => setShowUserMenu(false)}>
+                        🔐 Admin Dashboard
+                      </Link>
+                    )}
+                    <button onClick={handleLogout}>
+                      🚪 Logout
+                    </button>
+                    
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link to="/login"  className="login-btn btn-glare ">🔓 Login</Link>
+            )}
           </div>
           <div className="header-top-right">
-            <button className="wishlist-btn">
-              ❤️ Wishlist({wishlistCount})
-            </button>
-            <button className="login-btn">🔓 Login</button>
+            <Link to="/wishlist" className="wishlist-btn btn-glare">
+              ❤️ Wishlist({wishlist?.length || 0})
+            </Link>
+            
           </div>
         </div>
       </div>
@@ -88,15 +170,15 @@ const Header = () => {
           <nav className="main-nav">
             <Link to="/projects">Projects</Link>
             <Link to="/properties">Properties</Link>
-            <a href="#agents">Agents</a>
-            <a href="#news">News</a>
-            <a href="#careers">Careers</a>
+            <Link to="/agents">Agents</Link>
+            <Link to="/news">News</Link>
+            <Link to="/careers">Careers</Link>
             <Link to="/contact">Contact</Link>
           </nav>
           
-          <button className="add-property-btn">
+          <Link to="/post-property" className="add-property-btn btn-glare">
             <span className="plus-icon">+</span> Add Property
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -107,22 +189,46 @@ const Header = () => {
           <div className="mobile-menu-panel">
             <div className="mobile-menu-header">
               <span className="mobile-menu-title">Menu</span>
-              <button className="close-btn" onClick={closeMobileMenu}>✕</button>
+              <button className="close-btn btn-glare" onClick={closeMobileMenu}>✕</button>
             </div>
             <nav className="mobile-nav">
               <Link to="/projects" onClick={closeMobileMenu}>Projects</Link>
               <Link to="/properties" onClick={closeMobileMenu}>Properties</Link>
-              <a href="#agents" onClick={closeMobileMenu}>Agents</a>
-              <a href="#news" onClick={closeMobileMenu}>News</a>
-              <a href="#careers" onClick={closeMobileMenu}>Careers</a>
+              <Link to="/agents" onClick={closeMobileMenu}>Agents</Link>
+              <Link to="/news" onClick={closeMobileMenu}>News</Link>
+              <Link to="/careers" onClick={closeMobileMenu}>Careers</Link>
               <Link to="/contact" onClick={closeMobileMenu}>Contact</Link>
+              <div className="mobile-divider"></div>
+              {user ? (
+                <>
+                  <Link to="/wishlist" onClick={closeMobileMenu}>❤️ Wishlist ({wishlist?.length || 0})</Link>
+                  {/* <Link to="/profile" onClick={closeMobileMenu}>👤 Profile</Link> */}
+                  {/* <Link to="/my-properties" onClick={closeMobileMenu}>🏠 My Properties</Link> */}
+                  {/* <Link to="/post-property" onClick={closeMobileMenu}>➕ Post Property</Link> */}
+                  {user.role === 'admin' && (
+                    <Link to="/admin/dashboard" onClick={closeMobileMenu}>🔐 Admin Dashboard</Link>
+                  )}
+                  {/* <Link to="/settings" onClick={closeMobileMenu}>⚙️ Settings</Link> */}
+                  <button className="mobile-logout-btn" onClick={() => { handleLogout(); closeMobileMenu(); }}>
+                    🚪 Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/wishlist" onClick={closeMobileMenu}>❤️ Wishlist ({wishlist?.length || 0})</Link>
+                  <Link to="/login" onClick={closeMobileMenu}>🔓 Login</Link>
+                </>
+              )}
             </nav>
-            <button className="mobile-add-property-btn" onClick={closeMobileMenu}>
+            <Link to="/post-property" className="mobile-add-property-btn btn-glare" onClick={closeMobileMenu}>
               <span className="plus-icon">+</span> Add Property
-            </button>
+            </Link>
           </div>
         </>
       )}
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </header>
   );
 };
