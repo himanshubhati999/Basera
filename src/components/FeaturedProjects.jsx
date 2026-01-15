@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 import './FeaturedProjects.css';
 import ShinyText from './ShinyText';
 import './ButtonGlare.css';
@@ -22,7 +23,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
   const fetchProperties = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/properties');
+      const response = await fetch(API_ENDPOINTS.PROPERTIES);
       
       if (!response.ok) {
         throw new Error('Failed to fetch properties');

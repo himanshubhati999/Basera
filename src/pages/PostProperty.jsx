@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 import './PostProperty.css';
 
 const PostProperty = () => {
@@ -107,7 +108,7 @@ const PostProperty = () => {
 
       console.log('Submitting property data:', propertyData);
 
-      const response = await fetch('http://localhost:5000/api/properties', {
+      const response = await fetch(API_ENDPOINTS.PROPERTIES, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

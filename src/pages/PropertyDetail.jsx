@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 import './PropertyDetail.css';
 import ShinyText from '../components/ShinyText';
 import '../components/ButtonGlare.css';
@@ -21,7 +22,7 @@ const PropertyDetail = () => {
     const fetchProperty = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5000/api/properties/${id}`);
+        const response = await fetch(API_ENDPOINTS.PROPERTY_BY_ID(id));
         
         if (!response.ok) {
           throw new Error('Property not found');

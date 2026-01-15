@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -39,7 +40,7 @@ const AdminDashboard = () => {
       const token = localStorage.getItem('token');
       
       // Fetch stats
-      const statsResponse = await fetch('http://localhost:5000/api/admin/stats', {
+      const statsResponse = await fetch(API_ENDPOINTS.ADMIN_STATS, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -51,7 +52,7 @@ const AdminDashboard = () => {
       }
 
       // Fetch properties
-      const propsResponse = await fetch('http://localhost:5000/api/admin/properties', {
+      const propsResponse = await fetch(API_ENDPOINTS.ADMIN_PROPERTIES, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -63,7 +64,7 @@ const AdminDashboard = () => {
       }
 
       // Fetch users
-      const usersResponse = await fetch('http://localhost:5000/api/admin/users', {
+      const usersResponse = await fetch(API_ENDPOINTS.ADMIN_USERS, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -88,7 +89,7 @@ const AdminDashboard = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/admin/properties/${propertyId}`, {
+      const response = await fetch(API_ENDPOINTS.ADMIN_PROPERTY_BY_ID(propertyId), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -114,7 +115,7 @@ const AdminDashboard = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
+      const response = await fetch(API_ENDPOINTS.ADMIN_USER_BY_ID(userId), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -136,7 +137,7 @@ const AdminDashboard = () => {
   const handleUpdatePropertyStatus = async (propertyId, newStatus) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/admin/properties/${propertyId}/status`, {
+      const response = await fetch(API_ENDPOINTS.ADMIN_PROPERTY_STATUS(propertyId), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -163,7 +164,7 @@ const AdminDashboard = () => {
   const handleToggleFeatured = async (propertyId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/admin/properties/${propertyId}/featured`, {
+      const response = await fetch(API_ENDPOINTS.ADMIN_PROPERTY_FEATURED(propertyId), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
