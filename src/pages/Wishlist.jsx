@@ -136,27 +136,7 @@ const Wishlist = () => {
             My Wishlist
             <span className="tab-count">{wishlistProperties.length}</span>
           </button>
-          <button 
-            className={`tab-btn ${activeTab === 'featured' ? 'active' : ''}`}
-            onClick={() => setActiveTab('featured')}
-          >
-            Featured Projects
-            <span className="tab-count">{categorizedWishlist.featured.length}</span>
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
-            onClick={() => setActiveTab('projects')}
-          >
-            Projects
-            <span className="tab-count">{categorizedWishlist.projects.length}</span>
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'properties' ? 'active' : ''}`}
-            onClick={() => setActiveTab('properties')}
-          >
-            Properties
-            <span className="tab-count">{categorizedWishlist.properties.length}</span>
-          </button>
+          
         </div>
 
         {wishlistProperties.length > 0 ? (
