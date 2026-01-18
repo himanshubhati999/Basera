@@ -1,6 +1,7 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 import './Wishlist.css';
 import ShinyText from '../components/ShinyText';
 
@@ -8,166 +9,51 @@ const Wishlist = () => {
   const { user, wishlist, removeFromWishlist, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
+  const [allProperties, setAllProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // All properties data (same as in Properties.jsx)
-  const allProperties = useMemo(() => [
-    {
-      id: 1,
-      name: 'Modern Apartment in Sector 62',
-      location: 'Sector 62, Noida',
-      area: '1200 sqft',
-      price: '₹85 Lac',
-      image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&q=80',
-      badge: 'FEATURED',
-      type: 'apartment',
-      bedrooms: '2',
-      bathrooms: '2',
-      status: 'ready-to-move'
-    },
-    {
-      id: 2,
-      name: 'Luxury Villa with Garden',
-      location: 'Greater Noida West',
-      area: '3500 sqft',
-      price: '₹2.5 Cr',
-      image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80',
-      badge: 'PREMIUM',
-      type: 'villa',
-      bedrooms: '4',
-      bathrooms: '4',
-      status: 'ready-to-move'
-    },
-    {
-      id: 3,
-      name: 'Budget-Friendly 2BHK',
-      location: 'Sector 137, Noida',
-      area: '950 sqft',
-      price: '₹42 Lac',
-      image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80',
-      badge: 'BEST DEAL',
-      type: 'apartment',
-      bedrooms: '2',
-      bathrooms: '2',
-      status: 'under-construction'
-    },
-    {
-      id: 4,
-      name: 'Spacious 3BHK Penthouse',
-      location: 'Sector 76, Noida',
-      area: '2200 sqft',
-      price: '₹1.45 Cr',
-      image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=80',
-      badge: 'LUXURY',
-      type: 'penthouse',
-      bedrooms: '3',
-      bathrooms: '3',
-      status: 'ready-to-move'
-    },
-    {
-      id: 5,
-      name: 'Commercial Office Space',
-      location: 'Sector 18, Noida',
-      area: '1800 sqft',
-      price: '₹1.8 Cr',
-      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80',
-      badge: 'COMMERCIAL',
-      type: 'commercial',
-      bedrooms: '',
-      bathrooms: '2',
-      status: 'ready-to-move'
-    },
-    {
-      id: 6,
-      name: 'Independent House',
-      location: 'Alpha II, Greater Noida',
-      area: '2800 sqft',
-      price: '₹1.95 Cr',
-      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80',
-      badge: 'NEW',
-      type: 'house',
-      bedrooms: '4',
-      bathrooms: '3',
-      status: 'ready-to-move'
-    },
-    {
-      id: 7,
-      name: 'Studio Apartment',
-      location: 'Sector 142, Noida',
-      area: '600 sqft',
-      price: '₹32 Lac',
-      image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80',
-      badge: 'AFFORDABLE',
-      type: 'apartment',
-      bedrooms: '1',
-      bathrooms: '1',
-      status: 'ready-to-move'
-    },
-    {
-      id: 8,
-      name: 'Duplex Villa',
-      location: 'Yamuna Expressway',
-      area: '4200 sqft',
-      price: '₹3.2 Cr',
-      image: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=80',
-      badge: 'PREMIUM',
-      type: 'villa',
-      bedrooms: '5',
-      bathrooms: '5',
-      status: 'under-construction'
-    },
-    {
-      id: 9,
-      name: 'Builder Floor',
-      location: 'Sector 50, Noida',
-      area: '1650 sqft',
-      price: '₹98 Lac',
-      image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80',
-      badge: 'HOT DEAL',
-      type: 'builder-floor',
-      bedrooms: '3',
-      bathrooms: '2',
-      status: 'ready-to-move'
-    },
-    {
-      id: 10,
-      name: 'Farmhouse with Pool',
-      location: 'Greater Noida',
-      area: '5000 sqft',
-      price: '₹4.5 Cr',
-      image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80',
-      badge: 'LUXURY',
-      type: 'farmhouse',
-      bedrooms: '6',
-      bathrooms: '6',
-      status: 'ready-to-move'
-    },
-    {
-      id: 11,
-      name: 'Compact 1BHK',
-      location: 'Sector 120, Noida',
-      area: '750 sqft',
-      price: '₹38 Lac',
-      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80',
-      badge: 'BEST VALUE',
-      type: 'apartment',
-      bedrooms: '1',
-      bathrooms: '1',
-      status: 'ready-to-move'
-    },
-    {
-      id: 12,
-      name: 'Corner Plot Property',
-      location: 'Sector 144, Noida',
-      area: '2500 sqft',
-      price: '₹1.65 Cr',
-      image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80',
-      badge: 'PRIME LOCATION',
-      type: 'house',
-      bedrooms: '4',
-      bathrooms: '4',
-      status: 'under-construction'
+  // Fetch all properties from backend
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(API_ENDPOINTS.PROPERTIES);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch properties');
+        }
+        
+        const data = await response.json();
+        
+        // Transform backend data to match frontend format
+        const transformedProperties = data.properties.map(prop => ({
+          id: prop._id,
+          name: prop.title,
+          location: prop.location?.city || prop.location?.address || 'Location not specified',
+          area: prop.area ? `${prop.area} sqft` : 'N/A',
+          price: `₹${prop.price.toLocaleString('en-IN')}`,
+          image: prop.images?.[0] || 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&q=80',
+          badge: prop.status === 'available' ? 'AVAILABLE' : 'SOLD',
+          type: prop.propertyType?.toLowerCase() || 'apartment',
+          listingType: prop.listingType || 'sale',
+          bedrooms: prop.bedrooms?.toString() || '',
+          bathrooms: prop.bathrooms?.toString() || '',
+          status: prop.status || 'ready-to-move'
+        }));
+        
+        setAllProperties(transformedProperties);
+      } catch (err) {
+        console.error('Error fetching properties:', err);
+        setAllProperties([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchProperties();
     }
-  ], []);
+  }, [isAuthenticated]);
 
   // Compute wishlist properties based on current wishlist
   const wishlistProperties = useMemo(() => {
@@ -207,8 +93,8 @@ const Wishlist = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleRemove = (propertyId) => {
-    removeFromWishlist(propertyId);
+  const handleRemove = async (propertyId) => {
+    await removeFromWishlist(propertyId);
   };
 
   if (!isAuthenticated) {

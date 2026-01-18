@@ -240,7 +240,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
     }
   ];
 
-  const handleWishlistToggle = (e, projectId) => {
+  const handleWishlistToggle = async (e, projectId) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -249,7 +249,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
       return;
     }
 
-    const result = toggleWishlist(projectId);
+    const result = await toggleWishlist(projectId);
     if (!result.success && result.error) {
       alert(result.error);
     }

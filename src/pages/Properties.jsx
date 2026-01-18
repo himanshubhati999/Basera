@@ -36,6 +36,10 @@ const Properties = () => {
       
       const data = await response.json();
       
+      console.log('=== FETCHED PROPERTIES ===');
+      console.log('Total properties:', data.properties?.length);
+      console.log('Sample property IDs:', data.properties?.slice(0, 3).map(p => ({ _id: p._id, title: p.title })));
+      
       // Transform backend data to match frontend format and exclude projects
       const transformedProperties = data.properties
         .filter(prop => prop.propertyType !== 'project') // Exclude projects from properties page
@@ -53,6 +57,9 @@ const Properties = () => {
           bathrooms: prop.bathrooms?.toString() || '',
           status: prop.status || 'ready-to-move'
         }));
+      
+      console.log('Transformed properties count:', transformedProperties.length);
+      console.log('Sample transformed IDs:', transformedProperties.slice(0, 3).map(p => ({ id: p.id, name: p.name })));
       
       setPropertiesList(transformedProperties);
       setFilteredProperties(transformedProperties);
@@ -303,16 +310,23 @@ const Properties = () => {
     setFilteredProperties(propertiesList);
   };
 
-  const handleWishlistToggle = (e, propertyId) => {
+  const handleWishlistToggle = async (e, propertyId) => {
     e.preventDefault(); // Prevent navigation to property detail
     e.stopPropagation();
+    
+    console.log('=== WISHLIST TOGGLE CLICKED ===');
+    console.log('Property ID:', propertyId);
+    console.log('Property ID type:', typeof propertyId);
+    console.log('Property ID length:', propertyId?.length);
+    console.log('Is valid ObjectId format:', /^[0-9a-fA-F]{24}$/.test(propertyId));
     
     if (!isAuthenticated) {
       navigate('/login', { state: { from: '/properties' } });
       return;
     }
 
-    const result = toggleWishlist(propertyId);
+    const result = await toggleWishlist(propertyId);
+    console.log('Toggle result:', result);
     if (!result.success && result.error) {
       alert(result.error);
     }
@@ -440,7 +454,9 @@ const Properties = () => {
             <button onClick={fetchProperties} className="btn-glare">Retry</button>
           </div>
         ) : filteredProperties.length > 0 ? (
-          filteredProperties.map(property => (
+          filteredProperties.map(property => {
+            console.log('Rendering property:', { id: property.id, name: property.name, idType: typeof property.id, idLength: property.id?.length });
+            return (
             <Link to={`/properties/${property.id}`} key={property.id} className="property-card-link">
               <div className="property-card">
                 <div className="property-badge">{property.badge}</div>
@@ -467,7 +483,7 @@ const Properties = () => {
                 </div>
               </div>
             </Link>
-          ))
+          )})
         ) : (
           <div className="no-results">
             <h3>No properties found</h3>

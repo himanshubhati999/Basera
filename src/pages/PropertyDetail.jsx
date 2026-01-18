@@ -531,13 +531,13 @@ const PropertyDetail = () => {
     alert('Please log in to write review!');
   };
 
-  const handleWishlistToggle = () => {
+  const handleWishlistToggle = async () => {
     if (!isAuthenticated) {
       navigate('/login', { state: { from: `/properties/${id}` } });
       return;
     }
 
-    const result = toggleWishlist(parseInt(id));
+    const result = await toggleWishlist(id);
     if (!result.success && result.error) {
       alert(result.error);
     }

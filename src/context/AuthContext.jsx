@@ -19,20 +19,40 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Check if user is logged in (from localStorage)
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    const token = localStorage.getItem('token');
+    
+    if (storedUser && token) {
       try {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
-        // Load wishlist from localStorage
-        const storedWishlist = localStorage.getItem(`wishlist_${parsedUser.id}`);
-        if (storedWishlist) {
-          setWishlist(JSON.parse(storedWishlist));
-        }
+        
+        // Fetch wishlist from backend
+        fetch(API_ENDPOINTS.WISHLIST, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            setWishlist(data.data || []);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching wishlist:', error);
+          setWishlist([]);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
       } catch {
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        setLoading(false);
       }
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const signup = async (userData) => {
@@ -66,7 +86,6 @@ export const AuthProvider = ({ children }) => {
       
       // Initialize empty wishlist for new user
       setWishlist([]);
-      localStorage.setItem(`wishlist_${userWithToken.id}`, JSON.stringify([]));
 
       return { success: true, user: userWithToken };
     } catch (error) {
@@ -103,13 +122,23 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userWithToken));
       localStorage.setItem('token', data.data.token);
       
-      // Load wishlist for this user
-      const storedWishlist = localStorage.getItem(`wishlist_${userWithToken.id}`);
-      if (storedWishlist) {
-        setWishlist(JSON.parse(storedWishlist));
-      } else {
+      // Fetch wishlist from backend
+      try {
+        const wishlistResponse = await fetch(API_ENDPOINTS.WISHLIST, {
+          headers: {
+            'Authorization': `Bearer ${data.data.token}`
+          }
+        });
+        
+        if (wishlistResponse.ok) {
+          const wishlistData = await wishlistResponse.json();
+          setWishlist(wishlistData.data || []);
+        } else {
+          setWishlist([]);
+        }
+      } catch (error) {
+        console.error('Error fetching wishlist:', error);
         setWishlist([]);
-        localStorage.setItem(`wishlist_${userWithToken.id}`, JSON.stringify([]));
       }
 
       return { success: true, user: userWithToken };
@@ -125,7 +154,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
-  const addToWishlist = (propertyId) => {
+  const addToWishlist = async (propertyId) => {
     if (!user) {
       return { success: false, error: 'Please login to add to wishlist' };
     }
@@ -134,32 +163,80 @@ export const AuthProvider = ({ children }) => {
       return { success: false, error: 'Property already in wishlist' };
     }
 
-    const newWishlist = [...wishlist, propertyId];
-    setWishlist(newWishlist);
-    localStorage.setItem(`wishlist_${user.id}`, JSON.stringify(newWishlist));
-    return { success: true, message: 'Added to wishlist' };
+    console.log('=== Adding to wishlist ===');
+    console.log('PropertyId:', propertyId);
+    console.log('PropertyId type:', typeof propertyId);
+    console.log('PropertyId length:', propertyId?.length);
+    console.log('API URL:', `${API_ENDPOINTS.WISHLIST}/${propertyId}`);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_ENDPOINTS.WISHLIST}/${propertyId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      console.log('API Response status:', response.status);
+      console.log('API Response data:', JSON.stringify(data, null, 2));
+
+      if (response.ok) {
+        setWishlist(data.data);
+        return { success: true, message: data.message };
+      } else {
+        console.error('API Error:', JSON.stringify(data, null, 2));
+        alert(`Error: ${data.message || 'Failed to add to wishlist'}\nProperty ID: ${propertyId}\nID Type: ${typeof propertyId}\nID Length: ${propertyId?.length}`);
+        return { success: false, error: data.message };
+      }
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      return { success: false, error: 'Failed to add to wishlist' };
+    }
   };
 
-  const removeFromWishlist = (propertyId) => {
+  const removeFromWishlist = async (propertyId) => {
     if (!user) {
       return { success: false, error: 'Please login' };
     }
 
-    const newWishlist = wishlist.filter(id => id !== propertyId);
-    setWishlist(newWishlist);
-    localStorage.setItem(`wishlist_${user.id}`, JSON.stringify(newWishlist));
-    return { success: true, message: 'Removed from wishlist' };
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_ENDPOINTS.WISHLIST}/${propertyId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setWishlist(data.data);
+        return { success: true, message: data.message };
+      } else {
+        return { success: false, error: data.message };
+      }
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      return { success: false, error: 'Failed to remove from wishlist' };
+    }
   };
 
-  const toggleWishlist = (propertyId) => {
+  const toggleWishlist = async (propertyId) => {
     if (!user) {
       return { success: false, error: 'Please login to add to wishlist' };
     }
 
+    console.log('=== AuthContext toggleWishlist ===');
+    console.log('Received propertyId:', propertyId);
+    console.log('Type:', typeof propertyId);
+
     if (wishlist.includes(propertyId)) {
-      return removeFromWishlist(propertyId);
+      return await removeFromWishlist(propertyId);
     } else {
-      return addToWishlist(propertyId);
+      return await addToWishlist(propertyId);
     }
   };
 

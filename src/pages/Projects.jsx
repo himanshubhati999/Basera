@@ -241,7 +241,7 @@ const Projects = () => {
     setFilteredProjects(projectsList);
   };
 
-  const handleWishlistToggle = (e, projectId) => {
+  const handleWishlistToggle = async (e, projectId) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -250,7 +250,7 @@ const Projects = () => {
       return;
     }
 
-    const result = toggleWishlist(projectId);
+    const result = await toggleWishlist(projectId);
     if (!result.success && result.error) {
       alert(result.error);
     }
