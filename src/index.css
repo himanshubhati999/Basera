@@ -6,20 +6,20 @@
   font-weight: 400;
   
   /* Color Variables */
-  --primary-color: #ff0000;
-  --primary-dark: #cc0000;
-  --primary-light: #ff3333;
-  --secondary-color: #ff8c00;
-  --accent-color: #d4a574;
-  --text-dark: #1a1a1a;
-  --text-medium: #4a4a4a;
-  --text-light: #666;
-  --bg-light: #f8f9fa;
+  --primary-color: #6b7c8f;
+  --primary-dark: #4a5a6d;
+  --primary-light: #8a9db0;
+  --secondary-color: #a89f91;
+  --accent-color: #c4b5a0;
+  --text-dark: #2c3e50;
+  --text-medium: #5a6c7d;
+  --text-light: #7f8c9a;
+  --bg-light: #f5f7fa;
   --bg-white: #ffffff;
-  --border-color: #e0e0e0;
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+  --border-color: #e8ecef;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
   
   font-synthesis: none;
   text-rendering: optimizeLegibility;

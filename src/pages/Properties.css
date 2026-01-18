@@ -93,11 +93,11 @@
 
 .filter-group input:focus,
 .filter-group select:focus {
-  border-color: #ff0000;
+  border-color: #6b7c8f;
 }
 
 .search-btn {
-  background: #ff0000;
+  background: #6b7c8f;
   color: white;
   border: none;
   padding: 12px 40px;
@@ -110,7 +110,7 @@
 }
 
 .search-btn:hover {
-  background: #e60000;
+  background: #5a6c7d;
 }
 
 .reset-btn {
@@ -200,7 +200,7 @@
   position: absolute;
   top: 15px;
   left: 15px;
-  background: #ff0000;
+  background: #6b7c8f;
   color: white;
   padding: 5px 15px;
   border-radius: 20px;
@@ -252,7 +252,7 @@
 
 .wishlist-heart:hover {
   transform: scale(1.15);
-  box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(107, 124, 143, 0.4);
 }
 
 .wishlist-heart.active {
@@ -299,7 +299,7 @@
 .property-price {
   font-size: 18px !important;
   font-weight: 700 !important;
-  color: #ff0000 !important;
+  color: #6b7c8f !important;
   margin-top: 10px !important;
 }
 
