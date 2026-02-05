@@ -5,15 +5,17 @@ import { API_ENDPOINTS } from '../config/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [properties, setProperties] = useState([]);
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
+  const [activityLogs, setActivityLogs] = useState([]);
 
   useEffect(() => {
     // Check if user is admin
@@ -30,6 +32,7 @@ const AdminDashboard = () => {
     }
 
     fetchDashboardData();
+    generateActivityLogs();
   }, [user, navigate]);
 
   const fetchDashboardData = async () => {
@@ -80,6 +83,54 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateActivityLogs = () => {
+    const logs = [
+      {
+        type: 'login',
+        user: user?.name || 'Shresth Sharma',
+        message: 'logged in to the system',
+        time: '1 minute ago',
+        ip: '106.219.147.69'
+      },
+      {
+        type: 'login',
+        user: user?.name || 'Shresth Sharma',
+        message: 'logged in to the system',
+        time: '1 hour ago',
+        ip: '106.211.58.178'
+      },
+      {
+        type: 'login',
+        user: user?.name || 'Shresth Sharma',
+        message: 'logged in to the system',
+        time: '3 hours ago',
+        ip: '122.161.53.204'
+      },
+      {
+        type: 'contact',
+        user: 'System',
+        message: 'created contact "Cheung Eric"',
+        time: '1 day ago',
+        ip: '146.70.45.85'
+      },
+      {
+        type: 'login',
+        user: user?.name || 'Shresth Sharma',
+        message: 'logged in to the system',
+        time: '2 days ago',
+        ip: '103.225.205.126'
+      },
+      {
+        type: 'post',
+        user: user?.name || 'Shresth Sharma',
+        message: 'updated post "YEIDA- India\'s Next development hub"',
+        time: '4 days ago',
+        ip: '122.161.49.230'
+      }
+    ];
+    setActivityLogs(logs);
   };
 
   const handleDeleteProperty = async (propertyId) => {
@@ -215,7 +266,7 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="admin-dashboard">
+      <div className="admin-dashboard-modern">
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <p>Loading admin dashboard...</p>
@@ -226,7 +277,7 @@ const AdminDashboard = () => {
 
   if (error) {
     return (
-      <div className="admin-dashboard">
+      <div className="admin-dashboard-modern">
         <div className="error-container">
           <p className="error-message">{error}</p>
           <button onClick={fetchDashboardData} className="action-btn view">
@@ -238,154 +289,329 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="admin-dashboard">
-      <div className="admin-container">
-        <div className="admin-header">
-          <h1>Admin Dashboard</h1>
-          <p>Manage properties, users, and view statistics</p>
+    <div className="admin-dashboard-modern">
+      {/* Sidebar */}
+      <aside className={`admin-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        <div className="sidebar-header">
+          <button 
+            className="sidebar-toggle"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          >
+            ☰
+          </button>
+          <h2 className="sidebar-brand">Sunshine Real Estate</h2>
         </div>
 
-        {/* Stats Cards */}
-        {stats && (
-          <div className="stats-grid">
-            <div className="stat-card properties">
-              <div className="stat-card-header">
-                <span className="stat-label">Total Properties</span>
-                <span className="stat-icon">🏠</span>
-              </div>
-              <div className="stat-value">{stats.totalProperties}</div>
-            </div>
-
-            <div className="stat-card users">
-              <div className="stat-card-header">
-                <span className="stat-label">Total Users</span>
-                <span className="stat-icon">👥</span>
-              </div>
-              <div className="stat-value">{stats.totalUsers}</div>
-            </div>
-
-            <div className="stat-card available">
-              <div className="stat-card-header">
-                <span className="stat-label">Available</span>
-                <span className="stat-icon">✅</span>
-              </div>
-              <div className="stat-value">{stats.availableProperties}</div>
-            </div>
-
-            <div className="stat-card sold">
-              <div className="stat-card-header">
-                <span className="stat-label">Sold</span>
-                <span className="stat-icon">💰</span>
-              </div>
-              <div className="stat-value">{stats.soldProperties}</div>
-            </div>
-          </div>
-        )}
-
-        {/* Tabs */}
-        <div className="admin-tabs">
+        <nav className="sidebar-nav">
           <button
-            className={`tab-button ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
+            className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
           >
-            📊 Overview
+            <span className="nav-icon">📊</span>
+            <span className="nav-text">Dashboard</span>
           </button>
+
           <button
-            className={`tab-button ${activeTab === 'properties' ? 'active' : ''}`}
-            onClick={() => setActiveTab('properties')}
+            className={`nav-item ${activeTab === 'real-estate' ? 'active' : ''}`}
+            onClick={() => setActiveTab('real-estate')}
           >
-            🏠 Properties ({properties.length})
+            <span className="nav-icon">🏠</span>
+            <span className="nav-text">Real Estate</span>
           </button>
+
           <button
-            className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+            className={`nav-item ${activeTab === 'pages' ? 'active' : ''}`}
+            onClick={() => setActiveTab('pages')}
+          >
+            <span className="nav-icon">📄</span>
+            <span className="nav-text">Pages</span>
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'blog' ? 'active' : ''}`}
+            onClick={() => setActiveTab('blog')}
+          >
+            <span className="nav-icon">📝</span>
+            <span className="nav-text">Blog</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">💳</span>
+            <span className="nav-text">Payments</span>
+            <span className="badge">2</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">💼</span>
+            <span className="nav-text">Careers</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">💬</span>
+            <span className="nav-text">Consults</span>
+            <span className="badge">2</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">📢</span>
+            <span className="nav-text">Ads</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">📣</span>
+            <span className="nav-text">Announcements</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">🎫</span>
+            <span className="nav-text">Coupons</span>
+          </button>
+
+          <button
+            className={`nav-item ${activeTab === 'users' ? 'active' : ''}`}
             onClick={() => setActiveTab('users')}
           >
-            👥 Users ({users.length})
+            <span className="nav-icon">👥</span>
+            <span className="nav-text">Accounts</span>
           </button>
-        </div>
 
-        {/* Overview Tab */}
-        {activeTab === 'overview' && stats && (
-          <div className="admin-section">
-            <div className="section-header">
-              <h2>Recent Activity</h2>
+          <button className="nav-item">
+            <span className="nav-icon">📦</span>
+            <span className="nav-text">Packages</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">📧</span>
+            <span className="nav-text">Contact</span>
+            <span className="badge">2</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">📰</span>
+            <span className="nav-text">Newsletters</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">📍</span>
+            <span className="nav-text">Locations</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">🖼️</span>
+            <span className="nav-text">Media</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">🎨</span>
+            <span className="nav-text">Appearance</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">🔌</span>
+            <span className="nav-text">Plugins</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">🔧</span>
+            <span className="nav-text">Tools</span>
+          </button>
+
+          <button className="nav-item">
+            <span className="nav-icon">⚙️</span>
+            <span className="nav-text">Settings</span>
+          </button>
+        </nav>
+      </aside>
+
+      {/* Main Content */}
+      <div className="admin-main-content">
+        {/* Header */}
+        <header className="admin-header-modern">
+          <div className="header-search">
+            <input 
+              type="text" 
+              placeholder="Search"
+              className="search-input-modern"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <span className="search-shortcut">ctrl/cmd + k</span>
+          </div>
+
+          <div className="header-actions">
+            <button className="header-btn" onClick={() => navigate('/')}>
+              🌐 View website
+            </button>
+            <button className="header-icon-btn">
+              <span className="theme-toggle">🌙</span>
+            </button>
+            <button className="header-icon-btn notification-btn">
+              🔔
+              <span className="notification-badge">0</span>
+            </button>
+            <button className="header-icon-btn notification-btn">
+              💬
+              <span className="notification-badge red">2</span>
+            </button>
+            <button className="header-icon-btn notification-btn">
+              🎁
+              <span className="notification-badge red">2</span>
+            </button>
+            <button className="user-profile-btn">
+              <span className="user-avatar">S</span>
+              <div className="user-info">
+                <span className="user-name">{user?.name || 'Shresth Sharma'}</span>
+                <span className="user-email">{user?.email || 'info@sunshinerealstatepvtltd.com'}</span>
+              </div>
+            </button>
+          </div>
+        </header>
+
+        {/* Dashboard Content */}
+        {activeTab === 'dashboard' && (
+          <div className="dashboard-content">
+            <div className="dashboard-header-row">
+              <h1 className="dashboard-title">DASHBOARD</h1>
+              <button className="manage-widgets-btn">
+                🗂️ Manage Widgets
+              </button>
             </div>
 
-            <h3 style={{ marginTop: '30px', marginBottom: '15px', color: '#2c3e50' }}>
-              Recent Properties
-            </h3>
-            <div className="data-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Property</th>
-                    <th>Posted By</th>
-                    <th>Price</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentProperties.map(property => (
-                    <tr key={property._id}>
-                      <td>
-                        <div className="property-title">{property.title}</div>
-                        <div className="property-location">
-                          {property.location?.city}, {property.location?.state}
-                        </div>
-                      </td>
-                      <td>{property.postedBy?.name}</td>
-                      <td className="price">{formatPrice(property.price)}</td>
-                      <td>{formatDate(property.createdAt)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {/* Stats Cards */}
+            <div className="stats-cards-modern">
+              <div className="stat-card-modern purple">
+                <div className="stat-card-content">
+                  <h3>Active properties</h3>
+                  <div className="stat-number-modern">
+                    {stats?.availableProperties || 0}
+                  </div>
+                </div>
+                <div className="stat-icon-bg">💼</div>
+              </div>
+
+              <div className="stat-card-modern cyan">
+                <div className="stat-card-content">
+                  <h3>Pending properties</h3>
+                  <div className="stat-number-modern">0</div>
+                </div>
+                <div className="stat-icon-bg">📋</div>
+              </div>
+
+              <div className="stat-card-modern red">
+                <div className="stat-card-content">
+                  <h3>Expired properties</h3>
+                  <div className="stat-number-modern">0</div>
+                </div>
+                <div className="stat-icon-bg">⏰</div>
+              </div>
+
+              <div className="stat-card-modern blue">
+                <div className="stat-card-content">
+                  <h3>Agents</h3>
+                  <div className="stat-number-modern">
+                    {stats?.totalUsers || 3}
+                  </div>
+                </div>
+                <div className="stat-icon-bg">👥</div>
+              </div>
             </div>
 
-            <h3 style={{ marginTop: '30px', marginBottom: '15px', color: '#2c3e50' }}>
-              Recent Users
-            </h3>
-            <div className="data-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Joined</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentUsers.map(user => (
-                    <tr key={user._id}>
-                      <td>{user.name}</td>
-                      <td>{user.email}</td>
-                      <td>
-                        <span className={`role-badge ${user.role}`}>
-                          {user.role}
+            {/* Recent Posts & Activity Logs */}
+            <div className="dashboard-grid">
+              <div className="recent-posts-section">
+                <h2>Recent Posts</h2>
+                <div className="posts-table-wrapper">
+                  <table className="modern-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>NAME</th>
+                        <th>CREATED AT</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stats?.recentProperties?.slice(0, 4).map((property, index) => (
+                        <tr key={property._id}>
+                          <td>{index + 1}</td>
+                          <td>
+                            <a href={`/properties/${property._id}`} className="post-link">
+                              {property.title}
+                            </a>
+                          </td>
+                          <td>{formatDate(property.createdAt)}</td>
+                        </tr>
+                      )) || (
+                        <>
+                          <tr>
+                            <td>1</td>
+                            <td>
+                              <a href="#" className="post-link">
+                                YEIDA- India's Next development hub
+                              </a>
+                            </td>
+                            <td>2026-01-31</td>
+                          </tr>
+                          <tr>
+                            <td>2</td>
+                            <td>
+                              <a href="#" className="post-link">
+                                Complete Guide to Buying Residential Plots in Sector 20, Yamuna Expressway 2026
+                              </a>
+                            </td>
+                            <td>2026-01-17</td>
+                          </tr>
+                          <tr>
+                            <td>3</td>
+                            <td>
+                              <a href="#" className="post-link">
+                                residential plots near Jewar Airport for investment
+                              </a>
+                            </td>
+                            <td>2026-01-13</td>
+                          </tr>
+                          <tr>
+                            <td>4</td>
+                            <td>
+                              <a href="#" className="post-link">
+                                4000-meter Plots in Greater Noida
+                              </a>
+                            </td>
+                            <td>2026-01-12</td>
+                          </tr>
+                        </>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="activity-logs-section">
+                <h2>Activity Logs</h2>
+                <div className="activity-logs-list">
+                  {activityLogs.map((log, index) => (
+                    <div key={index} className="activity-log-item">
+                      <div className="activity-avatar">S</div>
+                      <div className="activity-content">
+                        <p>
+                          <strong>{log.user}</strong> {log.message}
+                        </p>
+                        <span className="activity-time">
+                          {log.time} ({log.ip})
                         </span>
-                      </td>
-                      <td>{formatDate(user.createdAt)}</td>
-                    </tr>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Properties Tab */}
-        {activeTab === 'properties' && (
+        {/* Real Estate Tab */}
+        {activeTab === 'real-estate' && (
           <div className="admin-section">
             <div className="section-header">
               <h2>All Properties</h2>
-              <input
-                type="text"
-                className="search-box"
-                placeholder="Search properties..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
             </div>
 
             {filteredProperties.length === 0 ? (
@@ -487,13 +713,6 @@ const AdminDashboard = () => {
           <div className="admin-section">
             <div className="section-header">
               <h2>All Users</h2>
-              <input
-                type="text"
-                className="search-box"
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
             </div>
 
             {filteredUsers.length === 0 ? (
@@ -539,6 +758,26 @@ const AdminDashboard = () => {
                 </table>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Pages Tab */}
+        {activeTab === 'pages' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <h2>Pages Management</h2>
+            </div>
+            <div className="no-data">Pages management coming soon...</div>
+          </div>
+        )}
+
+        {/* Blog Tab */}
+        {activeTab === 'blog' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <h2>Blog Management</h2>
+            </div>
+            <div className="no-data">Blog management coming soon...</div>
           </div>
         )}
       </div>
