@@ -375,7 +375,7 @@ const Properties = () => {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
             />
-            <span className="icon">📍</span>
+            <span className="icon"><span className="material-symbols-outlined">location_on</span></span>
           </div>
         </div>
 
@@ -468,7 +468,7 @@ const Properties = () => {
                   onClick={(e) => handleWishlistToggle(e, property.id)}
                   title={isInWishlist(property.id) ? 'Remove from wishlist' : 'Add to wishlist'}
                 >
-                  {isInWishlist(property.id) ? '❤️' : '🤍'}
+                  <span className="material-symbols-outlined">{isInWishlist(property.id) ? 'favorite' : 'favorite_border'}</span>
                 </button>
                 <img src={property.image} alt={property.name} />
                 <div className="property-info">

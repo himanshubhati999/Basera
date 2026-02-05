@@ -160,7 +160,7 @@ const PostProperty = () => {
           
           <div className="listing-type-cards">
             <div className="listing-type-card" onClick={() => handleListingTypeSelect('property')}>
-              <div className="card-icon">🏠</div>
+              <div className="card-icon"><span className="material-symbols-outlined">home</span></div>
               <h3>Post Property</h3>
               <p>List individual properties like apartments, houses, commercial spaces, or land for sale or rent</p>
               <button className="select-btn">Select Property</button>

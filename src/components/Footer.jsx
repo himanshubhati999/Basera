@@ -15,10 +15,10 @@ const Footer = () => {
           </div>
           <div className="footer-contact">
             <p className="footer-address">
-              📍 2A,54/13 Awas Vikas 1st DM Road
+              <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> 2A,54/13 Awas Vikas 1st DM Road
             </p>
             <p className="footer-phone">
-              📞 Hotline: <a href="tel:9720444418">9720444418</a>
+              <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>call</span> Hotline: <a href="tel:9720444418">9720444418</a>
             </p>
             <p className="footer-email">
               ✉ Email:{' '}

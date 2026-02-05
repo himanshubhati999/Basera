@@ -69,7 +69,7 @@ const HeroSection = ({ onCategoryChange, selectedCategory }) => {
             <div className="search-divider"></div>
             
             <div className="search-input-group">
-              <span className="location-icon">📍</span>
+              <span className="location-icon"><span className="material-symbols-outlined">location_on</span></span>
               <input 
                 type="text" 
                 placeholder="City, State" 

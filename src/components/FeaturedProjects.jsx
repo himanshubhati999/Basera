@@ -313,7 +313,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
                     onClick={(e) => handleWishlistToggle(e, project.id)}
                     title={isInWishlist(project.id) ? 'Remove from wishlist' : 'Add to wishlist'}
                   >
-                    {isInWishlist(project.id) ? '❤️' : '🤍'}
+                    <span className="material-symbols-outlined">{isInWishlist(project.id) ? 'favorite' : 'favorite_border'}</span>
                   </button>
                   {project.price && (
                     <div className="price-badge">{project.price}</div>
@@ -322,7 +322,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
                 <div className="project-info">
                   <h3 className="project-name">{project.name}</h3>
                   <p className="project-location">
-                    📍 {project.location}
+                    <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> {project.location}
                   </p>
                 </div>
               </div>

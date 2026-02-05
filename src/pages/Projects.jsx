@@ -299,7 +299,7 @@ const Projects = () => {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
             />
-            <span className="icon">📍</span>
+            <span className="icon"><span className="material-symbols-outlined">location_on</span></span>
           </div>
         </div>
 
@@ -375,12 +375,12 @@ const Projects = () => {
                   onClick={(e) => handleWishlistToggle(e, project.id)}
                   title={isInWishlist(project.id) ? 'Remove from wishlist' : 'Add to wishlist'}
                 >
-                  {isInWishlist(project.id) ? '❤️' : '🤍'}
+                  <span className="material-symbols-outlined">{isInWishlist(project.id) ? 'favorite' : 'favorite_border'}</span>
                 </button>
                 <img src={project.image} alt={project.name} />
                 <div className="project-info">
                   <h3>{project.name}</h3>
-                  <p>📍 {project.location}</p>
+                  <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> {project.location}</p>
                   <p>Area: {project.area}</p>
                   <p>Starting price: {project.price}</p>
                 </div>

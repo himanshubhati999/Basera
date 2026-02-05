@@ -119,7 +119,7 @@ const Header = () => {
                       👤 Profile
                     </Link>
                     <Link to="/wishlist" onClick={() => setShowUserMenu(false)}>
-                      ❤️ My Wishlist
+                      <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>favorite</span> My Wishlist
                     </Link>
                     
                     {user.role === 'admin' && (
@@ -140,7 +140,7 @@ const Header = () => {
           </div>
           <div className="header-top-right">
             <Link to="/wishlist" className="wishlist-btn btn-glare">
-              ❤️ Wishlist({wishlist?.length || 0})
+              <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>favorite</span> Wishlist({wishlist?.length || 0})
             </Link>
             
           </div>
@@ -189,7 +189,7 @@ const Header = () => {
           <div className="mobile-menu-panel">
             <div className="mobile-menu-header">
               <span className="mobile-menu-title">Menu</span>
-              <button className="close-btn btn-glare" onClick={closeMobileMenu}>✕</button>
+              <button className="close-btn btn-glare" onClick={closeMobileMenu}><span className="material-symbols-outlined">close</span></button>
             </div>
             <nav className="mobile-nav">
               <Link to="/projects" onClick={closeMobileMenu}>Projects</Link>

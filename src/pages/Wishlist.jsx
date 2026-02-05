@@ -165,9 +165,9 @@ const Wishlist = () => {
                         <img src={property.image} alt={property.name} />
                         <div className="property-info">
                           <h3>{property.name}</h3>
-                          <p>📍 {property.location}</p>
+                          <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> {property.location}</p>
                           <p>Area: {property.area}</p>
-                          {property.bedrooms && <p>🛏️ {property.bedrooms} BHK | 🚿 {property.bathrooms} Bath</p>}
+                          {property.bedrooms && <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>bed</span> {property.bedrooms} BHK | <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>shower</span> {property.bathrooms} Bath</p>}
                           <p className="property-price">{property.price}</p>
                           <span className={`status-badge ${property.status}`}>
                             {property.status === 'ready-to-move' ? 'Ready to Move' : 'Under Construction'}
@@ -195,16 +195,16 @@ const Wishlist = () => {
                         onClick={() => handleRemove(property.id)}
                         title="Remove from wishlist"
                       >
-                        ✕
+                        <span className="material-symbols-outlined">close</span>
                       </button>
                       <Link to={`/properties/${property.id}`} className="property-link">
                         <div className="property-badge">{property.badge}</div>
                         <img src={property.image} alt={property.name} />
                         <div className="property-info">
                           <h3>{property.name}</h3>
-                          <p>📍 {property.location}</p>
+                          <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> {property.location}</p>
                           <p>Area: {property.area}</p>
-                          {property.bedrooms && <p>🛏️ {property.bedrooms} BHK | 🚿 {property.bathrooms} Bath</p>}
+                          {property.bedrooms && <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>bed</span> {property.bedrooms} BHK | <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>shower</span> {property.bathrooms} Bath</p>}
                           <p className="property-price">{property.price}</p>
                           <span className={`status-badge ${property.status}`}>
                             {property.status === 'ready-to-move' ? 'Ready to Move' : 'Under Construction'}
@@ -232,16 +232,16 @@ const Wishlist = () => {
                         onClick={() => handleRemove(property.id)}
                         title="Remove from wishlist"
                       >
-                        ✕
+                        <span className="material-symbols-outlined">close</span>
                       </button>
                       <Link to={`/properties/${property.id}`} className="property-link">
                         <div className="property-badge">{property.badge}</div>
                         <img src={property.image} alt={property.name} />
                         <div className="property-info">
                           <h3>{property.name}</h3>
-                          <p>📍 {property.location}</p>
+                          <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> {property.location}</p>
                           <p>Area: {property.area}</p>
-                          {property.bedrooms && <p>🛏️ {property.bedrooms} BHK | 🚿 {property.bathrooms} Bath</p>}
+                          {property.bedrooms && <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>bed</span> {property.bedrooms} BHK | <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>shower</span> {property.bathrooms} Bath</p>}
                           <p className="property-price">{property.price}</p>
                           <span className={`status-badge ${property.status}`}>
                             {property.status === 'ready-to-move' ? 'Ready to Move' : 'Under Construction'}
@@ -263,16 +263,16 @@ const Wishlist = () => {
                       onClick={() => handleRemove(property.id)}
                       title="Remove from wishlist"
                     >
-                      ✕
+                      <span className="material-symbols-outlined">close</span>
                     </button>
                     <Link to={`/properties/${property.id}`} className="property-link">
                       <div className="property-badge">{property.badge}</div>
                       <img src={property.image} alt={property.name} />
                       <div className="property-info">
                         <h3>{property.name}</h3>
-                        <p>📍 {property.location}</p>
+                        <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> {property.location}</p>
                         <p>Area: {property.area}</p>
-                        {property.bedrooms && <p>🛏️ {property.bedrooms} BHK | 🚿 {property.bathrooms} Bath</p>}
+                        {property.bedrooms && <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>bed</span> {property.bedrooms} BHK | <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>shower</span> {property.bathrooms} Bath</p>}
                         <p className="property-price">{property.price}</p>
                         <span className={`status-badge ${property.status}`}>
                           {property.status === 'ready-to-move' ? 'Ready to Move' : 'Under Construction'}

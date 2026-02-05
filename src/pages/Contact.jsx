@@ -197,7 +197,7 @@ const Contact = () => {
 
           {formState.status === 'success' && (
             <div className="form-message success-message">
-              ✓ {formState.message}
+              <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>check_circle</span> {formState.message}
             </div>
           )}
 

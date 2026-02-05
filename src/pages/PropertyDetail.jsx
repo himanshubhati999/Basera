@@ -425,7 +425,7 @@ const PropertyDetail = () => {
       ideal: ['Modern living', 'Prime location', 'Great investment'],
       conclusion: 'A perfect choice for your next home or investment.'
     },
-    features: property.amenities?.map(amenity => ({ icon: '✓', name: amenity })) || [],
+    features: property.amenities?.map(amenity => ({ icon: <span className="material-symbols-outlined">check</span>, name: amenity })) || [],
     mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3511.123456789!2d77.7123456!3d28.1234567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDA3JzI0LjQiTiA3N8KwNDInNDQuNCJF!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin',
     videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
   } : (projects.find(p => p.id === parseInt(id)) || projects[0]);
@@ -592,7 +592,7 @@ const PropertyDetail = () => {
             className={`gallery-btn btn-glare wishlist-toggle ${isInWishlist(parseInt(id)) ? 'active' : ''}`}
             onClick={handleWishlistToggle}
           >
-            <span className="icon">{isInWishlist(parseInt(id)) ? '❤️' : '🤍'}</span>
+            <span className="icon"><span className="material-symbols-outlined">{isInWishlist(parseInt(id)) ? 'favorite' : 'favorite_border'}</span></span>
             {isInWishlist(parseInt(id)) ? 'In Wishlist' : 'Add to Wishlist'}
           </button>
         </div>
@@ -620,7 +620,7 @@ const PropertyDetail = () => {
               ))}
             </div>
             <div className="property-meta">
-              <span className="location">📍 {displayProperty.location}</span>
+              <span className="location"><span className="material-symbols-outlined" style={{fontSize: '20px', verticalAlign: 'middle'}}>location_on</span> {displayProperty.location}</span>
               <span className="date">📅 {displayProperty.date}</span>
             </div>
           </div>
@@ -675,7 +675,7 @@ const PropertyDetail = () => {
             <div className="features-grid">
               {displayProperty.features.map((feature, index) => (
                 <div key={index} className="feature-item">
-                  <span className="feature-icon">✓</span>
+                  <span className="feature-icon"><span className="material-symbols-outlined">check</span></span>
                   <span className="feature-name">{feature.name}</span>
                 </div>
               ))}

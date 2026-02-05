@@ -18,11 +18,26 @@ const AdminDashboard = () => {
   const [error, setError] = useState('');
   const [activityLogs, setActivityLogs] = useState([]);
   const [theme, setTheme] = useState('dark');
+  const [widgetsModalOpen, setWidgetsModalOpen] = useState(false);
+  const [widgets, setWidgets] = useState({
+    activeProperties: true,
+    pendingProperties: true,
+    expiredProperties: true,
+    agents: true,
+    recentPosts: true,
+    activityLogs: true
+  });
 
   useEffect(() => {
     // Load saved theme
     const savedTheme = localStorage.getItem('adminTheme') || 'dark';
     setTheme(savedTheme);
+    
+    // Load saved widgets
+    const savedWidgets = localStorage.getItem('adminWidgets');
+    if (savedWidgets) {
+      setWidgets(JSON.parse(savedWidgets));
+    }
   }, []);
 
   useEffect(() => {
@@ -97,6 +112,23 @@ const AdminDashboard = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
     localStorage.setItem('adminTheme', newTheme);
+  };
+
+  const toggleWidget = (widgetName) => {
+    const updatedWidgets = {
+      ...widgets,
+      [widgetName]: !widgets[widgetName]
+    };
+    setWidgets(updatedWidgets);
+    localStorage.setItem('adminWidgets', JSON.stringify(updatedWidgets));
+  };
+
+  const openWidgetsModal = () => {
+    setWidgetsModalOpen(true);
+  };
+
+  const closeWidgetsModal = () => {
+    setWidgetsModalOpen(false);
   };
 
   const toggleMobileMenu = () => {
@@ -325,7 +357,7 @@ const AdminDashboard = () => {
             className="sidebar-toggle"
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           >
-            ☰
+            <span className="material-symbols-outlined">menu</span>
           </button>
           <h2 className="sidebar-brand">Sunshine Real Estate</h2>
           <button 
@@ -333,7 +365,7 @@ const AdminDashboard = () => {
             onClick={closeMobileMenu}
             title="Close sidebar"
           >
-            ✕
+            <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
@@ -342,7 +374,7 @@ const AdminDashboard = () => {
             className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
             onClick={() => { setActiveTab('dashboard'); closeMobileMenu(); }}
           >
-            <span className="nav-icon">📊</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">dashboard</span></span>
             <span className="nav-text">Dashboard</span>
           </button>
 
@@ -350,7 +382,7 @@ const AdminDashboard = () => {
             className={`nav-item ${activeTab === 'real-estate' ? 'active' : ''}`}
             onClick={() => { setActiveTab('real-estate'); closeMobileMenu(); }}
           >
-            <span className="nav-icon">🏠</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">home</span></span>
             <span className="nav-text">Real Estate</span>
           </button>
 
@@ -358,7 +390,7 @@ const AdminDashboard = () => {
             className={`nav-item ${activeTab === 'pages' ? 'active' : ''}`}
             onClick={() => { setActiveTab('pages'); closeMobileMenu(); }}
           >
-            <span className="nav-icon">📄</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">description</span></span>
             <span className="nav-text">Pages</span>
           </button>
 
@@ -366,39 +398,39 @@ const AdminDashboard = () => {
             className={`nav-item ${activeTab === 'blog' ? 'active' : ''}`}
             onClick={() => { setActiveTab('blog'); closeMobileMenu(); }}
           >
-            <span className="nav-icon">📝</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">article</span></span>
             <span className="nav-text">Blog</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">💳</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">credit_card</span></span>
             <span className="nav-text">Payments</span>
             <span className="badge">2</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">💼</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">work</span></span>
             <span className="nav-text">Careers</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">💬</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">chat</span></span>
             <span className="nav-text">Consults</span>
             <span className="badge">2</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">📢</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">campaign</span></span>
             <span className="nav-text">Ads</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">📣</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">notifications</span></span>
             <span className="nav-text">Announcements</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">🎫</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">confirmation_number</span></span>
             <span className="nav-text">Coupons</span>
           </button>
 
@@ -406,53 +438,53 @@ const AdminDashboard = () => {
             className={`nav-item ${activeTab === 'users' ? 'active' : ''}`}
             onClick={() => { setActiveTab('users'); closeMobileMenu(); }}
           >
-            <span className="nav-icon">👥</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">group</span></span>
             <span className="nav-text">Accounts</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">📦</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">inventory_2</span></span>
             <span className="nav-text">Packages</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">📧</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">mail</span></span>
             <span className="nav-text">Contact</span>
             <span className="badge">2</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">📰</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">newspaper</span></span>
             <span className="nav-text">Newsletters</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">📍</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">location_on</span></span>
             <span className="nav-text">Locations</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">🖼️</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">perm_media</span></span>
             <span className="nav-text">Media</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">🎨</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">palette</span></span>
             <span className="nav-text">Appearance</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">🔌</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">extension</span></span>
             <span className="nav-text">Plugins</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">🔧</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">build</span></span>
             <span className="nav-text">Tools</span>
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
-            <span className="nav-icon">⚙️</span>
+            <span className="nav-icon"><span className="material-symbols-outlined">settings</span></span>
             <span className="nav-text">Settings</span>
           </button>
         </nav>
@@ -466,7 +498,7 @@ const AdminDashboard = () => {
             className="mobile-menu-toggle"
             onClick={toggleMobileMenu}
           >
-            ☰
+            <span className="material-symbols-outlined">menu</span>
           </button>
           
           <div className="header-search">
@@ -502,10 +534,15 @@ const AdminDashboard = () => {
           <div className="dashboard-content">
             <div className="dashboard-header-row">
               <h1 className="dashboard-title">DASHBOARD</h1>
+              <button className="manage-widgets-btn" onClick={openWidgetsModal}>
+                <span className="material-symbols-outlined">dashboard_customize</span>
+                Manage Widgets
+              </button>
             </div>
 
             {/* Stats Cards */}
             <div className="stats-cards-modern">
+              {widgets.activeProperties && (
               <div className="stat-card-modern purple">
                 <div className="stat-card-content">
                   <h3>Active properties</h3>
@@ -515,15 +552,19 @@ const AdminDashboard = () => {
                 </div>
                 <div className="stat-icon-bg">💼</div>
               </div>
+              )}
 
+              {widgets.pendingProperties && (
               <div className="stat-card-modern cyan">
                 <div className="stat-card-content">
                   <h3>Pending properties</h3>
                   <div className="stat-number-modern">0</div>
                 </div>
-                <div className="stat-icon-bg">📋</div>
+                <div className="stat-icon-bg"><span className="material-symbols-outlined">lists</span></div>
               </div>
+              )}
 
+              {widgets.expiredProperties && (
               <div className="stat-card-modern red">
                 <div className="stat-card-content">
                   <h3>Expired properties</h3>
@@ -531,7 +572,9 @@ const AdminDashboard = () => {
                 </div>
                 <div className="stat-icon-bg">⏰</div>
               </div>
+              )}
 
+              {widgets.agents && (
               <div className="stat-card-modern blue">
                 <div className="stat-card-content">
                   <h3>Agents</h3>
@@ -539,12 +582,14 @@ const AdminDashboard = () => {
                     {stats?.totalUsers || 3}
                   </div>
                 </div>
-                <div className="stat-icon-bg">👥</div>
+                <div className="stat-icon-bg"><span className="material-symbols-outlined">group</span></div>
               </div>
+              )}
             </div>
 
             {/* Recent Posts & Activity Logs */}
             <div className="dashboard-grid">
+              {widgets.recentPosts && (
               <div className="recent-posts-section">
                 <h2>Recent Posts</h2>
                 <div className="posts-table-wrapper">
@@ -611,7 +656,9 @@ const AdminDashboard = () => {
                   </table>
                 </div>
               </div>
+              )}
 
+              {widgets.activityLogs && (
               <div className="activity-logs-section">
                 <h2>Activity Logs</h2>
                 <div className="activity-logs-list">
@@ -630,6 +677,7 @@ const AdminDashboard = () => {
                   ))}
                 </div>
               </div>
+              )}
             </div>
           </div>
         )}
@@ -677,10 +725,10 @@ const AdminDashboard = () => {
                         <td>
                           <div className="contact-info">
                             <div className="contact-item">
-                              <span>📞</span> {property.ownerPhone}
+                              <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>phone</span> {property.ownerPhone}
                             </div>
                             <div className="contact-item">
-                              <span>📧</span> {property.ownerEmail}
+                              <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>mail</span> {property.ownerEmail}
                             </div>
                           </div>
                         </td>
@@ -710,7 +758,7 @@ const AdminDashboard = () => {
                               onClick={() => handleToggleFeatured(property._id)}
                               title={property.isFeatured ? 'Remove from featured' : 'Add to featured'}
                             >
-                              {property.isFeatured ? '⭐ Featured' : '☆ Feature'}
+                              {property.isFeatured ? <><span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>star</span> Featured</> : <><span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>star_outline</span> Feature</>}
                             </button>
                             <button
                               className="action-btn view"
@@ -808,6 +856,153 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Manage Widgets Modal */}
+      {widgetsModalOpen && (
+        <div className="widgets-modal-overlay" onClick={closeWidgetsModal}>
+          <div className="widgets-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="widgets-modal-header">
+              <h2>
+                <span className="material-symbols-outlined">dashboard_customize</span>
+                Manage Widgets
+              </h2>
+              <button className="widgets-modal-close" onClick={closeWidgetsModal}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div className="widgets-modal-body">
+              <p className="widgets-modal-description">
+                Toggle widgets on or off to customize your dashboard view.
+              </p>
+              
+              <div className="widgets-list">
+                <div className="widget-item">
+                  <div className="widget-info">
+                    <div className="widget-icon purple">💼</div>
+                    <div>
+                      <h3>Active Properties</h3>
+                      <p>Shows count of active property listings</p>
+                    </div>
+                  </div>
+                  <label className="widget-toggle">
+                    <input 
+                      type="checkbox" 
+                      checked={widgets.activeProperties}
+                      onChange={() => toggleWidget('activeProperties')}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                </div>
+
+                <div className="widget-item">
+                  <div className="widget-info">
+                    <div className="widget-icon cyan">
+                      <span className="material-symbols-outlined">lists</span>
+                    </div>
+                    <div>
+                      <h3>Pending Properties</h3>
+                      <p>Shows count of pending property approvals</p>
+                    </div>
+                  </div>
+                  <label className="widget-toggle">
+                    <input 
+                      type="checkbox" 
+                      checked={widgets.pendingProperties}
+                      onChange={() => toggleWidget('pendingProperties')}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                </div>
+
+                <div className="widget-item">
+                  <div className="widget-info">
+                    <div className="widget-icon red">⏰</div>
+                    <div>
+                      <h3>Expired Properties</h3>
+                      <p>Shows count of expired property listings</p>
+                    </div>
+                  </div>
+                  <label className="widget-toggle">
+                    <input 
+                      type="checkbox" 
+                      checked={widgets.expiredProperties}
+                      onChange={() => toggleWidget('expiredProperties')}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                </div>
+
+                <div className="widget-item">
+                  <div className="widget-info">
+                    <div className="widget-icon blue">
+                      <span className="material-symbols-outlined">group</span>
+                    </div>
+                    <div>
+                      <h3>Agents</h3>
+                      <p>Shows total count of registered agents</p>
+                    </div>
+                  </div>
+                  <label className="widget-toggle">
+                    <input 
+                      type="checkbox" 
+                      checked={widgets.agents}
+                      onChange={() => toggleWidget('agents')}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                </div>
+
+                <div className="widget-item">
+                  <div className="widget-info">
+                    <div className="widget-icon purple">
+                      <span className="material-symbols-outlined">article</span>
+                    </div>
+                    <div>
+                      <h3>Recent Posts</h3>
+                      <p>Displays the latest property posts</p>
+                    </div>
+                  </div>
+                  <label className="widget-toggle">
+                    <input 
+                      type="checkbox" 
+                      checked={widgets.recentPosts}
+                      onChange={() => toggleWidget('recentPosts')}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                </div>
+
+                <div className="widget-item">
+                  <div className="widget-info">
+                    <div className="widget-icon cyan">
+                      <span className="material-symbols-outlined">history</span>
+                    </div>
+                    <div>
+                      <h3>Activity Logs</h3>
+                      <p>Shows recent system activity and user actions</p>
+                    </div>
+                  </div>
+                  <label className="widget-toggle">
+                    <input 
+                      type="checkbox" 
+                      checked={widgets.activityLogs}
+                      onChange={() => toggleWidget('activityLogs')}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="widgets-modal-footer">
+              <button className="widgets-modal-btn secondary" onClick={closeWidgetsModal}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
