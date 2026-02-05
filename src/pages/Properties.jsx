@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import './Properties.css';
+import './PropertyCardEnhancements.css';
 import '../components/ButtonGlare.css';
 import ShinyText from '../components/ShinyText';
 
@@ -474,8 +475,7 @@ const Properties = () => {
                 <div className="property-info">
                   <h3>{property.name}</h3>
                   <p>📍 {property.location}</p>
-                  <p>Area: {property.area}</p>
-                  {property.bedrooms && <p>🛏️ {property.bedrooms} BHK | 🚿 {property.bathrooms} Bath</p>}
+                  {property.bedrooms && <p>🛏️ {property.bedrooms} BHK • {property.area} • 🚿 {property.bathrooms} Bath</p>}
                   <p className="property-price">{property.price}</p>
                   <span className={`status-badge ${property.status}`}>
                     {property.status === 'ready-to-move' ? 'Ready to Move' : 'Under Construction'}

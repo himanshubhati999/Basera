@@ -168,6 +168,7 @@ const Header = () => {
           </button>
 
           <nav className="main-nav">
+            <Link to="/">Home</Link>
             <Link to="/projects">Projects</Link>
             <Link to="/properties">Properties</Link>
             <Link to="/agents">Agents</Link>
@@ -192,6 +193,7 @@ const Header = () => {
               <button className="close-btn btn-glare" onClick={closeMobileMenu}><span className="material-symbols-outlined">close</span></button>
             </div>
             <nav className="mobile-nav">
+              <Link to="/" onClick={closeMobileMenu}>Home</Link>
               <Link to="/projects" onClick={closeMobileMenu}>Projects</Link>
               <Link to="/properties" onClick={closeMobileMenu}>Properties</Link>
               <Link to="/agents" onClick={closeMobileMenu}>Agents</Link>

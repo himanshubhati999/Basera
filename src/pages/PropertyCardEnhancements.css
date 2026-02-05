@@ -1,0 +1,55 @@
+/* Additional Property Card Enhancements */
+
+.property-info p:first-of-type {
+  color: #888;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.property-info p:nth-of-type(2) {
+  color: #555;
+  font-weight: 500;
+  margin-top: 6px;
+  margin-bottom: 10px;
+}
+
+/* Add subtle hover effects */
+.property-card {
+  background: #fff;
+  cursor: pointer;
+}
+
+.property-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(107, 124, 143, 0.05) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  border-radius: 8px;
+}
+
+.property-card:hover::after {
+  opacity: 1;
+}
+
+/* Better image overlay on hover */
+.property-card img {
+  transition: transform 0.3s ease;
+}
+
+.property-card:hover img {
+  transform: scale(1.05);
+}
+
+/* Price emphasis */
+.property-price {
+  background: linear-gradient(135deg, #6b7c8f 0%, #5a6c7d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
