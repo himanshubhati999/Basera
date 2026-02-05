@@ -9,6 +9,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [properties, setProperties] = useState([]);
@@ -16,6 +17,13 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
   const [activityLogs, setActivityLogs] = useState([]);
+  const [theme, setTheme] = useState('dark');
+
+  useEffect(() => {
+    // Load saved theme
+    const savedTheme = localStorage.getItem('adminTheme') || 'dark';
+    setTheme(savedTheme);
+  }, []);
 
   useEffect(() => {
     // Check if user is admin
@@ -83,6 +91,20 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('adminTheme', newTheme);
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
   };
 
   const generateActivityLogs = () => {
@@ -289,9 +311,15 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="admin-dashboard-modern">
+    <div className={`admin-dashboard-modern ${theme === 'light' ? 'light-mode' : ''}`}>
+      {/* Sidebar Overlay for Mobile */}
+      <div 
+        className={`sidebar-overlay ${mobileMenuOpen ? 'active' : ''}`}
+        onClick={closeMobileMenu}
+      ></div>
+
       {/* Sidebar */}
-      <aside className={`admin-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+      <aside className={`admin-sidebar ${!mobileMenuOpen ? 'collapsed' : ''} ${sidebarCollapsed ? 'desktop-collapsed' : ''}`}>
         <div className="sidebar-header">
           <button 
             className="sidebar-toggle"
@@ -300,12 +328,19 @@ const AdminDashboard = () => {
             ☰
           </button>
           <h2 className="sidebar-brand">Sunshine Real Estate</h2>
+          <button 
+            className="sidebar-close"
+            onClick={closeMobileMenu}
+            title="Close sidebar"
+          >
+            ✕
+          </button>
         </div>
 
         <nav className="sidebar-nav">
           <button
             className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => { setActiveTab('dashboard'); closeMobileMenu(); }}
           >
             <span className="nav-icon">📊</span>
             <span className="nav-text">Dashboard</span>
@@ -313,7 +348,7 @@ const AdminDashboard = () => {
 
           <button
             className={`nav-item ${activeTab === 'real-estate' ? 'active' : ''}`}
-            onClick={() => setActiveTab('real-estate')}
+            onClick={() => { setActiveTab('real-estate'); closeMobileMenu(); }}
           >
             <span className="nav-icon">🏠</span>
             <span className="nav-text">Real Estate</span>
@@ -321,7 +356,7 @@ const AdminDashboard = () => {
 
           <button
             className={`nav-item ${activeTab === 'pages' ? 'active' : ''}`}
-            onClick={() => setActiveTab('pages')}
+            onClick={() => { setActiveTab('pages'); closeMobileMenu(); }}
           >
             <span className="nav-icon">📄</span>
             <span className="nav-text">Pages</span>
@@ -329,94 +364,94 @@ const AdminDashboard = () => {
 
           <button
             className={`nav-item ${activeTab === 'blog' ? 'active' : ''}`}
-            onClick={() => setActiveTab('blog')}
+            onClick={() => { setActiveTab('blog'); closeMobileMenu(); }}
           >
             <span className="nav-icon">📝</span>
             <span className="nav-text">Blog</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">💳</span>
             <span className="nav-text">Payments</span>
             <span className="badge">2</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">💼</span>
             <span className="nav-text">Careers</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">💬</span>
             <span className="nav-text">Consults</span>
             <span className="badge">2</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">📢</span>
             <span className="nav-text">Ads</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">📣</span>
             <span className="nav-text">Announcements</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">🎫</span>
             <span className="nav-text">Coupons</span>
           </button>
 
           <button
             className={`nav-item ${activeTab === 'users' ? 'active' : ''}`}
-            onClick={() => setActiveTab('users')}
+            onClick={() => { setActiveTab('users'); closeMobileMenu(); }}
           >
             <span className="nav-icon">👥</span>
             <span className="nav-text">Accounts</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">📦</span>
             <span className="nav-text">Packages</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">📧</span>
             <span className="nav-text">Contact</span>
             <span className="badge">2</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">📰</span>
             <span className="nav-text">Newsletters</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">📍</span>
             <span className="nav-text">Locations</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">🖼️</span>
             <span className="nav-text">Media</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">🎨</span>
             <span className="nav-text">Appearance</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">🔌</span>
             <span className="nav-text">Plugins</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">🔧</span>
             <span className="nav-text">Tools</span>
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" onClick={closeMobileMenu}>
             <span className="nav-icon">⚙️</span>
             <span className="nav-text">Settings</span>
           </button>
@@ -427,6 +462,13 @@ const AdminDashboard = () => {
       <div className="admin-main-content">
         {/* Header */}
         <header className="admin-header-modern">
+          <button 
+            className="mobile-menu-toggle"
+            onClick={toggleMobileMenu}
+          >
+            ☰
+          </button>
+          
           <div className="header-search">
             <input 
               type="text" 
@@ -442,20 +484,8 @@ const AdminDashboard = () => {
             <button className="header-btn" onClick={() => navigate('/')}>
               🌐 View website
             </button>
-            <button className="header-icon-btn">
-              <span className="theme-toggle">🌙</span>
-            </button>
-            <button className="header-icon-btn notification-btn">
-              🔔
-              <span className="notification-badge">0</span>
-            </button>
-            <button className="header-icon-btn notification-btn">
-              💬
-              <span className="notification-badge red">2</span>
-            </button>
-            <button className="header-icon-btn notification-btn">
-              🎁
-              <span className="notification-badge red">2</span>
+            <button className="header-icon-btn" onClick={toggleTheme}>
+              <span className="theme-toggle">{theme === 'dark' ? '🌙' : '☀️'}</span>
             </button>
             <button className="user-profile-btn">
               <span className="user-avatar">S</span>
@@ -472,9 +502,6 @@ const AdminDashboard = () => {
           <div className="dashboard-content">
             <div className="dashboard-header-row">
               <h1 className="dashboard-title">DASHBOARD</h1>
-              <button className="manage-widgets-btn">
-                🗂️ Manage Widgets
-              </button>
             </div>
 
             {/* Stats Cards */}
