@@ -1,7 +1,7 @@
 .hero-section {
   margin-top: 70px;
   height: 500px;
-  background: linear-gradient(135deg, rgba(107, 124, 143, 0.08) 0%, rgba(168, 159, 145, 0.08) 100%), url('https://images.unsplash.com/photo-1582407947304-fd86f028f716?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmVhbCUyMGVzdGF0ZXxlbnwwfHwwfHx8MA%3D%3D') center/cover;
+  background: linear-gradient(135deg, rgba(107, 124, 143, 0.08) 0%, rgba(168, 159, 145, 0.08) 100%), url('https://res.cloudinary.com/dl4aqbmrc/image/upload/v1770457989/1765954488871-Picsart-AiImageEnhancer.jpg_avmqtx.jpg') center/cover;
   background-size: cover;
   position: relative;
   display: flex;
