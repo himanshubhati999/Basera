@@ -91,6 +91,14 @@
     display: none;
   }
   
+  .admin-sidebar.desktop-collapsed .nav-submenu {
+    display: none;
+  }
+  
+  .admin-sidebar.desktop-collapsed .nav-expand-icon {
+    display: none;
+  }
+  
   .admin-sidebar.desktop-collapsed .badge {
     position: absolute;
     top: 8px;
@@ -161,6 +169,10 @@
   padding: 10px 0;
 }
 
+.nav-group {
+  margin: 4px 0;
+}
+
 .nav-item {
   display: flex;
   align-items: center;
@@ -183,8 +195,70 @@
 }
 
 .nav-item.active {
-  background: #1e40af;
+  background: linear-gradient(90deg, #1e40af 0%, #1e3a8a 100%);
   color: #fff;
+}
+
+.nav-item.active .material-symbols-outlined {
+  color: #fff;
+}
+
+.nav-expand-icon {
+  margin-left: auto;
+  font-size: 18px;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-submenu {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+  margin: 0;
+  background: transparent;
+}
+
+.nav-subitem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px 10px 52px;
+  color: #9ca3af;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+  font-size: 13px;
+  position: relative;
+}
+
+.nav-subitem:hover {
+  background: #1a2137;
+  color: #fff;
+}
+
+.nav-subitem.active {
+  background: #1a2137;
+  color: #fff;
+}
+
+.subitem-dot {
+  width: 6px;
+  height: 6px;
+  background: #4b5563;
+  border-radius: 50%;
+}
+
+.nav-subitem:hover .subitem-dot {
+  background: #3b82f6;
+}
+
+.nav-subitem.active .subitem-dot {
+  background: #3b82f6;
 }
 
 .nav-icon {
@@ -612,6 +686,7 @@
   margin-bottom: 25px;
   flex-wrap: wrap;
   gap: 15px;
+  padding: 0 5px;
 }
 
 .section-header h2 {
@@ -619,6 +694,12 @@
   color: #ffffff;
   margin: 0;
   font-weight: 600;
+}
+
+.section-header > div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 /* Table Styles */
@@ -640,9 +721,9 @@ th {
   padding: 15px;
   text-align: left;
   font-weight: 600;
-  color: #e5e7eb;
+  color: #9ca3af;
   border-bottom: 2px solid #1e2538;
-  font-size: 13px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -651,6 +732,13 @@ td {
   padding: 15px;
   border-bottom: 1px solid #1e2538;
   color: #f3f4f6;
+}
+
+table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #3b82f6;
 }
 
 tbody tr:hover {

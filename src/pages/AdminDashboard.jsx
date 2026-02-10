@@ -19,6 +19,7 @@ const AdminDashboard = () => {
   const [activityLogs, setActivityLogs] = useState([]);
   const [theme, setTheme] = useState('dark');
   const [widgetsModalOpen, setWidgetsModalOpen] = useState(false);
+  const [realEstateExpanded, setRealEstateExpanded] = useState(true);
   const [widgets, setWidgets] = useState({
     activeProperties: true,
     pendingProperties: true,
@@ -378,13 +379,85 @@ const AdminDashboard = () => {
             <span className="nav-text">Dashboard</span>
           </button>
 
-          <button
-            className={`nav-item ${activeTab === 'real-estate' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('real-estate'); closeMobileMenu(); }}
-          >
-            <span className="nav-icon"><span className="material-symbols-outlined">home</span></span>
-            <span className="nav-text">Real Estate</span>
-          </button>
+          {/* Real Estate Section with Submenu */}
+          <div className="nav-group">
+            <button
+              className={`nav-item ${(activeTab.startsWith('real-estate') || activeTab === 'properties' || activeTab === 'facilities') ? 'active' : ''} ${realEstateExpanded ? 'expanded' : ''}`}
+              onClick={() => setRealEstateExpanded(!realEstateExpanded)}
+            >
+              <span className="nav-icon"><span className="material-symbols-outlined">home</span></span>
+              <span className="nav-text">Real Estate</span>
+              <span className="nav-expand-icon"><span className="material-symbols-outlined">{realEstateExpanded ? 'expand_less' : 'expand_more'}</span></span>
+            </button>
+            
+            {realEstateExpanded && (
+              <div className="nav-submenu">
+                <button
+                  className={`nav-subitem ${activeTab === 'real-estate' || activeTab === 'properties' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('real-estate'); closeMobileMenu(); }}
+                >
+                  <span className="subitem-dot"></span>
+                  <span className="nav-text">Properties</span>
+                </button>
+                <button
+                  className={`nav-subitem ${activeTab === 'projects' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('projects'); closeMobileMenu(); }}
+                >
+                  <span className="subitem-dot"></span>
+                  <span className="nav-text">Projects</span>
+                </button>
+                <button
+                  className={`nav-subitem ${activeTab === 'features' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('features'); closeMobileMenu(); }}
+                >
+                  <span className="subitem-dot"></span>
+                  <span className="nav-text">Features</span>
+                </button>
+                <button
+                  className={`nav-subitem ${activeTab === 'facilities' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('facilities'); closeMobileMenu(); }}
+                >
+                  <span className="subitem-dot"></span>
+                  <span className="nav-text">Facilities</span>
+                </button>
+                <button
+                  className={`nav-subitem ${activeTab === 'investors' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('investors'); closeMobileMenu(); }}
+                >
+                  <span className="subitem-dot"></span>
+                  <span className="nav-text">Investors</span>
+                </button>
+                <button
+                  className={`nav-subitem ${activeTab === 'categories' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('categories'); closeMobileMenu(); }}
+                >
+                  <span className="subitem-dot"></span>
+                  <span className="nav-text">Categories</span>
+                </button>
+                <button
+                  className={`nav-subitem ${activeTab === 'reviews' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('reviews'); closeMobileMenu(); }}
+                >
+                  <span className="subitem-dot"></span>
+                  <span className="nav-text">Reviews</span>
+                </button>
+                <button
+                  className={`nav-subitem ${activeTab === 'invoices' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('invoices'); closeMobileMenu(); }}
+                >
+                  <span className="subitem-dot"></span>
+                  <span className="nav-text">Invoices</span>
+                </button>
+                <button
+                  className={`nav-subitem ${activeTab === 'custom-fields' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('custom-fields'); closeMobileMenu(); }}
+                >
+                  <span className="subitem-dot"></span>
+                  <span className="nav-text">Custom Fields</span>
+                </button>
+              </div>
+            )}
+          </div>
 
           <button
             className={`nav-item ${activeTab === 'pages' ? 'active' : ''}`}
@@ -833,6 +906,309 @@ const AdminDashboard = () => {
                 </table>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Facilities Tab */}
+        {activeTab === 'facilities' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <div>
+                <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '500' }}>DASHBOARD / REAL ESTATE / FACILITIES</span>
+                <h2 style={{ marginTop: '10px', fontSize: '24px' }}>Facilities</h2>
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button className="action-btn view" style={{ padding: '8px 16px' }}>
+                  <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>filter_list</span> Filters
+                </button>
+                <button className="action-btn view" style={{ background: '#1e40af', color: 'white', padding: '8px 16px' }}>
+                  <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>add</span> Create
+                </button>
+                <button className="action-btn view" style={{ padding: '8px 16px' }}>
+                  <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>refresh</span> Reload
+                </button>
+              </div>
+            </div>
+
+            <div className="data-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th style={{ width: '50px' }}>
+                      <input type="checkbox" />
+                    </th>
+                    <th>ID</th>
+                    <th>NAME</th>
+                    <th>CREATED AT</th>
+                    <th>STATUS</th>
+                    <th>OPERATIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { id: 11, name: 'Bank' },
+                    { id: 10, name: 'Mall' },
+                    { id: 9, name: 'Beach' },
+                    { id: 8, name: 'Bus Stop' },
+                    { id: 7, name: 'Railways' },
+                    { id: 6, name: 'Airport' },
+                    { id: 5, name: 'Pharmacy' },
+                    { id: 4, name: 'Entertainment' },
+                    { id: 3, name: 'School' },
+                    { id: 2, name: 'Super Market' }
+                  ].map((facility) => (
+                    <tr key={facility.id}>
+                      <td>
+                        <input type="checkbox" />
+                      </td>
+                      <td>{facility.id}</td>
+                      <td style={{ color: '#3b82f6' }}>{facility.name}</td>
+                      <td>2024-11-22</td>
+                      <td>
+                        <span style={{ 
+                          background: '#10b981', 
+                          color: 'white',
+                          padding: '4px 12px',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          fontWeight: '500'
+                        }}>
+                          Published
+                        </span>
+                      </td>
+                      <td>
+                        <div className="action-buttons">
+                          <button className="action-btn view" style={{ background: '#3b82f6', color: 'white', padding: '6px 12px' }}>
+                            <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>edit</span>
+                          </button>
+                          <button className="action-btn delete" style={{ background: '#ef4444', color: 'white', padding: '6px 12px' }}>
+                            <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>delete</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Projects Tab */}
+        {activeTab === 'projects' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <div>
+                <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '500' }}>DASHBOARD / REAL ESTATE / PROJECTS</span>
+                <h2 style={{ marginTop: '10px', fontSize: '24px' }}>Projects</h2>
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Search..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ 
+                      padding: '8px 16px 8px 40px', 
+                      background: '#1a1f37', 
+                      border: '1px solid #374151', 
+                      borderRadius: '6px',
+                      color: '#fff',
+                      fontSize: '14px',
+                      width: '200px'
+                    }}
+                  />
+                  <span className="material-symbols-outlined" style={{
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    fontSize: '18px',
+                    color: '#6b7280'
+                  }}>search</span>
+                </div>
+                <button className="action-btn view" style={{ background: '#1e40af', color: 'white', padding: '8px 16px' }}
+                  onClick={() => navigate('/admin/projects/create')}
+                >
+                  <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>add</span> Create
+                </button>
+                <button className="action-btn view" style={{ padding: '8px 16px', background: 'transparent', border: '1px solid #374151' }}
+                  onClick={fetchDashboardData}
+                >
+                  <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>refresh</span> Reload
+                </button>
+              </div>
+            </div>
+
+            {filteredProperties.length === 0 ? (
+              <div className="no-data">No projects found</div>
+            ) : (
+              <>
+                <div className="data-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th style={{ width: '50px' }}>
+                          <input type="checkbox" />
+                        </th>
+                        <th style={{ width: '80px' }}>ID</th>
+                        <th style={{ width: '100px' }}>IMAGE</th>
+                        <th>NAME</th>
+                        <th style={{ width: '100px' }}>VIEWS</th>
+                        <th style={{ width: '150px' }}>UNIQUE ID</th>
+                        <th style={{ width: '150px' }}>CREATED AT</th>
+                        <th style={{ width: '120px' }}>STATUS</th>
+                        <th style={{ width: '150px' }}>OPERATIONS</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredProperties.map((project, index) => (
+                        <tr key={project._id}>
+                          <td>
+                            <input type="checkbox" />
+                          </td>
+                          <td style={{ fontWeight: '500' }}>{index + 1}</td>
+                          <td>
+                            <img 
+                              src={project.images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=100&h=70&fit=crop'} 
+                              alt={project.title}
+                              style={{ 
+                                width: '80px', 
+                                height: '50px', 
+                                objectFit: 'cover', 
+                                borderRadius: '6px',
+                                border: '1px solid #374151'
+                              }}
+                            />
+                          </td>
+                          <td style={{ color: '#3b82f6', fontWeight: '500', cursor: 'pointer' }}
+                            onClick={() => navigate(`/properties/${project._id}`)}
+                          >
+                            {project.title}
+                          </td>
+                          <td>{project.views || Math.floor(Math.random() * 100)}</td>
+                          <td style={{ color: '#9ca3af', fontSize: '12px' }}>{project._id.slice(-8).toUpperCase()}</td>
+                          <td>{formatDate(project.createdAt)}</td>
+                          <td>
+                            <span style={{ 
+                              background: project.status === 'available' ? '#10b981' : 
+                                         project.status === 'sold' ? '#ef4444' : 
+                                         project.status === 'rented' ? '#f59e0b' : '#6b7280',
+                              color: 'white',
+                              padding: '4px 12px',
+                              borderRadius: '4px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              textTransform: 'capitalize'
+                            }}>
+                              {project.status === 'available' ? 'Selling' : project.status}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="action-buttons">
+                              <button 
+                                className="action-btn view" 
+                                style={{ background: '#3b82f6', color: 'white', padding: '6px 12px' }}
+                                onClick={() => navigate(`/properties/${project._id}`)}
+                              >
+                                <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>visibility</span>
+                              </button>
+                              <button 
+                                className="action-btn delete" 
+                                style={{ background: '#ef4444', color: 'white', padding: '6px 12px' }}
+                                onClick={() => handleDeleteProperty(project._id)}
+                              >
+                                <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>delete</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div style={{ 
+                    padding: '15px', 
+                    color: '#9ca3af', 
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    borderTop: '1px solid #1e2538'
+                  }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>public</span>
+                    Show from 1 to {filteredProperties.length} in <span style={{ 
+                      background: '#3b82f6', 
+                      color: 'white',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      fontWeight: '600',
+                      fontSize: '12px'
+                    }}>{filteredProperties.length}</span> records
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Features Tab */}
+        {activeTab === 'features' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <h2>Features</h2>
+            </div>
+            <div className="no-data">Features management coming soon...</div>
+          </div>
+        )}
+
+        {/* Investors Tab */}
+        {activeTab === 'investors' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <h2>Investors</h2>
+            </div>
+            <div className="no-data">Investors management coming soon...</div>
+          </div>
+        )}
+
+        {/* Categories Tab */}
+        {activeTab === 'categories' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <h2>Categories</h2>
+            </div>
+            <div className="no-data">Categories management coming soon...</div>
+          </div>
+        )}
+
+        {/* Reviews Tab */}
+        {activeTab === 'reviews' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <h2>Reviews</h2>
+            </div>
+            <div className="no-data">Reviews management coming soon...</div>
+          </div>
+        )}
+
+        {/* Invoices Tab */}
+        {activeTab === 'invoices' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <h2>Invoices</h2>
+            </div>
+            <div className="no-data">Invoices management coming soon...</div>
+          </div>
+        )}
+
+        {/* Custom Fields Tab */}
+        {activeTab === 'custom-fields' && (
+          <div className="admin-section">
+            <div className="section-header">
+              <h2>Custom Fields</h2>
+            </div>
+            <div className="no-data">Custom fields management coming soon...</div>
           </div>
         )}
 

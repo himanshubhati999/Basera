@@ -14,6 +14,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Wishlist from './pages/Wishlist';
 import PostProperty from './pages/PostProperty';
+import CreateProject from './pages/CreateProject';
 import './App.css';
 
 function AppContent() {
@@ -40,6 +41,11 @@ function AppContent() {
         <Route path="/admin/dashboard" element={
           <AdminRoute>
             <AdminDashboard />
+          </AdminRoute>
+        } />
+        <Route path="/admin/projects/create" element={
+          <AdminRoute>
+            <CreateProject />
           </AdminRoute>
         } />
       </Routes>
