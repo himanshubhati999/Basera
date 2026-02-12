@@ -13,7 +13,6 @@ import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Wishlist from './pages/Wishlist';
-import PostProperty from './pages/PostProperty';
 import CreateProject from './pages/CreateProject';
 import './App.css';
 
@@ -30,7 +29,6 @@ function AppContent() {
         <Route path="/projects/:id" element={<PropertyDetail />} />
         <Route path="/properties" element={<Properties />} />
         <Route path="/properties/:id" element={<PropertyDetail />} />
-        <Route path="/post-property" element={<PostProperty />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

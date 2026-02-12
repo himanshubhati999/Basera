@@ -176,10 +176,6 @@ const Header = () => {
             <Link to="/careers">Careers</Link>
             <Link to="/contact">Contact</Link>
           </nav>
-          
-          <Link to="/post-property" className="add-property-btn btn-glare">
-            <span className="plus-icon">+</span> Add Property
-          </Link>
         </div>
       </div>
 
@@ -222,9 +218,6 @@ const Header = () => {
                 </>
               )}
             </nav>
-            <Link to="/post-property" className="mobile-add-property-btn btn-glare" onClick={closeMobileMenu}>
-              <span className="plus-icon">+</span> Add Property
-            </Link>
           </div>
         </>
       )}

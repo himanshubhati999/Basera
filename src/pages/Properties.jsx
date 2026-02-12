@@ -41,9 +41,9 @@ const Properties = () => {
       console.log('Total properties:', data.properties?.length);
       console.log('Sample property IDs:', data.properties?.slice(0, 3).map(p => ({ _id: p._id, title: p.title })));
       
-      // Transform backend data to match frontend format and exclude projects
+      // Transform backend data to match frontend format and show only published properties (exclude projects)
       const transformedProperties = data.properties
-        .filter(prop => prop.propertyType !== 'project') // Exclude projects from properties page
+        .filter(prop => prop.propertyType !== 'project' && prop.isPublished === true) // Only published properties, exclude projects
         .map(prop => ({
           id: prop._id,
           name: prop.title,

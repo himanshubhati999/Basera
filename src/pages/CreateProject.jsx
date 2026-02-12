@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ContentEditor from '../components/ContentEditor';
+import { API_ENDPOINTS } from '../config/api';
 import './CreateProject.css';
 
 const CreateProject = ({ embedded, onBack }) => {
@@ -13,7 +14,8 @@ const CreateProject = ({ embedded, onBack }) => {
     location: '',
     price: '',
     isFeatured: false,
-    status: 'Not available',
+    isPublished: false,
+    status: '',
     categories: [],
     images: [],
     amenities: [],
@@ -49,6 +51,7 @@ const CreateProject = ({ embedded, onBack }) => {
   const [amenityInput, setAmenityInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [showSeoModal, setShowSeoModal] = useState(false);
   const contentEditorRef = useRef(null);
 
@@ -85,6 +88,16 @@ const CreateProject = ({ embedded, onBack }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Clear error for this field when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+    
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
       setFormData(prev => ({
@@ -119,6 +132,15 @@ const CreateProject = ({ embedded, onBack }) => {
 
   const handleImageUrlsChange = (e) => {
     setImageUrls(e.target.value);
+    
+    // Clear images error when user starts typing
+    if (fieldErrors.images) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.images;
+        return newErrors;
+      });
+    }
   };
 
   const handleAmenityAdd = () => {
@@ -138,9 +160,78 @@ const CreateProject = ({ embedded, onBack }) => {
     }));
   };
 
+  const validateForm = () => {
+    const errors = {};
+    
+    console.log('=== VALIDATION DEBUG ===');
+    console.log('Title:', formData.title, '| Empty?', !formData.title.trim());
+    console.log('Status:', formData.status, '| Empty?', !formData.status);
+    console.log('Location:', formData.location, '| Empty?', !formData.location.trim());
+    console.log('Price:', formData.price, '| Invalid?', !formData.price || parseFloat(formData.price) <= 0);
+    console.log('ImageUrls:', imageUrls, '| Empty?', !imageUrls.trim());
+    
+    if (!formData.title.trim()) {
+      errors.title = 'Project name is required';
+    }
+    
+    if (!formData.status) {
+      errors.status = 'Please select a status';
+    }
+    
+    if (!formData.location.trim()) {
+      errors.location = 'Location address is required';
+    }
+    
+    // Check price - handle both empty string and zero/negative values
+    const priceValue = parseFloat(formData.price);
+    if (!formData.price || isNaN(priceValue) || priceValue <= 0) {
+      errors.price = 'Valid price is required';
+    }
+    
+    // Check imageUrls textarea, not formData.images array
+    if (!imageUrls.trim()) {
+      errors.images = 'At least one image is required';
+    }
+    
+    console.log('Validation Errors:', errors);
+    console.log('Has Errors?', Object.keys(errors).length > 0);
+    
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSave = async (exitAfter = false) => {
-    setLoading(true);
+    console.log('=== SAVE CLICKED ===');
+    console.log('Current formData:', {
+      title: formData.title,
+      status: formData.status,
+      location: formData.location,
+      price: formData.price,
+    });
+    console.log('Current imageUrls:', imageUrls);
+    
     setError('');
+    setFieldErrors({});
+    
+    // Validate form first
+    const isValid = validateForm();
+    console.log('Form valid?', isValid);
+    
+    if (!isValid) {
+      setError('Please fill all required fields marked with *');
+      // Scroll to first error
+      setTimeout(() => {
+        const firstError = document.querySelector('.form-input.error, .form-select.error, .form-textarea.error');
+        if (firstError) {
+          console.log('Scrolling to error field:', firstError);
+          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstError.focus();
+        }
+      }, 100);
+      return;
+    }
+    
+    setLoading(true);
 
     try {
       const token = localStorage.getItem('token');
@@ -162,23 +253,54 @@ const CreateProject = ({ embedded, onBack }) => {
       const projectData = {
         title: formData.title,
         description: editorContent || formData.shortDescription || formData.description,
-        location: formData.location,
-        type: formData.categories[0] || 'Residential',
-        status: formData.status === 'Not available' ? 'Upcoming' : formData.status,
-        isFeatured: formData.isFeatured,
+        propertyType: 'project', // Backend expects propertyType, not type
+        listingType: 'sale',
+        price: parseFloat(formData.price) || 0,
+        location: {
+          address: formData.location,
+          city: formData.city,
+          state: formData.state,
+          country: formData.country,
+          coordinates: {
+            latitude: formData.latitude,
+            longitude: formData.longitude
+          }
+        },
+        area: formData.specifications.area ? {
+          value: parseFloat(formData.specifications.area),
+          unit: 'sqft'
+        } : undefined,
+        bedrooms: formData.specifications.bedrooms ? parseInt(formData.specifications.bedrooms) : undefined,
+        bathrooms: formData.specifications.bathrooms ? parseInt(formData.specifications.bathrooms) : undefined,
         images: imageArray,
         amenities: formData.amenities,
-        price: parseFloat(formData.price) || 0,
-        specifications: {
-          totalUnits: formData.specifications.totalUnits ? parseInt(formData.specifications.totalUnits) : undefined,
-          area: formData.specifications.area ? parseFloat(formData.specifications.area) : undefined,
-          completionDate: formData.specifications.completionDate,
-          bedrooms: formData.specifications.bedrooms,
-          bathrooms: formData.specifications.bathrooms
-        }
+        status: formData.status.toLowerCase(),
+        isFeatured: formData.isFeatured,
+        isPublished: formData.isPublished,
+        categories: formData.categories,
+        content: editorContent || formData.shortDescription,
+        projectDetails: {
+          numberBlocks: formData.numberBlocks ? parseInt(formData.numberBlocks) : undefined,
+          numberFloors: formData.numberFloors ? parseInt(formData.numberFloors) : undefined,
+          numberFlats: formData.numberFlats ? parseInt(formData.numberFlats) : undefined,
+          lowestPrice: formData.lowestPrice ? parseFloat(formData.lowestPrice) : undefined,
+          maxPrice: formData.maxPrice ? parseFloat(formData.maxPrice) : undefined,
+          openSellDate: formData.openSellDate || undefined
+        },
+        seo: {
+          title: formData.seoTitle,
+          description: formData.seoDescription
+        },
+        youtubeVideo: formData.youtubeVideoUrl,
+        privateNotes: formData.privateNotes,
+        // Required fields for backend
+        ownerPhone: formData.ownerPhone || 'N/A',
+        ownerEmail: formData.ownerEmail || 'admin@sunshinerealestate.com'
       };
 
-      const response = await fetch('http://localhost:5000/api/properties', {
+      console.log('Sending projectData:', projectData);
+
+      const response = await fetch(API_ENDPOINTS.PROPERTIES, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -189,14 +311,22 @@ const CreateProject = ({ embedded, onBack }) => {
 
       if (!response.ok) {
         const data = await response.json();
+        console.error('Backend error response:', data);
         throw new Error(data.message || 'Failed to create project');
       }
 
-      alert('Project created successfully!');
+      const result = await response.json();
+      console.log('Success response:', result);
+
+      const statusMessage = formData.isPublished 
+        ? 'Project published successfully!' 
+        : 'Project saved as draft successfully!';
+      alert(statusMessage);
       if (exitAfter) {
         navigate('/admin/dashboard');
       }
     } catch (err) {
+      console.error('Create project error:', err);
       setError(err.message || 'An error occurred while creating the project');
     } finally {
       setLoading(false);
@@ -230,13 +360,14 @@ const CreateProject = ({ embedded, onBack }) => {
             </label>
             <input
               type="text"
-              className="form-input"
+              className={`form-input ${fieldErrors.title ? 'error' : ''}`}
               name="title"
               value={formData.title}
               onChange={handleChange}
               placeholder="Name"
               required
             />
+            {fieldErrors.title && <div className="field-error-message">{fieldErrors.title}</div>}
           </div>
 
           <div className="form-section">
@@ -324,15 +455,18 @@ const CreateProject = ({ embedded, onBack }) => {
           </div>
 
           <div className="form-section">
-            <label className="form-label">Location Address</label>
+            <label className="form-label">
+              Location Address <span className="required">*</span>
+            </label>
             <input
               type="text"
-              className="form-input"
+              className={`form-input ${fieldErrors.location ? 'error' : ''}`}
               name="location"
               value={formData.location}
               onChange={handleChange}
               placeholder="Location"
             />
+            {fieldErrors.location && <div className="field-error-message">{fieldErrors.location}</div>}
           </div>
 
           <div className="form-section">
@@ -441,11 +575,13 @@ const CreateProject = ({ embedded, onBack }) => {
           </div>
 
           <div className="form-section">
-            <label className="form-label">Price Range</label>
+            <label className="form-label">
+              Price Range <span className="required">*</span>
+            </label>
             <div className="specs-grid">
               <input
                 type="number"
-                className="form-input"
+                className={`form-input ${fieldErrors.price ? 'error' : ''}`}
                 name="price"
                 value={formData.price}
                 onChange={handleChange}
@@ -479,6 +615,7 @@ const CreateProject = ({ embedded, onBack }) => {
                 <option value="GBP">GBP</option>
               </select>
             </div>
+            {fieldErrors.price && <div className="field-error-message">{fieldErrors.price}</div>}
           </div>
 
           <div className="form-section">
@@ -547,14 +684,17 @@ const CreateProject = ({ embedded, onBack }) => {
           <div className="form-section">
             <h3 className="section-heading">Addition Information</h3>
             
-            <label className="form-label">Property Images (one URL per line)</label>
+            <label className="form-label">
+              Property Images (one URL per line) <span className="required">*</span>
+            </label>
             <textarea
-              className="form-textarea"
+              className={`form-textarea ${fieldErrors.images ? 'error' : ''}`}
               value={imageUrls}
               onChange={handleImageUrlsChange}
               rows="4"
               placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
             />
+            {fieldErrors.images && <div className="field-error-message">{fieldErrors.images}</div>}
             
             <label className="form-label" style={{ marginTop: '20px' }}>YouTube Video Thumbnail</label>
             <div className="thumbnail-upload">
@@ -609,6 +749,26 @@ const CreateProject = ({ embedded, onBack }) => {
         <div className="sidebar">
           <div className="sidebar-section publish-section">
             <h3>Publish</h3>
+            
+            <div className="publish-status">
+              <label className="publish-toggle">
+                <input
+                  type="checkbox"
+                  checked={formData.isPublished}
+                  onChange={(e) => setFormData(prev => ({ ...prev, isPublished: e.target.checked }))}
+                  className="publish-checkbox"
+                />
+                <span className="toggle-label">
+                  {formData.isPublished ? '🟢 Published' : '🔴 Draft'}
+                </span>
+              </label>
+              <small className="publish-hint">
+                {formData.isPublished 
+                  ? 'This project will be visible to users' 
+                  : 'This project will be saved as draft'}
+              </small>
+            </div>
+            
             <button 
               onClick={() => handleSave(false)} 
               className="save-btn"
@@ -630,16 +790,17 @@ const CreateProject = ({ embedded, onBack }) => {
               Status <span className="required">*</span>
             </h3>
             <select
-              className="form-select"
+              className={`form-select ${fieldErrors.status ? 'error' : ''}`}
               name="status"
               value={formData.status}
               onChange={handleChange}
             >
-              <option value="Not available">Not available</option>
+              <option value="">-- Select Status --</option>
               <option value="Upcoming">Upcoming</option>
               <option value="Ongoing">Ongoing</option>
               <option value="Completed">Completed</option>
             </select>
+            {fieldErrors.status && <div className="field-error-message">{fieldErrors.status}</div>}
           </div>
 
           <div className="sidebar-section">

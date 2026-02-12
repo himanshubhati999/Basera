@@ -31,8 +31,8 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
       
       const data = await response.json();
       
-      // Filter only featured properties
-      const featuredProperties = data.properties.filter(prop => prop.isFeatured);
+      // Filter only featured AND published properties
+      const featuredProperties = data.properties.filter(prop => prop.isFeatured && prop.isPublished === true);
       
       // Transform properties based on type
       const transformedProjects = featuredProperties

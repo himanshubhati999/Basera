@@ -35,9 +35,9 @@ const Projects = () => {
       
       const data = await response.json();
       
-      // Transform backend data to match frontend format and filter only projects
+      // Transform backend data to match frontend format and filter only published projects
       const transformedProjects = data.properties
-        .filter(prop => prop.propertyType === 'project') // Only show projects
+        .filter(prop => prop.propertyType === 'project' && prop.isPublished === true) // Only show published projects
         .map(prop => ({
           id: prop._id,
           name: prop.title,

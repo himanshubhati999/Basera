@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
   ADMIN_USER_BY_ID: (id) => `${API_BASE_URL}/api/admin/users/${id}`,
   ADMIN_PROPERTY_STATUS: (id) => `${API_BASE_URL}/api/admin/properties/${id}/status`,
   ADMIN_PROPERTY_FEATURED: (id) => `${API_BASE_URL}/api/admin/properties/${id}/featured`,
+  ADMIN_PROPERTY_PUBLISHED: (id) => `${API_BASE_URL}/api/admin/properties/${id}/published`,
   
   // Wishlist endpoints (if needed in future)
   WISHLIST: `${API_BASE_URL}/api/wishlist`,

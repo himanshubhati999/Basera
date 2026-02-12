@@ -215,6 +215,32 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleTogglePublish = async (propertyId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(API_ENDPOINTS.ADMIN_PROPERTY_PUBLISHED(propertyId), {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Update the properties array with the updated property
+        setProperties(properties.map(p => 
+          p._id === propertyId ? data.property : p
+        ));
+        alert(data.message);
+      } else {
+        alert('Failed to update publish status');
+      }
+    } catch (err) {
+      console.error('Error toggling publish status:', err);
+      alert('Error updating publish status');
+    }
+  };
+
   const handleDeleteUser = async (userId) => {
     if (!window.confirm('Are you sure you want to delete this user?')) {
       return;
@@ -297,6 +323,14 @@ const AdminDashboard = () => {
     property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     property.location?.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     property.postedBy?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Filter only projects (for projects tab)
+  const filteredProjects = properties.filter(property =>
+    property.propertyType === 'project' &&
+    (property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     property.location?.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     property.postedBy?.name?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const filteredUsers = users.filter(user =>
@@ -1042,7 +1076,7 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {filteredProperties.length === 0 ? (
+            {filteredProjects.length === 0 ? (
               <div className="no-data">No projects found</div>
             ) : (
               <>
@@ -1056,6 +1090,7 @@ const AdminDashboard = () => {
                         <th style={{ width: '80px' }}>ID</th>
                         <th style={{ width: '100px' }}>IMAGE</th>
                         <th>NAME</th>
+                        <th style={{ width: '120px' }}>PUBLISH</th>
                         <th style={{ width: '100px' }}>VIEWS</th>
                         <th style={{ width: '150px' }}>UNIQUE ID</th>
                         <th style={{ width: '150px' }}>CREATED AT</th>
@@ -1064,7 +1099,7 @@ const AdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredProperties.map((project, index) => (
+                      {filteredProjects.map((project, index) => (
                         <tr key={project._id}>
                           <td>
                             <input type="checkbox" />
@@ -1088,14 +1123,30 @@ const AdminDashboard = () => {
                           >
                             {project.title}
                           </td>
+                          <td>
+                            <span style={{ 
+                              background: project.isPublished ? '#10b981' : '#f59e0b',
+                              color: 'white',
+                              padding: '4px 12px',
+                              borderRadius: '4px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {project.isPublished ? '🟢 Published' : '🔴 Draft'}
+                            </span>
+                          </td>
                           <td>{project.views || Math.floor(Math.random() * 100)}</td>
                           <td style={{ color: '#9ca3af', fontSize: '12px' }}>{project._id.slice(-8).toUpperCase()}</td>
                           <td>{formatDate(project.createdAt)}</td>
                           <td>
                             <span style={{ 
-                              background: project.status === 'available' ? '#10b981' : 
-                                         project.status === 'sold' ? '#ef4444' : 
-                                         project.status === 'rented' ? '#f59e0b' : '#6b7280',
+                              background: project.status === 'upcoming' ? '#3b82f6' : 
+                                         project.status === 'ongoing' ? '#f59e0b' : 
+                                         project.status === 'completed' ? '#10b981' : '#6b7280',
                               color: 'white',
                               padding: '4px 12px',
                               borderRadius: '4px',
@@ -1103,11 +1154,26 @@ const AdminDashboard = () => {
                               fontWeight: '500',
                               textTransform: 'capitalize'
                             }}>
-                              {project.status === 'available' ? 'Selling' : project.status}
+                              {project.status}
                             </span>
                           </td>
                           <td>
                             <div className="action-buttons">
+                              <button 
+                                className="action-btn" 
+                                style={{ 
+                                  background: project.isPublished ? '#f59e0b' : '#10b981', 
+                                  color: 'white', 
+                                  padding: '6px 12px',
+                                  marginRight: '5px'
+                                }}
+                                onClick={() => handleTogglePublish(project._id)}
+                                title={project.isPublished ? 'Unpublish' : 'Publish'}
+                              >
+                                <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>
+                                  {project.isPublished ? 'visibility_off' : 'publish'}
+                                </span>
+                              </button>
                               <button 
                                 className="action-btn view" 
                                 style={{ background: '#3b82f6', color: 'white', padding: '6px 12px' }}
@@ -1138,14 +1204,14 @@ const AdminDashboard = () => {
                     borderTop: '1px solid #1e2538'
                   }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>public</span>
-                    Show from 1 to {filteredProperties.length} in <span style={{ 
+                    Show from 1 to {filteredProjects.length} in <span style={{ 
                       background: '#3b82f6', 
                       color: 'white',
                       padding: '2px 8px',
                       borderRadius: '4px',
                       fontWeight: '600',
                       fontSize: '12px'
-                    }}>{filteredProperties.length}</span> records
+                    }}>{filteredProjects.length}</span> records
                   </div>
                 </div>
               </>
