@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
+import CreateProject from './CreateProject';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -1029,7 +1030,7 @@ const AdminDashboard = () => {
                   }}>search</span>
                 </div>
                 <button className="action-btn view" style={{ background: '#1e40af', color: 'white', padding: '8px 16px' }}
-                  onClick={() => navigate('/admin/projects/create')}
+                  onClick={() => setActiveTab('create-project')}
                 >
                   <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>add</span> Create
                 </button>
@@ -1229,6 +1230,13 @@ const AdminDashboard = () => {
               <h2>Blog Management</h2>
             </div>
             <div className="no-data">Blog management coming soon...</div>
+          </div>
+        )}
+
+        {/* Create Project Tab */}
+        {activeTab === 'create-project' && (
+          <div className="admin-section" style={{ padding: 0 }}>
+            <CreateProject embedded onBack={() => setActiveTab('projects')} />
           </div>
         )}
       </div>

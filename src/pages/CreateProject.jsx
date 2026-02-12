@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ContentEditor from '../components/ContentEditor';
 import './CreateProject.css';
 
-const CreateProject = () => {
+const CreateProject = ({ embedded, onBack }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
@@ -207,14 +207,14 @@ const CreateProject = () => {
 
   return (
     <>
-    <div className="create-project-container">
+    <div className={`create-project-container${embedded ? ' embedded' : ''}`}>
       <div className="create-project-header">
         <div className="breadcrumb">
-          <span onClick={() => navigate('/admin/dashboard')}>DASHBOARD</span>
+          <span onClick={() => embedded && onBack ? onBack() : navigate('/admin/dashboard')}>DASHBOARD</span>
           <span>/</span>
           <span>REAL ESTATE</span>
           <span>/</span>
-          <span>PROJECTS</span>
+          <span onClick={() => embedded && onBack ? onBack() : null} style={{ cursor: embedded ? 'pointer' : 'default' }}>PROJECTS</span>
           <span>/</span>
           <span className="active">NEW PROJECT</span>
         </div>
