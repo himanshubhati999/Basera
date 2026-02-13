@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './News.css';
+import { API_ENDPOINTS } from '../config/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+console.log('🔍 News.jsx - API_ENDPOINTS.PAGES_PUBLISHED:', API_ENDPOINTS.PAGES_PUBLISHED);
 
 const News = () => {
   const [posts, setPosts] = useState([]);
@@ -16,21 +17,66 @@ const News = () => {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/pages/published`);
+      const url = API_ENDPOINTS.PAGES_PUBLISHED;
+      console.log('🌐 Fetching from URL:', url);
+      
+      const response = await fetch(url);
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response ok:', response.ok);
+      console.log('📡 Response Content-Type:', response.headers.get('content-type'));
+      
+      // Check if response is ok before parsing
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ HTTP Error:', response.status, errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
+      }
+      
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('❌ Non-JSON response:', text.substring(0, 200));
+        throw new Error('Server returned non-JSON response. Expected JSON.');
+      }
+      
       const data = await response.json();
+      console.log('✅ Data received:', data);
       
       if (data.success) {
-        // Filter for blog posts (you can adjust this filter as needed)
-        const blogPosts = data.pages.filter(page => 
-          page.template === 'Blog Page' || page.content
-        );
+        // List of static page names to exclude from blog/news
+        const excludedPageNames = [
+          'Privacy Policy',
+          'Terms and Conditions', 
+          'Terms & Conditions',
+          'About Us',
+          'About',
+          'Contact',
+          'Contact Us',
+          'FAQ',
+          'Frequently Asked Questions'
+        ];
+        
+        // Filter for blog posts only, excluding static pages
+        const blogPosts = data.pages.filter(page => {
+          // Exclude pages by name
+          const isExcludedPage = excludedPageNames.some(excluded => 
+            page.name && page.name.toLowerCase().includes(excluded.toLowerCase())
+          );
+          
+          if (isExcludedPage) return false;
+          
+          // Only include pages with Blog Page template
+          return page.template === 'Blog Page';
+        });
         setPosts(blogPosts);
+        console.log('✅ Posts loaded:', blogPosts.length);
       } else {
-        setError('Failed to load posts');
+        setError(data.message || 'Failed to load posts');
       }
     } catch (error) {
-      console.error('Error fetching posts:', error);
-      setError('Failed to load posts. Please try again later.');
+      console.error('❌ Error fetching posts:', error);
+      setError(`Failed to load posts: ${error.message}`);
     } finally {
       setLoading(false);
     }
