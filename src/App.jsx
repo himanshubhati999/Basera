@@ -14,6 +14,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Wishlist from './pages/Wishlist';
 import CreateProject from './pages/CreateProject';
+import DynamicPage from './pages/DynamicPage';
+import News from './pages/News';
 import './App.css';
 
 function AppContent() {
@@ -34,7 +36,8 @@ function AppContent() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/agents" element={<div className="page-placeholder" style={{padding: '100px 20px', textAlign: 'center', minHeight: '60vh'}}><h1>Agents Page</h1><p>Coming Soon</p></div>} />
-        <Route path="/news" element={<div className="page-placeholder" style={{padding: '100px 20px', textAlign: 'center', minHeight: '60vh'}}><h1>News Page</h1><p>Coming Soon</p></div>} />
+        <Route path="/news" element={<News />} />
+        <Route path="/news/:slug" element={<DynamicPage />} />
         <Route path="/careers" element={<div className="page-placeholder" style={{padding: '100px 20px', textAlign: 'center', minHeight: '60vh'}}><h1>Careers Page</h1><p>Coming Soon</p></div>} />
         <Route path="/admin/dashboard" element={
           <AdminRoute>
@@ -46,6 +49,8 @@ function AppContent() {
             <CreateProject />
           </AdminRoute>
         } />
+        {/* Dynamic Pages Route - catches custom page slugs */}
+        <Route path="/:slug" element={<DynamicPage />} />
       </Routes>
       {!isAdminRoute && <Footer />}
     </div>

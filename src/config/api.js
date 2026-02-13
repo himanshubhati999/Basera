@@ -28,6 +28,19 @@ export const API_ENDPOINTS = {
   CONSULT_BY_ID: (id) => `${API_BASE_URL}/api/consults/${id}`,
   CONSULT_STATUS: (id) => `${API_BASE_URL}/api/consults/${id}/status`,
   CONSULT_STATS: `${API_BASE_URL}/api/consults/stats`,
+  
+  // Consult Fields endpoints
+  CONSULT_FIELDS: `${API_BASE_URL}/api/consult-fields`,
+  CONSULT_FIELDS_ACTIVE: `${API_BASE_URL}/api/consult-fields/active`,
+  CONSULT_FIELD_BY_ID: (id) => `${API_BASE_URL}/api/consult-fields/${id}`,
+  
+  // Pages endpoints
+  PAGES: `${API_BASE_URL}/api/pages`,
+  PAGES_PUBLISHED: `${API_BASE_URL}/api/pages/published`,
+  PAGE_BY_ID: (id) => `${API_BASE_URL}/api/pages/${id}`,
+  PAGE_BY_SLUG: (slug) => `${API_BASE_URL}/api/pages/slug/${slug}`,
+  PAGE_STATUS: (id) => `${API_BASE_URL}/api/pages/${id}/status`,
+  PAGES_BULK_DELETE: `${API_BASE_URL}/api/pages/bulk-delete`,
 };
 
 export default API_BASE_URL;
