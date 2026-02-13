@@ -1,36 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ContentEditor from '../components/ContentEditor';
 import { API_ENDPOINTS } from '../config/api';
 import './PostProperty.css';
 
-const PostProperty = () => {
+const PostProperty = ({ embedded, onBack }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
-  const [listingType, setListingType] = useState(null); // 'property' or 'project'
+  const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [showSeoModal, setShowSeoModal] = useState(false);
+  const contentEditorRef = useRef(null);
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    shortDescription: '',
+    content: '',
     propertyType: 'residential',
     listingType: 'sale',
     price: '',
-    address: '',
+    location: '',
     city: '',
     state: '',
-    country: '',
+    country: 'India',
     zipCode: '',
+    latitude: '',
+    longitude: '',
     area: '',
     areaUnit: 'sqft',
     bedrooms: '',
     bathrooms: '',
-    amenities: '',
+    amenities: [],
+    features: [],
+    images: [],
+    isFeatured: false,
+    isPublished: false,
+    status: 'available',
+    categories: [],
     ownerPhone: '',
     ownerEmail: user?.email || '',
-    images: ''
+    youtubeThumbnail: '',
+    youtubeVideoUrl: '',
+    seoTitle: '',
+    seoDescription: '',
+    privateNotes: '',
+    currency: 'INR'
   });
+
+  const [imageUrls, setImageUrls] = useState('');
+  const [amenityInput, setAmenityInput] = useState('');
+
+  const availableCategories = ['Apartment', 'Villa', 'Condo', 'House', 'Land', 'Commercial property'];
+  const availableFeatures = [
+    'Wifi', 'Parking', 'Swimming pool', 'Balcony', 'Garden', 'Security',
+    'Fitness center', 'Air Conditioning', 'Central Heating', 'Laundry Room',
+    'Pets Allow', 'Spa & Massage'
+  ];
+  const indianStates = [
+    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+    'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+    'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
+    'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+    'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Puducherry'
+  ];
 
   React.useEffect(() => {
     if (!user) {
@@ -38,75 +74,191 @@ const PostProperty = () => {
     }
   }, [user, navigate]);
 
+  // Function to get content from editor
+  const getEditorContent = () => {
+    if (contentEditorRef.current) {
+      const editorElement = contentEditorRef.current.querySelector('.editor-content');
+      return editorElement?.innerHTML || '';
+    }
+    return formData.content;
+  };
+
+  const generatePermalink = (title) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Clear error for this field when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+    
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCategoryToggle = (category) => {
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      categories: prev.categories.includes(category)
+        ? prev.categories.filter(c => c !== category)
+        : [...prev.categories, category]
     }));
   };
 
-  const handleListingTypeSelect = (type) => {
-    setListingType(type);
-    // Set propertyType based on listing type
-    if (type === 'project') {
-      setFormData(prev => ({
-        ...prev,
-        propertyType: 'project'
-      }));
+  const handleFeatureToggle = (feature) => {
+    setFormData(prev => ({
+      ...prev,
+      features: prev.features.includes(feature)
+        ? prev.features.filter(f => f !== feature)
+        : [...prev.features, feature]
+    }));
+  };
+
+  const handleImageUrlsChange = (e) => {
+    setImageUrls(e.target.value);
+    
+    // Clear images error when user starts typing
+    if (fieldErrors.images) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.images;
+        return newErrors;
+      });
     }
   };
 
-  const handleBack = () => {
-    setListingType(null);
-    setMessage({ type: '', text: '' });
+  const handleAmenityAdd = () => {
+    if (amenityInput.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        amenities: [...prev.amenities, amenityInput.trim()]
+      }));
+      setAmenityInput('');
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleAmenityRemove = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      amenities: prev.amenities.filter((_, i) => i !== index)
+    }));
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.title.trim()) {
+      errors.title = 'Property name is required';
+    }
+    
+    if (!formData.location.trim()) {
+      errors.location = 'Location address is required';
+    }
+    
+    const priceValue = parseFloat(formData.price);
+    if (!formData.price || isNaN(priceValue) || priceValue <= 0) {
+      errors.price = 'Valid price is required';
+    }
+    
+    if (!imageUrls.trim()) {
+      errors.images = 'At least one image is required';
+    }
+    
+    if (!formData.ownerPhone.trim()) {
+      errors.ownerPhone = 'Contact phone is required';
+    }
+    
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSave = async (exitAfter = false) => {
+    setError('');
+    setFieldErrors({});
+    
+    // Validate form first
+    const isValid = validateForm();
+    
+    if (!isValid) {
+      setError('Please fill all required fields marked with *');
+      // Scroll to first error
+      setTimeout(() => {
+        const firstError = document.querySelector('.form-input.error, .form-select.error, .form-textarea.error');
+        if (firstError) {
+          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstError.focus();
+        }
+      }, 100);
+      return;
+    }
+    
     setLoading(true);
-    setMessage({ type: '', text: '' });
 
     try {
       const token = localStorage.getItem('token');
-      
       if (!token) {
-        setMessage({ 
-          type: 'error', 
-          text: 'Please login to post a property' 
-        });
+        setError('You must be logged in to post a property');
         setLoading(false);
-        setTimeout(() => navigate('/login'), 1500);
         return;
       }
-      
-      // Prepare data for submission
+
+      // Process image URLs
+      const imageArray = imageUrls
+        .split('\n')
+        .map(url => url.trim())
+        .filter(url => url);
+
+      // Get content from rich text editor
+      const editorContent = getEditorContent();
+
       const propertyData = {
         title: formData.title,
-        description: formData.description,
-        propertyType: listingType === 'project' ? 'project' : formData.propertyType,
+        description: editorContent || formData.shortDescription || formData.description,
+        propertyType: formData.propertyType,
         listingType: formData.listingType,
-        price: Number(formData.price),
+        price: parseFloat(formData.price) || 0,
         location: {
-          address: formData.address,
+          address: formData.location,
           city: formData.city,
           state: formData.state,
           country: formData.country,
-          zipCode: formData.zipCode
+          zipCode: formData.zipCode,
+          coordinates: {
+            latitude: formData.latitude,
+            longitude: formData.longitude
+          }
         },
-        area: {
-          value: Number(formData.area),
+        area: formData.area ? {
+          value: parseFloat(formData.area),
           unit: formData.areaUnit
+        } : undefined,
+        bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : undefined,
+        bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : undefined,
+        images: imageArray,
+        amenities: formData.amenities,
+        status: formData.status.toLowerCase(),
+        isFeatured: formData.isFeatured,
+        isPublished: formData.isPublished,
+        categories: formData.categories,
+        content: editorContent || formData.shortDescription,
+        seo: {
+          title: formData.seoTitle,
+          description: formData.seoDescription
         },
-        bedrooms: formData.bedrooms ? Number(formData.bedrooms) : undefined,
-        bathrooms: formData.bathrooms ? Number(formData.bathrooms) : undefined,
-        amenities: formData.amenities.split(',').map(a => a.trim()).filter(Boolean),
-        images: formData.images.split(',').map(i => i.trim()).filter(Boolean),
+        youtubeVideo: formData.youtubeVideoUrl,
+        privateNotes: formData.privateNotes,
         ownerPhone: formData.ownerPhone,
         ownerEmail: formData.ownerEmail
       };
-
-      console.log('Submitting property data:', propertyData);
 
       const response = await fetch(API_ENDPOINTS.PROPERTIES, {
         method: 'POST',
@@ -117,365 +269,585 @@ const PostProperty = () => {
         body: JSON.stringify(propertyData)
       });
 
-      const data = await response.json();
-      console.log('Server response:', data);
-
-      if (response.ok) {
-        const successMessage = listingType === 'project' 
-          ? 'Project posted successfully! Redirecting...' 
-          : 'Property posted successfully! Redirecting...';
-        setMessage({ 
-          type: 'success', 
-          text: successMessage
-        });
-        setTimeout(() => {
-          navigate('/properties');
-        }, 2000);
-      } else {
-        setMessage({ 
-          type: 'error', 
-          text: data.message || 'Failed to post property' 
-        });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to post property');
       }
-    } catch (error) {
-      console.error('Error posting property:', error);
-      setMessage({ 
-        type: 'error', 
-        text: 'Network error. Please check if backend is running.' 
-      });
+
+      const result = await response.json();
+      const statusMessage = formData.isPublished 
+        ? 'Property published successfully!' 
+        : 'Property saved as draft successfully!';
+      alert(statusMessage);
+      
+      if (exitAfter) {
+        navigate('/admin/dashboard');
+      }
+    } catch (err) {
+      console.error('Post property error:', err);
+      setError(err.message || 'An error occurred while posting the property');
     } finally {
       setLoading(false);
     }
   };
 
+  const permalink = generatePermalink(formData.title);
+
   return (
-    <div className="post-property-container">
-      {!listingType ? (
-        // Selection Screen
-        <div className="listing-type-selection">
-          <div className="post-property-header">
-            <h1>Choose Listing Type</h1>
-            <p>Select whether you want to post a property or a project</p>
+    <>
+    <div className={`create-project-container${embedded ? ' embedded' : ''}`}>
+      <div className="create-project-header">
+        <div className="breadcrumb">
+          <span onClick={() => embedded && onBack ? onBack() : navigate('/admin/dashboard')}>DASHBOARD</span>
+          <span>/</span>
+          <span>REAL ESTATE</span>
+          <span>/</span>
+          <span onClick={() => embedded && onBack ? onBack() : null} style={{ cursor: embedded ? 'pointer' : 'default' }}>PROPERTIES</span>
+          <span>/</span>
+          <span className="active">NEW PROPERTY</span>
+        </div>
+      </div>
+
+      {error && <div className="error-banner">{error}</div>}
+
+      <div className="create-project-content">
+        <div className="main-form">
+          <div className="form-section">
+            <label className="form-label">
+              Property Name <span className="required">*</span>
+            </label>
+            <input
+              type="text"
+              className={`form-input ${fieldErrors.title ? 'error' : ''}`}
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="Property Name"
+              required
+            />
+            {fieldErrors.title && <div className="field-error-message">{fieldErrors.title}</div>}
           </div>
-          
-          <div className="listing-type-cards">
-            <div className="listing-type-card" onClick={() => handleListingTypeSelect('property')}>
-              <div className="card-icon"><span className="material-symbols-outlined">home</span></div>
-              <h3>Post Property</h3>
-              <p>List individual properties like apartments, houses, commercial spaces, or land for sale or rent</p>
-              <button className="select-btn">Select Property</button>
+
+          <div className="form-section">
+            <label className="form-label">
+              Permalink <span className="required">*</span>
+            </label>
+            <input
+              type="text"
+              className="form-input permalink-input"
+              value={`https://sunshinerealestatepvtltd.com/properties/${permalink}`}
+              readOnly
+            />
+            <div className="permalink-preview">
+              Preview: https://sunshinerealestatepvtltd.com/properties/{permalink || ''}
             </div>
+          </div>
+
+          <div className="form-section">
+            <label className="form-label">Description</label>
+            <textarea
+              className="form-textarea"
+              name="shortDescription"
+              value={formData.shortDescription}
+              onChange={handleChange}
+              placeholder="Short description"
+              rows="3"
+            />
+          </div>
+
+          <div className="form-section">
+            <label className="form-label">
+              <input
+                type="checkbox"
+                checked={formData.isFeatured}
+                onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))}
+              />
+              <span style={{ marginLeft: '8px' }}>Is featured?</span>
+            </label>
+          </div>
+
+          <div className="form-section content-editor-section" ref={contentEditorRef}>
+            <ContentEditor />
+          </div>
+
+          <div className="form-section">
+            <h3 className="section-heading">Location Details</h3>
+            <div className="location-grid">
+              <div>
+                <label className="form-label">Country</label>
+                <select
+                  className="form-select"
+                  name="country"
+                  value={formData.country}
+                  onChange={handleChange}
+                >
+                  <option value="India">India</option>
+                </select>
+              </div>
+              <div>
+                <label className="form-label">State</label>
+                <select
+                  className="form-select"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                >
+                  <option value="">Select state...</option>
+                  {indianStates.map(state => (
+                    <option key={state} value={state}>{state}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="form-label">City</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  placeholder="Select city..."
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <label className="form-label">
+              Location Address <span className="required">*</span>
+            </label>
+            <input
+              type="text"
+              className={`form-input ${fieldErrors.location ? 'error' : ''}`}
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              placeholder="Location"
+            />
+            {fieldErrors.location && <div className="field-error-message">{fieldErrors.location}</div>}
+          </div>
+
+          <div className="form-section">
+            <div className="location-grid">
+              <div>
+                <label className="form-label">Latitude</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  name="latitude"
+                  value={formData.latitude}
+                  onChange={handleChange}
+                  placeholder="Ex: 1.462260"
+                />
+                <small className="form-hint">Go here to get Latitude from address.</small>
+              </div>
+              <div>
+                <label className="form-label">Longitude</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  name="longitude"
+                  value={formData.longitude}
+                  onChange={handleChange}
+                  placeholder="Ex: 103.812530"
+                />
+                <small className="form-hint">Go here to get Longitude from address.</small>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <label className="form-label">ZIP Code</label>
+            <input
+              type="text"
+              className="form-input"
+              name="zipCode"
+              value={formData.zipCode}
+              onChange={handleChange}
+              placeholder="ZIP Code"
+            />
+          </div>
+
+          <div className="form-section">
+            <label className="form-label">Property Details</label>
+            <div className="specs-grid">
+              <div>
+                <input
+                  type="number"
+                  className="form-input"
+                  name="area"
+                  value={formData.area}
+                  onChange={handleChange}
+                  placeholder="Area"
+                />
+              </div>
+              <div>
+                <select
+                  className="form-select"
+                  name="areaUnit"
+                  value={formData.areaUnit}
+                  onChange={handleChange}
+                >
+                  <option value="sqft">Square Feet</option>
+                  <option value="sqm">Square Meters</option>
+                  <option value="acres">Acres</option>
+                </select>
+              </div>
+              <input
+                type="text"
+                className="form-input"
+                name="bedrooms"
+                value={formData.bedrooms}
+                onChange={handleChange}
+                placeholder="Bedrooms"
+              />
+              <input
+                type="text"
+                className="form-input"
+                name="bathrooms"
+                value={formData.bathrooms}
+                onChange={handleChange}
+                placeholder="Bathrooms"
+              />
+            </div>
+          </div>
+
+          <div className="form-section">
+            <label className="form-label">
+              Price <span className="required">*</span>
+            </label>
+            <div className="specs-grid">
+              <input
+                type="number"
+                className={`form-input ${fieldErrors.price ? 'error' : ''}`}
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                placeholder="Price (₹)"
+              />
+              <select
+                className="form-select"
+                name="currency"
+                value={formData.currency}
+                onChange={handleChange}
+              >
+                <option value="INR">INR</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+              </select>
+            </div>
+            {fieldErrors.price && <div className="field-error-message">{fieldErrors.price}</div>}
+          </div>
+
+          <div className="form-section">
+            <label className="form-label">Private notes</label>
+            <textarea
+              className="form-textarea"
+              name="privateNotes"
+              value={formData.privateNotes}
+              onChange={handleChange}
+              placeholder="Private notes"
+              rows="4"
+            />
+            <small className="form-hint">Private notes are only visible to owner. It won't be shown on the frontend.</small>
+          </div>
+
+          <div className="form-section">
+            <h3 className="section-heading">Amenities</h3>
+            <div className="amenity-input-group">
+              <input
+                type="text"
+                className="form-input"
+                value={amenityInput}
+                onChange={(e) => setAmenityInput(e.target.value)}
+                placeholder="Add an amenity"
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAmenityAdd())}
+              />
+              <button type="button" onClick={handleAmenityAdd} className="add-btn">
+                Add
+              </button>
+            </div>
+            <div className="amenities-list">
+              {formData.amenities.map((amenity, index) => (
+                <span key={index} className="amenity-tag">
+                  {amenity}
+                  <button type="button" onClick={() => handleAmenityRemove(index)}>×</button>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h3 className="section-heading">Features</h3>
+            <div className="features-grid">
+              {availableFeatures.map((feature) => (
+                <label key={feature} className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={formData.features.includes(feature)}
+                    onChange={() => handleFeatureToggle(feature)}
+                  />
+                  <span>{feature}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h3 className="section-heading">Addition Information</h3>
             
-            <div className="listing-type-card" onClick={() => handleListingTypeSelect('project')}>
-              <div className="card-icon">🏗️</div>
-              <h3>Post Project</h3>
-              <p>List real estate development projects, residential complexes, or commercial developments</p>
-              <button className="select-btn">Select Project</button>
+            <label className="form-label">
+              Property Images (one URL per line) <span className="required">*</span>
+            </label>
+            <textarea
+              className={`form-textarea ${fieldErrors.images ? 'error' : ''}`}
+              value={imageUrls}
+              onChange={handleImageUrlsChange}
+              rows="4"
+              placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
+            />
+            {fieldErrors.images && <div className="field-error-message">{fieldErrors.images}</div>}
+            
+            <label className="form-label" style={{ marginTop: '20px' }}>YouTube Video Thumbnail</label>
+            <div className="thumbnail-upload">
+              <div className="thumbnail-placeholder">
+                <div className="thumbnail-icon">🖼️</div>
+              </div>
+              <div className="upload-actions">
+                <button type="button" className="upload-btn">Choose Image</button>
+                <span>or</span>
+                <button type="button" className="url-btn">Add from URL</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <label className="form-label">YouTube Video URL</label>
+            <input
+              type="text"
+              className="form-input"
+              name="youtubeVideoUrl"
+              value={formData.youtubeVideoUrl}
+              onChange={handleChange}
+              placeholder="https://www.youtube.com/watch?v=..."
+            />
+          </div>
+
+          <div className="form-section">
+            <div className="seo-header">
+              <h3 className="section-heading">Search Engine Optimize</h3>
+              <button type="button" className="edit-seo-btn" onClick={() => setShowSeoModal(true)}>Edit SEO meta</button>
+            </div>
+            <p className="seo-description">
+              Setup meta title & description to make your site easy to discovered on search engines such as Google
+            </p>
+            {(formData.seoTitle || formData.seoDescription) && (
+              <div className="seo-preview">
+                {formData.seoTitle && (
+                  <div className="seo-preview-item">
+                    <strong>Title:</strong> {formData.seoTitle}
+                  </div>
+                )}
+                {formData.seoDescription && (
+                  <div className="seo-preview-item">
+                    <strong>Description:</strong> {formData.seoDescription}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="form-section">
+            <h3 className="section-heading">Contact Information</h3>
+            <p className="form-hint" style={{ marginBottom: '15px' }}>
+              This information will not be displayed publicly and will only be used when someone enquires about your property.
+            </p>
+            
+            <div className="specs-grid">
+              <div>
+                <label className="form-label">
+                  Phone Number <span className="required">*</span>
+                </label>
+                <input
+                  type="tel"
+                  className={`form-input ${fieldErrors.ownerPhone ? 'error' : ''}`}
+                  name="ownerPhone"
+                  value={formData.ownerPhone}
+                  onChange={handleChange}
+                  placeholder="e.g., +1234567890"
+                  required
+                />
+                {fieldErrors.ownerPhone && <div className="field-error-message">{fieldErrors.ownerPhone}</div>}
+              </div>
+
+              <div>
+                <label className="form-label">Email</label>
+                <input
+                  type="email"
+                  className="form-input"
+                  name="ownerEmail"
+                  value={formData.ownerEmail}
+                  onChange={handleChange}
+                  placeholder="your@email.com"
+                />
+              </div>
             </div>
           </div>
         </div>
-      ) : (
-        // Form Screen
-        <>
-          <div className="post-property-header">
-            <button className="back-btn" onClick={handleBack}>← Back</button>
-            <h1>Post Your {listingType === 'project' ? 'Project' : 'Property'}</h1>
-            <p>Fill in the details below to list your {listingType === 'project' ? 'project' : 'property'}</p>
+
+        <div className="sidebar">
+          <div className="sidebar-section publish-section">
+            <h3>Publish</h3>
+            
+            <div className="publish-status">
+              <label className="publish-toggle">
+                <input
+                  type="checkbox"
+                  checked={formData.isPublished}
+                  onChange={(e) => setFormData(prev => ({ ...prev, isPublished: e.target.checked }))}
+                  className="publish-checkbox"
+                />
+                <span className="toggle-label">
+                  {formData.isPublished ? '🟢 Published' : '🔴 Draft'}
+                </span>
+              </label>
+              <small className="publish-hint">
+                {formData.isPublished 
+                  ? 'This property will be visible to users' 
+                  : 'This property will be saved as draft'}
+              </small>
+            </div>
+            
+            <button 
+              onClick={() => handleSave(false)} 
+              className="save-btn"
+              disabled={loading}
+            >
+              💾 {loading ? 'Saving...' : 'Save'}
+            </button>
+            <button 
+              onClick={() => handleSave(true)} 
+              className="save-exit-btn"
+              disabled={loading}
+            >
+              ↗ Save & Exit
+            </button>
           </div>
 
-          {message.text && (
-            <div className={`${message.type}-message`}>
-              {message.text}
+          <div className="sidebar-section">
+            <h3>Property Type</h3>
+            <select
+              className="form-select"
+              name="propertyType"
+              value={formData.propertyType}
+              onChange={handleChange}
+            >
+              <option value="residential">Residential</option>
+              <option value="commercial">Commercial</option>
+              <option value="land">Land</option>
+            </select>
+          </div>
+
+          <div className="sidebar-section">
+            <h3>Listing Type</h3>
+            <select
+              className="form-select"
+              name="listingType"
+              value={formData.listingType}
+              onChange={handleChange}
+            >
+              <option value="sale">For Sale</option>
+              <option value="rent">For Rent</option>
+            </select>
+          </div>
+
+          <div className="sidebar-section">
+            <h3>Status</h3>
+            <select
+              className="form-select"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+            >
+              <option value="available">Available</option>
+              <option value="pending">Pending</option>
+              <option value="sold">Sold</option>
+              <option value="rented">Rented</option>
+            </select>
+          </div>
+
+          <div className="sidebar-section">
+            <h3>Categories</h3>
+            <div className="categories-list">
+              {availableCategories.map((category) => (
+                <label key={category} className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={formData.categories.includes(category)}
+                    onChange={() => handleCategoryToggle(category)}
+                  />
+                  <span>{category}</span>
+                </label>
+              ))}
             </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="property-form">
-            {/* Basic Information */}
-            <div className="form-section">
-              <h2>Basic Information</h2>
-              
-              <div className="form-group">
-                <label htmlFor="title">{listingType === 'project' ? 'Project' : 'Property'} Title <span className="required">*</span></label>
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  placeholder={listingType === 'project' ? 'e.g., Luxury Residential Complex' : 'e.g., Luxury 3BHK Apartment in Downtown'}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="description">Description <span className="required">*</span></label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder={`Describe your ${listingType === 'project' ? 'project' : 'property'} in detail...`}
-                  required
-                />
-              </div>
-
-              <div className="form-row">
-                {listingType === 'property' && (
-                  <div className="form-group">
-                    <label htmlFor="propertyType">Property Type <span className="required">*</span></label>
-                    <select
-                      id="propertyType"
-                      name="propertyType"
-                      value={formData.propertyType}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="residential">Residential</option>
-                      <option value="commercial">Commercial</option>
-                      <option value="land">Land</option>
-                    </select>
-                  </div>
-                )}
-
-                <div className="form-group">
-                  <label htmlFor="listingType">Listing Type <span className="required">*</span></label>
-                  <select
-                    id="listingType"
-                    name="listingType"
-                    value={formData.listingType}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="sale">For Sale</option>
-                    <option value="rent">For Rent</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="price">Price <span className="required">*</span></label>
-                  <input
-                    type="number"
-                    id="price"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    placeholder="e.g., 5000000"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Location Details */}
-            <div className="form-section">
-              <h2>Location Details</h2>
-              
-              <div className="form-group">
-                <label htmlFor="address">Address</label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  placeholder="Street address"
-                />
-              </div>
-
-              <div className="location-grid">
-                <div className="form-group">
-                  <label htmlFor="city">City</label>
-                  <input
-                    type="text"
-                    id="city"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="City"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="state">State</label>
-                  <input
-                    type="text"
-                    id="state"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleChange}
-                    placeholder="State"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="country">Country</label>
-                  <input
-                    type="text"
-                    id="country"
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                    placeholder="Country"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="zipCode">ZIP Code</label>
-                  <input
-                    type="text"
-                    id="zipCode"
-                    name="zipCode"
-                    value={formData.zipCode}
-                    onChange={handleChange}
-                    placeholder="ZIP Code"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Property Details */}
-            <div className="form-section">
-              <h2>{listingType === 'project' ? 'Project' : 'Property'} Details</h2>
-              
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="area">Area</label>
-                  <input
-                    type="number"
-                    id="area"
-                    name="area"
-                    value={formData.area}
-                    onChange={handleChange}
-                    placeholder="e.g., 1500"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="areaUnit">Area Unit</label>
-                  <select
-                    id="areaUnit"
-                    name="areaUnit"
-                    value={formData.areaUnit}
-                    onChange={handleChange}
-                  >
-                    <option value="sqft">Square Feet</option>
-                    <option value="sqm">Square Meters</option>
-                    <option value="acres">Acres</option>
-                  </select>
-                </div>
-
-                {listingType === 'property' && (
-                  <>
-                    <div className="form-group">
-                      <label htmlFor="bedrooms">Bedrooms</label>
-                      <input
-                        type="number"
-                        id="bedrooms"
-                        name="bedrooms"
-                        value={formData.bedrooms}
-                        onChange={handleChange}
-                        placeholder="e.g., 3"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="bathrooms">Bathrooms</label>
-                      <input
-                        type="number"
-                        id="bathrooms"
-                        name="bathrooms"
-                        value={formData.bathrooms}
-                        onChange={handleChange}
-                        placeholder="e.g., 2"
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="amenities">Amenities</label>
-                <input
-                  type="text"
-                  id="amenities"
-                  name="amenities"
-                  value={formData.amenities}
-                  onChange={handleChange}
-                  placeholder="e.g., Swimming Pool, Gym, Parking"
-                />
-                <small>Separate multiple amenities with commas</small>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="images">Image URLs</label>
-                <input
-                  type="text"
-                  id="images"
-                  name="images"
-                  value={formData.images}
-                  onChange={handleChange}
-                  placeholder="e.g., https://example.com/image1.jpg, https://example.com/image2.jpg"
-                />
-                <small>Separate multiple image URLs with commas</small>
-              </div>
-            </div>
-
-            {/* Contact Information (Private) */}
-            <div className="form-section">
-              <h2>Contact Information</h2>
-              <p style={{ color: '#7f8c8d', fontSize: '0.9rem', marginBottom: '15px' }}>
-                This information will not be displayed publicly and will only be used when someone enquires about your {listingType === 'project' ? 'project' : 'property'}.
-              </p>
-              
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="ownerPhone">Phone Number <span className="required">*</span></label>
-                  <input
-                    type="tel"
-                    id="ownerPhone"
-                    name="ownerPhone"
-                    value={formData.ownerPhone}
-                    onChange={handleChange}
-                    placeholder="e.g., +1234567890"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="ownerEmail">Email <span className="required">*</span></label>
-                  <input
-                    type="email"
-                    id="ownerEmail"
-                    name="ownerEmail"
-                    value={formData.ownerEmail}
-                    onChange={handleChange}
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="form-actions">
-              <button 
-                type="button" 
-                className="cancel-btn"
-                onClick={() => navigate('/properties')}
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit" 
-                className="submit-btn"
-                disabled={loading}
-              >
-                {loading ? 'Posting...' : `Post ${listingType === 'project' ? 'Project' : 'Property'}`}
-              </button>
-            </div>
-          </form>
-        </>
-      )}
+          </div>
+        </div>
+      </div>
     </div>
+
+    {/* SEO Modal */}
+    {showSeoModal && (
+      <div className="modal-overlay" onClick={() => setShowSeoModal(false)}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h2>Edit SEO Meta</h2>
+            <button className="modal-close" onClick={() => setShowSeoModal(false)}>&times;</button>
+          </div>
+          <div className="modal-body">
+            <div className="modal-form-group">
+              <label className="form-label">SEO Title</label>
+              <input
+                type="text"
+                className="form-input"
+                name="seoTitle"
+                value={formData.seoTitle}
+                onChange={handleChange}
+                placeholder="Enter SEO title for search engines"
+                maxLength="60"
+              />
+              <small className="form-hint">{formData.seoTitle.length}/60 characters</small>
+            </div>
+            <div className="modal-form-group">
+              <label className="form-label">SEO Description</label>
+              <textarea
+                className="form-textarea"
+                name="seoDescription"
+                value={formData.seoDescription}
+                onChange={handleChange}
+                placeholder="Enter meta description for search engines"
+                rows="4"
+                maxLength="160"
+              />
+              <small className="form-hint">{formData.seoDescription.length}/160 characters</small>
+            </div>
+            <div className="seo-preview-box">
+              <h4>Search Preview</h4>
+              <div className="search-preview">
+                <div className="preview-title">{formData.seoTitle || formData.title || 'Your Page Title'}</div>
+                <div className="preview-url">https://sunshinerealestatepvtltd.com/properties/{generatePermalink(formData.title) || 'property-name'}</div>
+                <div className="preview-description">{formData.seoDescription || formData.shortDescription || 'Your meta description will appear here...'}</div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button className="modal-btn-cancel" onClick={() => setShowSeoModal(false)}>Cancel</button>
+            <button className="modal-btn-save" onClick={() => setShowSeoModal(false)}>Save Changes</button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 

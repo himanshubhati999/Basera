@@ -22,6 +22,12 @@ export const API_ENDPOINTS = {
   
   // Wishlist endpoints (if needed in future)
   WISHLIST: `${API_BASE_URL}/api/wishlist`,
+  
+  // Consult endpoints
+  CONSULTS: `${API_BASE_URL}/api/consults`,
+  CONSULT_BY_ID: (id) => `${API_BASE_URL}/api/consults/${id}`,
+  CONSULT_STATUS: (id) => `${API_BASE_URL}/api/consults/${id}/status`,
+  CONSULT_STATS: `${API_BASE_URL}/api/consults/stats`,
 };
 
 export default API_BASE_URL;

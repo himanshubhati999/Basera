@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import CreateProject from './CreateProject';
+import PostProperty from './PostProperty';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -15,6 +16,8 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [properties, setProperties] = useState([]);
   const [users, setUsers] = useState([]);
+  const [consults, setConsults] = useState([]);
+  const [selectedConsult, setSelectedConsult] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
   const [activityLogs, setActivityLogs] = useState([]);
@@ -101,6 +104,18 @@ const AdminDashboard = () => {
       if (usersResponse.ok) {
         const usersData = await usersResponse.json();
         setUsers(usersData.users);
+      }
+
+      // Fetch consults
+      const consultsResponse = await fetch(API_ENDPOINTS.CONSULTS, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (consultsResponse.ok) {
+        const consultsData = await consultsResponse.json();
+        setConsults(consultsData.consults);
       }
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
@@ -267,6 +282,63 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteConsult = async (consultId) => {
+    if (!window.confirm('Are you sure you want to delete this consultation request?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(API_ENDPOINTS.CONSULT_BY_ID(consultId), {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setConsults(consults.filter(c => c._id !== consultId));
+        alert('Consultation request deleted successfully');
+      } else {
+        alert('Failed to delete consultation request');
+      }
+    } catch (err) {
+      console.error('Error deleting consult:', err);
+      alert('Error deleting consultation request');
+    }
+  };
+
+  const handleUpdateConsultStatus = async (consultId, newStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(API_ENDPOINTS.CONSULT_STATUS(consultId), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setConsults(consults.map(c => 
+          c._id === consultId ? data.consult : c
+        ));
+        // Update selectedConsult if it's the one being viewed
+        if (selectedConsult && selectedConsult._id === consultId) {
+          setSelectedConsult(data.consult);
+        }
+        alert('Status updated successfully');
+      } else {
+        alert('Failed to update status');
+      }
+    } catch (err) {
+      console.error('Error updating consult status:', err);
+      alert('Error updating status');
+    }
+  };
+
   const handleUpdatePropertyStatus = async (propertyId, newStatus) => {
     try {
       const token = localStorage.getItem('token');
@@ -325,6 +397,14 @@ const AdminDashboard = () => {
     property.postedBy?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Filter only non-project properties (for properties tab)
+  const filteredNonProjectProperties = properties.filter(property =>
+    property.propertyType !== 'project' &&
+    (property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     property.location?.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     property.postedBy?.name?.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   // Filter only projects (for projects tab)
   const filteredProjects = properties.filter(property =>
     property.propertyType === 'project' &&
@@ -336,6 +416,12 @@ const AdminDashboard = () => {
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredConsults = consults.filter(consult =>
+    consult.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    consult.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    consult.phone.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const formatDate = (dateString) => {
@@ -521,10 +607,15 @@ const AdminDashboard = () => {
             <span className="nav-text">Careers</span>
           </button>
 
-          <button className="nav-item" onClick={closeMobileMenu}>
+          <button
+            className={`nav-item ${activeTab === 'consults' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('consults'); closeMobileMenu(); }}
+          >
             <span className="nav-icon"><span className="material-symbols-outlined">chat</span></span>
             <span className="nav-text">Consults</span>
-            <span className="badge">2</span>
+            {consults.filter(c => c.status === 'unread').length > 0 && (
+              <span className="badge">{consults.filter(c => c.status === 'unread').length}</span>
+            )}
           </button>
 
           <button className="nav-item" onClick={closeMobileMenu}>
@@ -794,10 +885,50 @@ const AdminDashboard = () => {
         {activeTab === 'real-estate' && (
           <div className="admin-section">
             <div className="section-header">
-              <h2>All Properties</h2>
+              <div>
+                <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '500' }}>DASHBOARD / REAL ESTATE / PROPERTIES</span>
+                <h2 style={{ marginTop: '10px', fontSize: '24px' }}>All Properties</h2>
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Search..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ 
+                      padding: '8px 16px 8px 40px', 
+                      background: '#1a1f37', 
+                      border: '1px solid #374151', 
+                      borderRadius: '6px',
+                      color: '#fff',
+                      fontSize: '14px',
+                      width: '200px'
+                    }}
+                  />
+                  <span className="material-symbols-outlined" style={{
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    fontSize: '18px',
+                    color: '#6b7280'
+                  }}>search</span>
+                </div>
+                <button className="action-btn view" style={{ background: '#1e40af', color: 'white', padding: '8px 16px' }}
+                  onClick={() => setActiveTab('post-property')}
+                >
+                  <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>add</span> Create
+                </button>
+                <button className="action-btn view" style={{ padding: '8px 16px', background: 'transparent', border: '1px solid #374151' }}
+                  onClick={fetchDashboardData}
+                >
+                  <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>refresh</span> Reload
+                </button>
+              </div>
             </div>
 
-            {filteredProperties.length === 0 ? (
+            {filteredNonProjectProperties.length === 0 ? (
               <div className="no-data">No properties found</div>
             ) : (
               <div className="data-table">
@@ -815,7 +946,7 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredProperties.map(property => (
+                    {filteredNonProjectProperties.map(property => (
                       <tr key={property._id}>
                         <td>
                           <div className="property-title">{property.title}</div>
@@ -941,6 +1072,357 @@ const AdminDashboard = () => {
                 </table>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Consults Tab */}
+        {activeTab === 'consults' && !selectedConsult && (
+          <div className="admin-section">
+            <div className="section-header">
+              <div>
+                <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '500' }}>DASHBOARD / CONSULTS</span>
+                <h2 style={{ marginTop: '10px', fontSize: '24px' }}>Consults</h2>
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button className="action-btn view" style={{ padding: '8px 16px', background: 'transparent', border: '1px solid #374151' }}>
+                  <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>tune</span> Bulk Actions
+                </button>
+                <button className="action-btn view" style={{ padding: '8px 16px', background: 'transparent', border: '1px solid #374151' }}>
+                  <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>filter_list</span> Filters
+                </button>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Search..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ 
+                      padding: '8px 16px 8px 40px', 
+                      background: '#1a1f37', 
+                      border: '1px solid #374151', 
+                      borderRadius: '6px',
+                      color: '#fff',
+                      fontSize: '14px',
+                      width: '200px'
+                    }}
+                  />
+                  <span className="material-symbols-outlined" style={{
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    fontSize: '18px',
+                    color: '#6b7280'
+                  }}>search</span>
+                </div>
+                <button 
+                  className="action-btn view" 
+                  style={{ padding: '8px 16px', background: 'transparent', border: '1px solid #374151' }}
+                  onClick={fetchDashboardData}
+                >
+                  <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>refresh</span> Reload
+                </button>
+              </div>
+            </div>
+
+            <div style={{ fontSize: '14px', color: '#9ca3af', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="material-symbols-outlined" style={{fontSize: '18px'}}>info</span>
+              Show from 1 to {filteredConsults.length} in {filteredConsults.length} records
+            </div>
+
+            {filteredConsults.length === 0 ? (
+              <div className="no-data">No consultation requests found</div>
+            ) : (
+              <div className="data-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '50px' }}>
+                        <input type="checkbox" />
+                      </th>
+                      <th>ID</th>
+                      <th>NAME</th>
+                      <th>EMAIL</th>
+                      <th>PHONE</th>
+                      <th>IP ADDRESS</th>
+                      <th>CREATED AT</th>
+                      <th>STATUS</th>
+                      <th>OPERATIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredConsults.map((consult, index) => (
+                      <tr key={consult._id}>
+                        <td>
+                          <input type="checkbox" />
+                        </td>
+                        <td>{index + 1}</td>
+                        <td 
+                          style={{ color: '#3b82f6', fontWeight: '500', cursor: 'pointer' }}
+                          onClick={() => setSelectedConsult(consult)}
+                        >
+                          {consult.name}
+                        </td>
+                        <td>{consult.email}</td>
+                        <td>{consult.phone}</td>
+                        <td>{consult.ipAddress || 'N/A'}</td>
+                        <td>{formatDate(consult.createdAt)}</td>
+                        <td>
+                          <select
+                            className={`status-badge ${consult.status}`}
+                            value={consult.status}
+                            onChange={(e) => handleUpdateConsultStatus(consult._id, e.target.value)}
+                            style={{
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              border: 'none',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              textTransform: 'uppercase',
+                              cursor: 'pointer',
+                              background: consult.status === 'unread' ? '#f59e0b' : 
+                                         consult.status === 'read' ? '#3b82f6' :
+                                         consult.status === 'contacted' ? '#10b981' : '#6b7280',
+                              color: '#fff'
+                            }}
+                          >
+                            <option value="unread">Unread</option>
+                            <option value="read">Read</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="closed">Closed</option>
+                          </select>
+                        </td>
+                        <td>
+                          <div className="action-buttons" style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              className="action-btn view"
+                              style={{
+                                padding: '6px 12px',
+                                background: '#3b82f6',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                              onClick={() => {
+                                setSelectedConsult(consult);
+                              }}
+                            >
+                              <span className="material-symbols-outlined" style={{fontSize: '16px'}}>edit</span>
+                            </button>
+                            <button
+                              className="action-btn delete"
+                              style={{
+                                padding: '6px 12px',
+                                background: '#ef4444',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                              onClick={() => handleDeleteConsult(consult._id)}
+                            >
+                              <span className="material-symbols-outlined" style={{fontSize: '16px'}}>delete</span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Consult Detail View */}
+        {activeTab === 'consults' && selectedConsult && (
+          <div className="admin-section">
+            <div className="section-header">
+              <div>
+                <span style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '500' }}>
+                  <button 
+                    onClick={() => setSelectedConsult(null)}
+                    style={{ 
+                      background: 'transparent', 
+                      border: 'none', 
+                      color: '#3b82f6', 
+                      cursor: 'pointer',
+                      marginRight: '8px'
+                    }}
+                  >
+                    DASHBOARD
+                  </button>
+                  / 
+                  <button 
+                    onClick={() => setSelectedConsult(null)}
+                    style={{ 
+                      background: 'transparent', 
+                      border: 'none', 
+                      color: '#3b82f6', 
+                      cursor: 'pointer',
+                      margin: '0 8px'
+                    }}
+                  >
+                    CONSULTS
+                  </button>
+                  / EDIT "{selectedConsult.name.toUpperCase()}"
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '24px', marginTop: '24px' }}>
+              {/* Left Column - Consult Information */}
+              <div style={{ background: '#1a1f37', borderRadius: '8px', padding: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '24px', color: '#fff' }}>Consult information</h2>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '8px', textTransform: 'uppercase' }}>Time</label>
+                    <div style={{ color: '#fff', fontSize: '14px' }}>
+                      {new Date(selectedConsult.createdAt).toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false
+                      })}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '8px', textTransform: 'uppercase' }}>Consult ID</label>
+                    <div style={{ color: '#fff', fontSize: '14px' }}>AB{String(selectedConsult._id).slice(-6).toUpperCase()}</div>
+                  </div>
+                  
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '8px', textTransform: 'uppercase' }}>Name</label>
+                    <div style={{ color: '#fff', fontSize: '14px' }}>{selectedConsult.name}</div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '8px', textTransform: 'uppercase' }}>IP Address</label>
+                    <div style={{ color: '#fff', fontSize: '14px' }}>{selectedConsult.ipAddress || 'N/A'}</div>
+                  </div>
+                  
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '8px', textTransform: 'uppercase' }}>Email</label>
+                    <div style={{ color: '#3b82f6', fontSize: '14px' }}>{selectedConsult.email}</div>
+                  </div>
+                  
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '8px', textTransform: 'uppercase' }}>Phone</label>
+                    <div style={{ color: '#fff', fontSize: '14px' }}>{selectedConsult.phone}</div>
+                  </div>
+                </div>
+
+                {selectedConsult.property && (
+                  <div style={{ marginBottom: '24px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '8px', textTransform: 'uppercase' }}>Schedule a Tour (Optional)</label>
+                    <div style={{ color: '#fff', fontSize: '14px' }}>{selectedConsult.property}</div>
+                  </div>
+                )}
+
+                {selectedConsult.message && (
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '8px', textTransform: 'uppercase' }}>Details</label>
+                    <div style={{ color: '#fff', fontSize: '14px', lineHeight: '1.6' }}>{selectedConsult.message}</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column - Publish Section */}
+              <div>
+                <div style={{ background: '#1a1f37', borderRadius: '8px', padding: '24px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '20px', color: '#fff' }}>Publish</h3>
+                  
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+                    <button 
+                      onClick={() => {
+                        setSelectedConsult(null);
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '10px 20px',
+                        background: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      <span className="material-symbols-outlined" style={{fontSize: '18px'}}>save</span>
+                      Save
+                    </button>
+                    
+                    <button 
+                      onClick={() => {
+                        setSelectedConsult(null);
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '10px 20px',
+                        background: 'transparent',
+                        color: '#fff',
+                        border: '1px solid #374151',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      <span className="material-symbols-outlined" style={{fontSize: '18px'}}>exit_to_app</span>
+                      Save & Exit
+                    </button>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '8px', textTransform: 'uppercase' }}>
+                      Status <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <select
+                      value={selectedConsult.status}
+                      onChange={(e) => handleUpdateConsultStatus(selectedConsult._id, e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        background: '#111827',
+                        border: '1px solid #374151',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '14px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <option value="unread">Unread</option>
+                      <option value="read">Read</option>
+                      <option value="contacted">Contacted</option>
+                      <option value="closed">Closed</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1303,6 +1785,13 @@ const AdminDashboard = () => {
         {activeTab === 'create-project' && (
           <div className="admin-section" style={{ padding: 0 }}>
             <CreateProject embedded onBack={() => setActiveTab('projects')} />
+          </div>
+        )}
+
+        {/* Post Property Tab */}
+        {activeTab === 'post-property' && (
+          <div className="admin-section" style={{ padding: 0 }}>
+            <PostProperty embedded onBack={() => setActiveTab('real-estate')} />
           </div>
         )}
       </div>

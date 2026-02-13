@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { API_ENDPOINTS } from '../config/api';
 import './Contact.css';
 import './ContactCRM.css';
 import ShinyText from '../components/ShinyText';
@@ -94,8 +95,8 @@ const Contact = () => {
     });
 
     try {
-      // Submit to our CRM API
-      const response = await fetch('/api/crm-submit', {
+      // Submit to our backend API
+      const response = await fetch(API_ENDPOINTS.CONSULTS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
