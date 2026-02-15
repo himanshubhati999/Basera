@@ -86,6 +86,17 @@ const DynamicPage = () => {
           {page.description && (
             <p className="page-subtitle">{page.description}</p>
           )}
+          
+          {/* Tags under title in hero */}
+          {page.tags && page.tags.length > 0 && (
+            <div className="page-tags">
+              {page.tags.map((tag, index) => (
+                <span key={index} className="page-tag">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

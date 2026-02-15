@@ -7,10 +7,10 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-column">
           <div className="footer-logo">
-            <img src="/logo.svg" alt="Sunshine Real Estate" />
+            <img src="/basera-logo.png" alt="Basera Infra Home" />
             <div className="footer-logo-text">
-              <span className="footer-logo-sunshine">SUNSHINE</span>
-              <span className="footer-logo-real-estate">REAL ESTATE</span>
+              <span className="footer-logo-sunshine">BASERA</span>
+              <span className="footer-logo-real-estate">INFRA HOME</span>
             </div>
           </div>
           <div className="footer-contact">
@@ -61,7 +61,7 @@ const Footer = () => {
       </div>
 
       <div className="footer-bottom">
-        <p>&copy; 2026 Sunshine Real Estate. All rights reserved.</p>
+        <p>&copy; 2026 Basera Infra Home. All rights reserved.</p>
       </div>
     </footer>
   );

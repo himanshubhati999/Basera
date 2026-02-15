@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import StickyDialPad from './components/StickyDialPad';
 import AdminRoute from './components/AdminRoute';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
@@ -53,6 +54,7 @@ function AppContent() {
         <Route path="/:slug" element={<DynamicPage />} />
       </Routes>
       {!isAdminRoute && <Footer />}
+      {!isAdminRoute && <StickyDialPad />}
     </div>
   );
 }

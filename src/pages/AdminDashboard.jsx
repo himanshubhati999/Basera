@@ -2723,6 +2723,7 @@ const AdminDashboard = () => {
                   metaTitle: formData.get('metaTitle'),
                   metaDescription: formData.get('metaDescription'),
                   metaKeywords: formData.get('metaKeywords'),
+                  tags: formData.get('tags') ? formData.get('tags').split(',').map(tag => tag.trim()).filter(tag => tag) : [],
                   isHomePage: formData.get('isHomePage') === 'on'
                 };
                 
@@ -3130,6 +3131,31 @@ const AdminDashboard = () => {
                           }}
                           placeholder="keyword1, keyword2, keyword3"
                         />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '13px', color: '#e5e7eb', marginBottom: '8px', fontWeight: '500' }}>
+                          Tags (comma separated)
+                        </label>
+                        <input
+                          type="text"
+                          name="tags"
+                          defaultValue={selectedPage?.tags?.join(', ') || ''}
+                          style={{
+                            width: '100%',
+                            padding: '10px 14px',
+                            background: '#1a1f37',
+                            border: '1px solid #374151',
+                            borderRadius: '4px',
+                            color: '#fff',
+                            fontSize: '14px',
+                            outline: 'none'
+                          }}
+                          placeholder="Real Estate, Property Tips, Investment"
+                        />
+                        <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px' }}>
+                          Add tags to categorize your page
+                        </p>
                       </div>
                     </div>
                   </details>
@@ -3918,6 +3944,7 @@ const AdminDashboard = () => {
                   metaTitle: formData.get('metaTitle'),
                   metaDescription: formData.get('metaDescription'),
                   metaKeywords: formData.get('metaKeywords'),
+                  tags: formData.get('tags') ? formData.get('tags').split(',').map(tag => tag.trim()).filter(tag => tag) : [],
                   featuredImage: formData.get('featuredImage')
                 };
                 
@@ -4225,6 +4252,59 @@ const AdminDashboard = () => {
                         }}
                         placeholder="keyword1, keyword2, keyword3"
                       />
+                    </div>
+                  </div>
+
+                  {/* Tags Section */}
+                  <div style={{
+                    background: '#1a1f37',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    border: '1px solid #374151',
+                    marginTop: '20px'
+                  }}>
+                    <h3 style={{
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      color: '#e5e7eb',
+                      marginBottom: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>label</span>
+                      Tags
+                    </h3>
+
+                    <div>
+                      <label style={{ 
+                        display: 'block', 
+                        fontSize: '13px', 
+                        color: '#e5e7eb', 
+                        marginBottom: '8px',
+                        fontWeight: '500'
+                      }}>
+                        Tags (comma separated)
+                      </label>
+                      <input
+                        type="text"
+                        name="tags"
+                        defaultValue={selectedBlog?.tags?.join(', ') || ''}
+                        style={{
+                          width: '100%',
+                          padding: '10px 14px',
+                          background: '#0f1419',
+                          border: '1px solid #374151',
+                          borderRadius: '4px',
+                          color: '#fff',
+                          fontSize: '14px',
+                          outline: 'none'
+                        }}
+                        placeholder="Real Estate, Property Tips, Investment"
+                      />
+                      <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px' }}>
+                        Add tags to categorize your blog post (e.g., Real Estate, Market News, Tips)
+                      </p>
                     </div>
                   </div>
                 </div>

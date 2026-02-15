@@ -150,10 +150,10 @@ const Header = () => {
       <div className="header-main">
         <div className="header-main-content">
           <Link to="/" className="logo">
-            <img src="/logo.svg" alt="Sunshine Real Estate" />
+            <img src="/basera-logo.png" alt="Basera Infra Home" />
             <div className="logo-text">
-              <span className="logo-sunshine">Sanjeev</span>
-              <span className="logo-real-estate">REAL ESTATE</span>
+              <span className="logo-sunshine">BASERA</span>
+              <span className="logo-real-estate">INFRA HOME</span>
             </div>
           </Link>
           

@@ -16,6 +16,54 @@ const PropertyDetail = () => {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+
+  // Function to extract YouTube video ID from URL
+  const getYoutubeVideoId = (url) => {
+    if (!url) return null;
+    
+    // Handle different YouTube URL formats
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+      /^([a-zA-Z0-9_-]{11})$/ // Direct video ID
+    ];
+    
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) return match[1];
+    }
+    
+    return null;
+  };
+
+  // Function to get YouTube embed URL
+  const getYoutubeEmbedUrl = (url) => {
+    const videoId = getYoutubeVideoId(url);
+    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : null;
+  };
+
+  // Function to generate Google Maps embed URL from latitude and longitude
+  const getMapEmbedUrl = (latitude, longitude) => {
+    if (!latitude || !longitude) return null;
+    // URL format that shows a pin marker at the exact location
+    return `https://maps.google.com/maps?q=${latitude},${longitude}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+  };
+
+  // Handle opening video modal
+  const handleOpenVideo = () => {
+    if (property?.youtubeVideo || displayProperty?.videoUrl) {
+      setShowVideoModal(true);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Handle closing video modal
+  const handleCloseVideo = () => {
+    setShowVideoModal(false);
+    // Restore body scroll
+    document.body.style.overflow = 'unset';
+  };
 
   // Fetch property data from database
   useEffect(() => {
@@ -426,8 +474,10 @@ const PropertyDetail = () => {
       conclusion: 'A perfect choice for your next home or investment.'
     },
     features: property.amenities?.map(amenity => ({ icon: <span className="material-symbols-outlined">check</span>, name: amenity })) || [],
-    mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3511.123456789!2d77.7123456!3d28.1234567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDA3JzI0LjQiTiA3N8KwNDInNDQuNCJF!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    mapUrl: getMapEmbedUrl(property.location?.coordinates?.latitude, property.location?.coordinates?.longitude),
+    videoUrl: property.youtubeVideo || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    latitude: property.location?.coordinates?.latitude,
+    longitude: property.location?.coordinates?.longitude
   } : (projects.find(p => p.id === parseInt(id)) || projects[0]);
 
   const [formData, setFormData] = useState({
@@ -582,7 +632,7 @@ const PropertyDetail = () => {
           ))}
         </div>
         <div className="gallery-actions">
-          <button className="gallery-btn btn-glare">
+          <button className="gallery-btn btn-glare" onClick={handleOpenVideo}>
             <span className="icon">▶️</span> YouTube
           </button>
           <button className="gallery-btn btn-glare">
@@ -682,26 +732,12 @@ const PropertyDetail = () => {
             </div>
           </div>
 
-          {/* Map Section */}
-          <div className="map-section">
-            <iframe
-              src={displayProperty.mapUrl}
-              width="100%"
-              height="400"
-              style={{ border: 0 }}
-              allowFullScreen=""
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Property Location"
-            ></iframe>
-          </div>
-
           {/* Video Section */}
           <div className="video-section">
             <h2>Project video</h2>
             <div className="video-container">
               <img src={displayProperty.image} alt="Video thumbnail" className="video-thumbnail" />
-              <button className="play-button btn-glare-radial">▶</button>
+              <button className="play-button btn-glare-radial" onClick={handleOpenVideo}>▶</button>
             </div>
             <div className="share-section">
               <p>Share this project:</p>
@@ -741,6 +777,28 @@ const PropertyDetail = () => {
               <button type="submit" className="submit-review-btn btn-glare">Submit review</button>
             </form>
           </div>
+
+          {/* Map Location Section */}
+          {displayProperty.mapUrl && displayProperty.latitude && displayProperty.longitude && (
+            <div className="map-section">
+              <h2>Map Location</h2>
+              <div className="map-container">
+                <iframe
+                  src={displayProperty.mapUrl}
+                  title="Property Location"
+                  width="100%"
+                  height="450"
+                  style={{ border: 0, borderRadius: '8px' }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
+              <div className="coordinates-info">
+                <p>📍 Coordinates: {displayProperty.latitude}, {displayProperty.longitude}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Contact Form (Right Side) */}
@@ -836,6 +894,33 @@ const PropertyDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Video Modal */}
+      {showVideoModal && (
+        <div className="video-modal-overlay" onClick={handleCloseVideo}>
+          <div className="video-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="video-modal-close" onClick={handleCloseVideo}>
+              <span className="material-symbols-outlined">close</span>
+            </button>
+            <div className="video-modal-wrapper">
+              {getYoutubeEmbedUrl(displayProperty.videoUrl) ? (
+                <iframe
+                  src={getYoutubeEmbedUrl(displayProperty.videoUrl)}
+                  title="Property Video"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="video-modal-iframe"
+                ></iframe>
+              ) : (
+                <div className="video-error">
+                  <p>Video not available</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

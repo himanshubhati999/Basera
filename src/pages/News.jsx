@@ -158,6 +158,18 @@ const News = () => {
                       </span>
                     )}
                   </div>
+                  
+                  {/* Tags */}
+                  {post.tags && post.tags.length > 0 && (
+                    <div className="post-tags">
+                      {post.tags.map((tag, index) => (
+                        <span key={index} className="post-tag">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  
                   <h2 className="post-title">{post.name}</h2>
                   <p className="post-excerpt">
                     {post.description || getExcerpt(post.content)}

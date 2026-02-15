@@ -242,18 +242,19 @@
 .logo-sunshine {
   font-size: 18px;
   font-weight: 800;
-  background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  letter-spacing: -0.5px;
+  letter-spacing: 1px;
 }
 
 .logo-real-estate {
   font-size: 11px;
-  color: #d4a574;
+  color: #858585;
   font-weight: 600;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .main-nav {
