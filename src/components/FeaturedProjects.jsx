@@ -270,9 +270,10 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
   const { data, title } = getDisplayData();
 
   return (
-    <section className="featured-projects">
-      <div className="featured-projects-container">
-        <h2 className="section-title">
+    <div className="featured-projects-component">
+      <section className="featured-projects">
+        <div className="featured-projects-container">
+          <h2 className="section-title">
           <ShinyText
             text={title}
             speed={3}
@@ -332,6 +333,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
         )}
       </div>
     </section>
+    </div>
   );
 };
 

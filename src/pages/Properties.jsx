@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import './Properties.css';
@@ -10,6 +10,8 @@ import ShinyText from '../components/ShinyText';
 const Properties = () => {
   const { isAuthenticated, toggleWishlist, isInWishlist } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
   const [propertyType, setPropertyType] = useState('');
@@ -20,6 +22,32 @@ const Properties = () => {
   const [propertiesList, setPropertiesList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Initialize search params from URL
+  useEffect(() => {
+    const urlKeyword = searchParams.get('keyword') || '';
+    const urlLocation = searchParams.get('location') || '';
+    const urlCategory = searchParams.get('category') || '';
+    const urlListingType = searchParams.get('listingType') || '';
+    const urlPriceFrom = searchParams.get('priceFrom') || '';
+    const urlPriceTo = searchParams.get('priceTo') || '';
+    
+    setKeyword(urlKeyword);
+    setLocation(urlLocation);
+    if (urlCategory) setPropertyType(urlCategory);
+    if (urlListingType) setListingType(urlListingType);
+    
+    // Convert price range to our format
+    if (urlPriceFrom || urlPriceTo) {
+      const from = parseFloat(urlPriceFrom) || 0;
+      const to = parseFloat(urlPriceTo) || Infinity;
+      
+      if (to < 50) setPriceRange('under-50');
+      else if (from >= 50 && to < 100) setPriceRange('50-100');
+      else if (from >= 100 && to < 200) setPriceRange('100-200');
+      else if (from >= 200) setPriceRange('above-200');
+    }
+  }, [searchParams]);
 
   // Fetch properties from database
   useEffect(() => {
@@ -39,28 +67,42 @@ const Properties = () => {
       
       console.log('=== FETCHED PROPERTIES ===');
       console.log('Total properties:', data.properties?.length);
-      console.log('Sample property IDs:', data.properties?.slice(0, 3).map(p => ({ _id: p._id, title: p.title })));
+      console.log('Sample property data:', data.properties?.slice(0, 3).map(p => ({ 
+        _id: p._id, 
+        title: p.title,
+        area: p.area,
+        location: p.location
+      })));
       
       // Transform backend data to match frontend format and show only published properties (exclude projects)
       const transformedProperties = data.properties
         .filter(prop => prop.propertyType !== 'project' && prop.isPublished === true) // Only published properties, exclude projects
-        .map(prop => ({
-          id: prop._id,
-          name: prop.title,
-          location: prop.location?.city || prop.location?.address || 'Location not specified',
-          area: prop.area ? `${prop.area} sqft` : 'N/A',
-          price: `₹${prop.price.toLocaleString('en-IN')}`,
-          image: prop.images?.[0] || 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&q=80',
-          badge: prop.status === 'available' ? 'AVAILABLE' : 'SOLD',
-          type: prop.propertyType?.toLowerCase() || 'apartment',
-          listingType: prop.listingType || 'sale',
-          bedrooms: prop.bedrooms?.toString() || '',
-          bathrooms: prop.bathrooms?.toString() || '',
-          status: prop.status || 'ready-to-move'
-        }));
+        .map(prop => {
+          console.log('Transforming property:', {
+            title: prop.title,
+            _id: prop._id,
+            area: prop.area,
+            areaValue: prop.area?.value,
+            areaUnit: prop.area?.unit
+          });
+          return {
+            id: prop._id,
+            name: prop.title?.trim() || 'Untitled Property',
+            location: prop.location?.city || prop.location?.address || 'Location not specified',
+            area: prop.area?.value ? `${prop.area.value} ${prop.area.unit || 'sqft'}` : 'N/A',
+            price: `₹${prop.price.toLocaleString('en-IN')}`,
+            image: prop.images?.[0] || 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&q=80',
+            badge: prop.status === 'available' ? 'AVAILABLE' : 'SOLD',
+            type: prop.propertyType?.toLowerCase() || 'apartment',
+            listingType: prop.listingType || 'sale',
+            bedrooms: prop.bedrooms?.toString() || '',
+            bathrooms: prop.bathrooms?.toString() || '',
+            status: prop.status || 'ready-to-move'
+          };
+        });
       
       console.log('Transformed properties count:', transformedProperties.length);
-      console.log('Sample transformed IDs:', transformedProperties.slice(0, 3).map(p => ({ id: p.id, name: p.name })));
+      console.log('Sample transformed data:', transformedProperties.slice(0, 3).map(p => ({ id: p.id, name: p.name, area: p.area })));
       
       setPropertiesList(transformedProperties);
       setFilteredProperties(transformedProperties);
@@ -75,6 +117,13 @@ const Properties = () => {
       setLoading(false);
     }
   };
+
+  // Auto-search when properties are loaded and search params exist
+  useEffect(() => {
+    if (propertiesList.length > 0 && (keyword || location || propertyType || listingType || bedrooms || priceRange)) {
+      handleSearch();
+    }
+  }, [propertiesList, keyword, location, propertyType, listingType, bedrooms, priceRange]);
 
   const [oldPropertiesList] = useState([
     {
@@ -438,9 +487,6 @@ const Properties = () => {
         <div className="showing">
           <p>Showing {filteredProperties.length} of {propertiesList.length} properties</p>
         </div>
-        <div className="sort-by">
-          <button className="dropdown-btn btn-glare">Sort by ▼</button>
-        </div>
       </div>
 
       <div className="properties-grid">
@@ -473,7 +519,7 @@ const Properties = () => {
                 </button>
                 <img src={property.image} alt={property.name} />
                 <div className="property-info">
-                  <h3>{property.name}</h3>
+                  <h3 style={{ display: 'block', minHeight: '20px' }}>{property.name || 'Property Name'}</h3>
                   <p>📍 {property.location}</p>
                   {property.bedrooms && <p>🛏️ {property.bedrooms} BHK • {property.area} • 🚿 {property.bathrooms} Bath</p>}
                   <p className="property-price">{property.price}</p>

@@ -1,11 +1,11 @@
 /* Button Glare Effect */
-.btn-glare {
+.button-glare-component .btn-glare {
   position: relative;
   overflow: hidden;
   isolation: isolate;
 }
 
-.btn-glare::before {
+.button-glare-component .btn-glare::before {
   content: '';
   position: absolute;
   top: 0;
@@ -24,18 +24,18 @@
   z-index: 1;
 }
 
-.btn-glare:hover::before {
+.button-glare-component .btn-glare:hover::before {
   left: 100%;
 }
 
 /* Alternative: Radial glare that follows mouse */
-.btn-glare-radial {
+.button-glare-component .btn-glare-radial {
   position: relative;
   overflow: hidden;
   isolation: isolate;
 }
 
-.btn-glare-radial::after {
+.button-glare-component .btn-glare-radial::after {
   content: '';
   position: absolute;
   top: 50%;
@@ -55,19 +55,19 @@
   opacity: 0;
 }
 
-.btn-glare-radial:hover::after {
+.button-glare-component .btn-glare-radial:hover::after {
   transform: translate(-50%, -50%) scale(1);
   opacity: 1;
 }
 
 /* Shimmer effect */
-.btn-shimmer {
+.button-glare-component .btn-shimmer {
   position: relative;
   overflow: hidden;
   isolation: isolate;
 }
 
-.btn-shimmer::before {
+.button-glare-component .btn-shimmer::before {
   content: '';
   position: absolute;
   top: -50%;
@@ -81,12 +81,12 @@
     transparent 70%
   );
   transform: rotate(45deg);
-  animation: shimmer 3s infinite;
+  animation: button-glare-shimmer 3s infinite;
   pointer-events: none;
   z-index: 1;
 }
 
-@keyframes shimmer {
+@keyframes button-glare-shimmer {
   0% {
     transform: translateX(-100%) translateY(-100%) rotate(45deg);
   }
@@ -96,19 +96,19 @@
 }
 
 /* Pulse glow effect */
-.btn-glow {
+.button-glare-component .btn-glow {
   position: relative;
   transition: all 0.3s ease;
 }
 
-.btn-glow:hover {
+.button-glare-component .btn-glow:hover {
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.4),
               0 0 40px rgba(255, 255, 255, 0.2),
               inset 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
 /* Gradient sweep */
-.btn-gradient-sweep {
+.button-glare-component .btn-gradient-sweep {
   position: relative;
   overflow: hidden;
   isolation: isolate;
@@ -117,7 +117,7 @@
   transition: background-position 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.btn-gradient-sweep::before {
+.button-glare-component .btn-gradient-sweep::before {
   content: '';
   position: absolute;
   top: 0;
@@ -136,6 +136,6 @@
   z-index: 1;
 }
 
-.btn-gradient-sweep:hover::before {
+.button-glare-component .btn-gradient-sweep:hover::before {
   opacity: 1;
 }

@@ -1,4 +1,4 @@
-.header {
+.header-component .header {
   position: fixed;
   top: 0;
   left: 0;
@@ -9,18 +9,18 @@
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
 }
 
-.header.visible {
+.header-component .header.visible {
   transform: translateY(0);
   opacity: 1;
 }
 
-.header.hidden {
+.header-component .header.hidden {
   transform: translateY(-100%);
   opacity: 0;
   pointer-events: none;
 }
 
-.header-top {
+.header-component .header-top {
   background: linear-gradient(135deg, #6b7c8f 0%, #5a6c7d 100%);
   color: white;
   padding: 6px 0;
@@ -28,7 +28,7 @@
   overflow: visible;
 }
 
-.header-top::before {
+.header-component .header-top::before {
   content: '';
   position: absolute;
   top: 0;
@@ -36,15 +36,15 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: shimmer 3s infinite;
+  animation: header-shimmer 3s infinite;
 }
 
-@keyframes shimmer {
+@keyframes header-shimmer {
   0% { left: -100%; }
   100% { left: 100%; }
 }
 
-.header-top-content {
+.header-component .header-top-content {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 40px;
@@ -54,25 +54,25 @@
   gap: 20px;
 }
 
-.header-nav-arrows {
+.header-component .header-nav-arrows {
   display: flex;
   gap: 10px;
   align-items: center;
   flex: 1;
 }
 
-.header-headline {
+.header-component .header-headline {
   color: white;
   font-size: 0.95rem;
   font-weight: 600;
   text-align: center;
   flex: 1;
   padding: 0 15px;
-  animation: fadeIn 0.5s ease-in;
+  animation: header-fadeIn 0.5s ease-in;
   line-height: 1.3;
 }
 
-@keyframes fadeIn {
+@keyframes header-fadeIn {
   from {
     opacity: 0;
     transform: translateY(-5px);
@@ -83,7 +83,7 @@
   }
 }
 
-.nav-arrow {
+.header-component .nav-arrow {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
@@ -99,22 +99,22 @@
   backdrop-filter: blur(10px);
 }
 
-.nav-arrow:hover {
+.header-component .nav-arrow:hover {
   background: rgba(255, 255, 255, 0.25);
   border-color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.header-top-right {
+.header-component .header-top-right {
   display: flex;
   gap: 20px;
   align-items: center;
 }
 
-.wishlist-btn,
-.login-btn,
-.user-btn {
+.header-component .wishlist-btn,
+.header-component .login-btn,
+.header-component .user-btn {
   background: transparent;
   border: none;
   color: white;
@@ -127,22 +127,22 @@
   text-decoration: none;
 }
 
-.login-btn {
+.header-component .login-btn {
   margin-left: auto;
 }
 
-.wishlist-btn:hover,
-.login-btn:hover,
-.user-btn:hover {
+.header-component .wishlist-btn:hover,
+.header-component .login-btn:hover,
+.header-component .user-btn:hover {
   opacity: 0.8;
 }
 
-.user-menu-container {
+.header-component .user-menu-container {
   position: relative;
   margin-left: auto;
 }
 
-.user-dropdown {
+.header-component .user-dropdown {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
@@ -153,10 +153,10 @@
   overflow: hidden;
   z-index: 10000;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  animation: dropdownSlideIn 0.2s ease-out;
+  animation: header-dropdownSlideIn 0.2s ease-out;
 }
 
-@keyframes dropdownSlideIn {
+@keyframes header-dropdownSlideIn {
   from {
     opacity: 0;
     transform: translateY(-10px);
@@ -167,8 +167,8 @@
   }
 }
 
-.user-dropdown a,
-.user-dropdown button {
+.header-component .user-dropdown a,
+.header-component .user-dropdown button {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -184,62 +184,64 @@
   transition: background 0.2s;
 }
 
-.user-dropdown a:hover,
-.user-dropdown button:hover {
+.header-component .user-dropdown a:hover,
+.header-component .user-dropdown button:hover {
   background: #f8f9fa;
 }
 
-.user-dropdown button {
+.header-component .user-dropdown button {
   color: #ff0000;
   font-weight: 600;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.header-main {
+.header-component .header-main {
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.header-main-content {
+.header-component .header-main-content {
   max-width: 1400px;
   margin: 0 auto;
   padding: 12px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 40px;
+  gap: 20px;
+  flex-wrap: nowrap;
 }
 
-.logo {
+.header-component .logo {
   display: flex;
   align-items: center;
   gap: 14px;
   transition: transform 0.3s ease;
   text-decoration: none;
+  flex-shrink: 0;
 }
 
-.logo:hover {
+.header-component .logo:hover {
   transform: translateY(-2px);
 }
 
-.logo img {
-  width: 40px;
-  height: 40px;
+.header-component .logo img {
+  width: 55px;
+  height: 55px;
   transition: transform 0.3s ease;
 }
 
-.logo:hover img {
+.header-component .logo:hover img {
   transform: rotate(5deg) scale(1.05);
 }
 
-.logo-text {
+.header-component .logo-text {
   display: flex;
   flex-direction: column;
   line-height: 1.1;
 }
 
-.logo-sunshine {
+.header-component .logo-sunshine {
   font-size: 18px;
   font-weight: 800;
   background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
@@ -249,7 +251,7 @@
   letter-spacing: 1px;
 }
 
-.logo-real-estate {
+.header-component .logo-real-estate {
   font-size: 11px;
   color: #858585;
   font-weight: 600;
@@ -257,14 +259,14 @@
   text-transform: uppercase;
 }
 
-.main-nav {
+.header-component .main-nav {
   display: flex;
-  gap: 35px;
+  gap: 25px;
   align-items: center;
-  margin-right: 30px;
+  flex-shrink: 0;
 }
 
-.main-nav a {
+.header-component .main-nav a {
   text-decoration: none;
   color: var(--text-dark);
   font-size: 14px;
@@ -275,12 +277,12 @@
   border-radius: 6px;
 }
 
-.main-nav a:hover {
+.header-component .main-nav a:hover {
   color: var(--primary-color);
   background: rgba(255, 0, 0, 0.05);
 }
 
-.main-nav a::after {
+.header-component .main-nav a::after {
   content: '';
   position: absolute;
   bottom: 2px;
@@ -293,11 +295,11 @@
   border-radius: 2px;
 }
 
-.main-nav a:hover::after {
+.header-component .main-nav a:hover::after {
   width: 70%;
 }
 
-.add-property-btn {
+.header-component .add-property-btn {
   background: #ff0000;
   color: white;
   border: none;
@@ -315,19 +317,19 @@
   white-space: nowrap;
 }
 
-.add-property-btn:hover {
+.header-component .add-property-btn:hover {
   background: #e60000;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
 }
 
-.plus-icon {
+.header-component .plus-icon {
   font-size: 20px;
   font-weight: bold;
 }
 
 /* Hamburger Menu */
-.hamburger-menu {
+.header-component .hamburger-menu {
   display: none;
   flex-direction: column;
   gap: 5px;
@@ -339,7 +341,7 @@
   position: relative;
 }
 
-.hamburger-menu span {
+.header-component .hamburger-menu span {
   width: 25px;
   height: 3px;
   background: #333;
@@ -348,20 +350,20 @@
   display: block;
 }
 
-.hamburger-menu.active span:nth-child(1) {
+.header-component .hamburger-menu.active span:nth-child(1) {
   transform: translateY(8px) rotate(45deg);
 }
 
-.hamburger-menu.active span:nth-child(2) {
+.header-component .hamburger-menu.active span:nth-child(2) {
   opacity: 0;
 }
 
-.hamburger-menu.active span:nth-child(3) {
+.header-component .hamburger-menu.active span:nth-child(3) {
   transform: translateY(-8px) rotate(-45deg);
 }
 
 /* Mobile Overlay */
-.mobile-overlay {
+.header-component .mobile-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -369,11 +371,11 @@
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);
   z-index: 9998;
-  animation: fadeIn 0.3s ease;
+  animation: header-mobile-fadeIn 0.3s ease;
 }
 
 /* Mobile Menu Panel */
-.mobile-menu-panel {
+.header-component .mobile-menu-panel {
   position: fixed;
   top: 0;
   right: 0;
@@ -382,13 +384,13 @@
   background: white;
   z-index: 9999;
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
-  animation: slideIn 0.3s ease;
+  animation: header-slideIn 0.3s ease;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
 }
 
-.mobile-menu-header {
+.header-component .mobile-menu-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -398,12 +400,12 @@
   color: white;
 }
 
-.mobile-menu-title {
+.header-component .mobile-menu-title {
   font-size: 20px;
   font-weight: 700;
 }
 
-.close-btn {
+.header-component .close-btn {
   background: transparent;
   border: none;
   color: white;
@@ -418,18 +420,18 @@
   transition: background 0.3s;
 }
 
-.close-btn:hover {
+.header-component .close-btn:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
-.mobile-nav {
+.header-component .mobile-nav {
   display: flex;
   flex-direction: column;
   padding: 20px 0;
   flex: 1;
 }
 
-.mobile-nav a {
+.header-component .mobile-nav a {
   padding: 16px 25px;
   color: #333;
   text-decoration: none;
@@ -439,13 +441,13 @@
   border-left: 3px solid transparent;
 }
 
-.mobile-nav a:hover {
+.header-component .mobile-nav a:hover {
   background: #f8f8f8;
   border-left-color: #ff0000;
   color: #ff0000;
 }
 
-.mobile-add-property-btn {
+.header-component .mobile-add-property-btn {
   margin: 20px 25px;
   background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
   color: white;
@@ -465,18 +467,18 @@
   width: calc(100% - 50px);
 }
 
-.mobile-add-property-btn:hover {
+.header-component .mobile-add-property-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
 }
 
-.mobile-divider {
+.header-component .mobile-divider {
   height: 1px;
   background: #e0e0e0;
   margin: 10px 25px;
 }
 
-.mobile-logout-btn {
+.header-component .mobile-logout-btn {
   padding: 16px 25px;
   color: #ff0000;
   text-decoration: none;
@@ -492,12 +494,12 @@
   border-left: 3px solid transparent;
 }
 
-.mobile-logout-btn:hover {
+.header-component .mobile-logout-btn:hover {
   background: #fff5f5;
   border-left-color: #ff0000;
 }
 
-@keyframes fadeIn {
+@keyframes header-mobile-fadeIn {
   from {
     opacity: 0;
   }
@@ -506,7 +508,7 @@
   }
 }
 
-@keyframes slideIn {
+@keyframes header-slideIn {
   from {
     transform: translateX(100%);
   }
@@ -516,48 +518,50 @@
 }
 
 @media (max-width: 1024px) {
-  .main-nav {
+  .header-component .main-nav {
     gap: 20px;
   }
   
-  .main-nav a {
+  .header-component .main-nav a {
     font-size: 14px;
   }
 }
 
 @media (max-width: 768px) {
   /* Hide the red header-top section on mobile */
-  .header-top {
+  .header-component .header-top {
     display: none;
   }
 
-  .header-main-content {
+  .header-component .header-main-content {
     padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
   }
 
-  .hamburger-menu {
+  .header-component .hamburger-menu {
     display: flex;
     margin-left: auto;
   }
   
-  .main-nav {
+  .header-component .main-nav {
     display: none;
   }
 
-  .add-property-btn {
+  .header-component .add-property-btn {
     display: none;
   }
 
-  .logo img {
-    width: 40px;
-    height: 40px;
+  .header-component .logo img {
+    width: 50px;
+    height: 50px;
   }
 
-  .logo-sunshine {
+  .header-component .logo-sunshine {
     font-size: 16px;
   }
 
-  .logo-real-estate {
+  .header-component .logo-real-estate {
     font-size: 12px;
   }
 }

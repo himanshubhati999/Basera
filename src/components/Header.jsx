@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
+import logo from '../assets/file_000000001b5072088ef1791356e73429.png';
 import './Header.css';
 import './ButtonGlare.css';
 
@@ -98,13 +99,14 @@ const Header = () => {
   };
 
   return (
-    <header className={`header ${isVisible ? 'visible' : 'hidden'}`}>
-      <div className="header-top">
-        <div className="header-top-content">
-          <div className="header-nav-arrows">
-            <button className="nav-arrow btn-glare" onClick={handlePrevSlide}>←</button>
-            <button className="nav-arrow btn-glare" onClick={handleNextSlide}>→</button>
-            <div className="header-headline">{headlines[currentSlide]}</div>
+    <div className="header-component">
+      <header className={`header ${isVisible ? 'visible' : 'hidden'}`}>
+        <div className="header-top">
+          <div className="header-top-content">
+            <div className="header-nav-arrows">
+              <button className="nav-arrow btn-glare" onClick={handlePrevSlide}>←</button>
+              <button className="nav-arrow btn-glare" onClick={handleNextSlide}>→</button>
+              <div className="header-headline">{headlines[currentSlide]}</div>
             {user ? (
               <div className="user-menu-container ">
                 <button 
@@ -150,7 +152,7 @@ const Header = () => {
       <div className="header-main">
         <div className="header-main-content">
           <Link to="/" className="logo">
-            <img src="/basera-logo.png" alt="Basera Infra Home" />
+            <img src={logo} alt="Basera Infra Home" />
             <div className="logo-text">
               <span className="logo-sunshine">BASERA</span>
               <span className="logo-real-estate">INFRA HOME</span>
@@ -171,7 +173,7 @@ const Header = () => {
             <Link to="/">Home</Link>
             <Link to="/projects">Projects</Link>
             <Link to="/properties">Properties</Link>
-            <Link to="/agents">Agents</Link>
+            <Link to="/agents">Maps</Link>
             <Link to="/news">News</Link>
             <Link to="/careers">Careers</Link>
             <Link to="/contact">Contact</Link>
@@ -224,7 +226,8 @@ const Header = () => {
 
       {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-    </header>
+      </header>
+    </div>
   );
 };
 

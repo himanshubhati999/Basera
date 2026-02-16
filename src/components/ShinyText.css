@@ -1,4 +1,4 @@
-.shiny-text {
+.shiny-text-component .shiny-text {
   display: inline-block;
   color: var(--shiny-text-color);
   background: linear-gradient(
@@ -13,11 +13,11 @@
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: shiny-text-animation var(--animation-duration) ease-in-out var(--animation-delay) var(--animation-iteration);
+  animation: shiny-text-component-animation var(--animation-duration) ease-in-out var(--animation-delay) var(--animation-iteration);
   animation-direction: var(--animation-direction);
 }
 
-@keyframes shiny-text-animation {
+@keyframes shiny-text-component-animation {
   0% {
     background-position: 0% center;
   }
@@ -26,6 +26,6 @@
   }
 }
 
-.shiny-text.pause-on-hover:hover {
+.shiny-text-component .shiny-text.pause-on-hover:hover {
   animation-play-state: paused;
 }

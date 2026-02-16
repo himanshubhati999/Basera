@@ -1,15 +1,15 @@
-.glare-hover-container {
+.glare-hover-component .glare-hover-container {
   position: relative;
   display: inline-block;
   overflow: visible;
 }
 
-.glare-hover-container > * {
+.glare-hover-component .glare-hover-container > * {
   position: relative;
   overflow: hidden;
 }
 
-.glare-hover-container::before {
+.glare-hover-component .glare-hover-container::before {
   content: '';
   position: absolute;
   top: var(--glare-y, -100px);

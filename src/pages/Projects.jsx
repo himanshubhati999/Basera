@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import './Projects.css';
@@ -9,6 +9,8 @@ import ShinyText from '../components/ShinyText';
 const Projects = () => {
   const { isAuthenticated, toggleWishlist, isInWishlist } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
   const [choices, setChoices] = useState('');
@@ -18,6 +20,17 @@ const Projects = () => {
   const [projectsList, setProjectsList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Initialize search params from URL
+  useEffect(() => {
+    const urlKeyword = searchParams.get('keyword') || '';
+    const urlLocation = searchParams.get('location') || '';
+    const urlCategory = searchParams.get('category') || '';
+    
+    setKeyword(urlKeyword);
+    setLocation(urlLocation);
+    if (urlCategory) setChoices(urlCategory);
+  }, [searchParams]);
 
   // Fetch properties from database
   useEffect(() => {
@@ -40,9 +53,9 @@ const Projects = () => {
         .filter(prop => prop.propertyType === 'project' && prop.isPublished === true) // Only show published projects
         .map(prop => ({
           id: prop._id,
-          name: prop.title,
+          name: prop.title?.trim() || 'Untitled Project',
           location: prop.location?.city || prop.location?.address || 'Location not specified',
-          area: prop.area ? `${prop.area} sqm` : 'Area not specified',
+          area: prop.area?.value ? `${prop.area.value} ${prop.area.unit || 'sqm'}` : 'Area not specified',
           price: `₹${prop.price.toLocaleString('en-IN')}`,
           image: prop.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80',
           badge: prop.status === 'available' ? 'AVAILABLE' : 'SOLD',
@@ -65,6 +78,13 @@ const Projects = () => {
       setLoading(false);
     }
   };
+
+  // Auto-search when projects are loaded and search params exist
+  useEffect(() => {
+    if (projectsList.length > 0 && (keyword || location || choices || floors || flatRange)) {
+      handleSearch();
+    }
+  }, [projectsList, keyword, location, choices, floors, flatRange]);
 
   const [oldProjectsList] = useState([
     {
@@ -349,9 +369,6 @@ const Projects = () => {
         <div className="showing">
           <p>Showing {filteredProjects.length} of {projectsList.length} projects</p>
         </div>
-        <div className="sort-by">
-          <button className="dropdown-btn btn-glare">Sort by ▼</button>
-        </div>
       </div>
 
       <div className="projects-grid">
@@ -379,7 +396,7 @@ const Projects = () => {
                 </button>
                 <img src={project.image} alt={project.name} />
                 <div className="project-info">
-                  <h3>{project.name}</h3>
+                  <h3 style={{ display: 'block', minHeight: '20px' }}>{project.name || 'Project Name'}</h3>
                   <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> {project.location}</p>
                   <p>Area: {project.area}</p>
                   <p>Starting price: {project.price}</p>

@@ -28,9 +28,9 @@ const Wishlist = () => {
         // Transform backend data to match frontend format
         const transformedProperties = data.properties.map(prop => ({
           id: prop._id,
-          name: prop.title,
+          name: prop.title?.trim() || 'Untitled Property',
           location: prop.location?.city || prop.location?.address || 'Location not specified',
-          area: prop.area ? `${prop.area} sqft` : 'N/A',
+          area: prop.area?.value ? `${prop.area.value} ${prop.area.unit || 'sqft'}` : 'N/A',
           price: `₹${prop.price.toLocaleString('en-IN')}`,
           image: prop.images?.[0] || 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&q=80',
           badge: prop.status === 'available' ? 'AVAILABLE' : 'SOLD',
@@ -164,7 +164,7 @@ const Wishlist = () => {
                         <div className="property-badge">{property.badge}</div>
                         <img src={property.image} alt={property.name} />
                         <div className="property-info">
-                          <h3>{property.name}</h3>
+                          <h3 style={{ display: 'block', minHeight: '20px' }}>{property.name || 'Property Name'}</h3>
                           <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> {property.location}</p>
                           <p>Area: {property.area}</p>
                           {property.bedrooms && <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>bed</span> {property.bedrooms} BHK | <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>shower</span> {property.bathrooms} Bath</p>}
@@ -201,7 +201,7 @@ const Wishlist = () => {
                         <div className="property-badge">{property.badge}</div>
                         <img src={property.image} alt={property.name} />
                         <div className="property-info">
-                          <h3>{property.name}</h3>
+                          <h3 style={{ display: 'block', minHeight: '20px' }}>{property.name || 'Property Name'}</h3>
                           <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> {property.location}</p>
                           <p>Area: {property.area}</p>
                           {property.bedrooms && <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>bed</span> {property.bedrooms} BHK | <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>shower</span> {property.bathrooms} Bath</p>}
@@ -238,7 +238,7 @@ const Wishlist = () => {
                         <div className="property-badge">{property.badge}</div>
                         <img src={property.image} alt={property.name} />
                         <div className="property-info">
-                          <h3>{property.name}</h3>
+                          <h3 style={{ display: 'block', minHeight: '20px' }}>{property.name || 'Property Name'}</h3>
                           <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> {property.location}</p>
                           <p>Area: {property.area}</p>
                           {property.bedrooms && <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>bed</span> {property.bedrooms} BHK | <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>shower</span> {property.bathrooms} Bath</p>}
@@ -269,7 +269,7 @@ const Wishlist = () => {
                       <div className="property-badge">{property.badge}</div>
                       <img src={property.image} alt={property.name} />
                       <div className="property-info">
-                        <h3>{property.name}</h3>
+                        <h3 style={{ display: 'block', minHeight: '20px' }}>{property.name || 'Property Name'}</h3>
                         <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> {property.location}</p>
                         <p>Area: {property.area}</p>
                         {property.bedrooms && <p><span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>bed</span> {property.bedrooms} BHK | <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>shower</span> {property.bathrooms} Bath</p>}
