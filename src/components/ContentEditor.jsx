@@ -1,10 +1,15 @@
 import React, { useState, useRef } from 'react';
+import { API_ENDPOINTS } from '../config/api';
 import './ContentEditor.css';
 
 const ContentEditor = () => {
   const [isEditorVisible, setIsEditorVisible] = useState(true);
-  const [content, setContent] = useState('');
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
   const editorRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Toolbar command handlers
   const executeCommand = (command, value = null) => {
@@ -17,8 +22,7 @@ const ContentEditor = () => {
   };
 
   const handleAddMedia = () => {
-    console.log('Add media clicked');
-    // Placeholder for media upload functionality
+    fileInputRef.current?.click();
   };
 
   const handleUIBlocks = () => {
@@ -103,6 +107,129 @@ const ContentEditor = () => {
     } else {
       document.exitFullscreen();
     }
+  };
+
+  // Image upload functions
+  const handleImageUpload = async (files) => {
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    const formData = new FormData();
+
+    // Add all files to FormData
+    Array.from(files).forEach((file) => {
+      formData.append('images', file);
+    });
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(API_ENDPOINTS.UPLOAD_MULTIPLE, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.images) {
+        setUploadedImages(prev => [...prev, ...data.images]);
+        alert(`${data.images.length} image(s) uploaded successfully!`);
+      } else {
+        throw new Error(data.message || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Failed to upload images: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    const files = e.target.files;
+    handleImageUpload(files);
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    const files = e.dataTransfer.files;
+    handleImageUpload(files);
+  };
+
+  const insertImageIntoEditor = (imageUrl) => {
+    const imgHtml = `<img src="${imageUrl}" alt="Uploaded image" style="max-width: 100%; height: auto; margin: 1em 0;" />`;
+    executeCommand('insertHTML', imgHtml);
+  };
+
+  const deleteUploadedImage = async (image, index) => {
+    if (!confirm('Delete this image?')) return;
+
+    try {
+      // Only call delete API if image has publicId (was uploaded to Cloudinary)
+      if (image.publicId) {
+        const token = localStorage.getItem('token');
+        const response = await fetch(API_ENDPOINTS.DELETE_IMAGE, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ publicId: image.publicId })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete image from Cloudinary');
+        }
+      }
+      
+      // Remove from state (works for both uploaded and URL images)
+      setUploadedImages(prev => prev.filter((_, i) => i !== index));
+      alert('Image removed successfully');
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete image: ' + error.message);
+    }
+  };
+
+  const handleAddImageFromUrl = () => {
+    if (!imageUrl.trim()) {
+      alert('Please enter an image URL');
+      return;
+    }
+
+    // Validate URL format
+    try {
+      new URL(imageUrl);
+    } catch {
+      alert('Please enter a valid URL');
+      return;
+    }
+
+    // Add image from URL (without publicId, so it won't be deleted from Cloudinary)
+    setUploadedImages(prev => [...prev, { url: imageUrl, publicId: null }]);
+    setImageUrl('');
+    alert('Image added from URL!');
   };
 
   return (
@@ -392,21 +519,113 @@ const ContentEditor = () => {
             className="editor-content"
             contentEditable={true}
             suppressContentEditableWarning={true}
-            onInput={(e) => setContent(e.currentTarget.innerHTML)}
           >
             {/* Placeholder content */}
           </div>
         </div>
       )}
 
-      {/* Images Section (placeholder) */}
+      {/* Images Section */}
       {isEditorVisible && (
         <div className="content-editor-footer">
           <div className="images-section">
             <h3 className="images-title">Images</h3>
-            <div className="images-placeholder">
-              {/* Placeholder for image gallery */}
+            
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              style={{ display: 'none' }}
+              onChange={handleFileSelect}
+            />
+
+            {/* Drag and Drop Zone */}
+            <div 
+              className={`images-drop-zone ${dragActive ? 'drag-active' : ''}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {uploading ? (
+                <div className="upload-loading">
+                  <div className="spinner"></div>
+                  <p>Uploading images...</p>
+                </div>
+              ) : (
+                <>
+                  <span className="upload-icon">📁</span>
+                  <p className="upload-text">Click here or drag & drop images to upload</p>
+                  <p className="upload-hint">Supports: JPG, PNG, GIF (Max 5MB per image)</p>
+                </>
+              )}
             </div>
+
+            {/* OR divider */}
+            <div className="url-divider">
+              <span>OR</span>
+            </div>
+
+            {/* URL Input */}
+            <div className="url-input-wrapper">
+              <input
+                type="text"
+                className="url-input"
+                placeholder="Paste image URL here (e.g., https://example.com/image.jpg)"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleAddImageFromUrl();
+                  }
+                }}
+              />
+              <button 
+                className="url-add-btn"
+                onClick={handleAddImageFromUrl}
+              >
+                Add from URL
+              </button>
+            </div>
+
+            {/* Uploaded Images Gallery */}
+            {uploadedImages.length > 0 && (
+              <div className="images-gallery">
+                {uploadedImages.map((image, index) => (
+                  <div key={index} className="image-item">
+                    <img src={image.url} alt={`Uploaded ${index + 1}`} />
+                    <div className="image-actions">
+                      <button 
+                        className="image-action-btn insert-btn"
+                        onClick={() => insertImageIntoEditor(image.url)}
+                        title="Insert into editor"
+                      >
+                        ➕ Insert
+                      </button>
+                      <button 
+                        className="image-action-btn copy-btn"
+                        onClick={() => {
+                          navigator.clipboard.writeText(image.url);
+                          alert('Image URL copied!');
+                        }}
+                        title="Copy URL"
+                      >
+                        📋 Copy
+                      </button>
+                      <button 
+                        className="image-action-btn delete-btn"
+                        onClick={() => deleteUploadedImage(image, index)}
+                        title="Delete image"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
