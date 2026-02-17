@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import './PropertyDetail.css';
 import ShinyText from '../components/ShinyText';
+import PropertyReviews from '../components/PropertyReviews';
 import '../components/ButtonGlare.css';
 
 const PropertyDetail = () => {
@@ -894,6 +895,9 @@ const PropertyDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Reviews Section */}
+      <PropertyReviews propertyId={id} />
 
       {/* Video Modal */}
       {showVideoModal && (

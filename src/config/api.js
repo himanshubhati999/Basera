@@ -46,6 +46,12 @@ export const API_ENDPOINTS = {
   UPLOAD_SINGLE: `${API_BASE_URL}/api/upload/single`,
   UPLOAD_MULTIPLE: `${API_BASE_URL}/api/upload/multiple`,
   DELETE_IMAGE: `${API_BASE_URL}/api/upload/delete`,
+  
+  // Review endpoints
+  PROPERTY_REVIEWS: (propertyId) => `${API_BASE_URL}/api/reviews/property/${propertyId}`,
+  CREATE_REVIEW: (propertyId) => `${API_BASE_URL}/api/reviews/property/${propertyId}`,
+  UPDATE_REVIEW: (reviewId) => `${API_BASE_URL}/api/reviews/${reviewId}`,
+  DELETE_REVIEW: (reviewId) => `${API_BASE_URL}/api/reviews/${reviewId}`,
 };
 
 export default API_BASE_URL;
