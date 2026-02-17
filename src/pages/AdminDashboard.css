@@ -670,6 +670,237 @@
   color: #9ca3af;
 }
 
+/* Website Traffic Section */
+.traffic-stats-section {
+  background: #0f1425;
+  border-radius: 12px;
+  padding: 25px;
+  border: 1px solid #1e2538;
+}
+
+.traffic-stats-section h2 {
+  font-size: 20px;
+  color: #ffffff;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.traffic-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.traffic-stat-card {
+  background: #1a1f37;
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid #1e2538;
+  transition: all 0.3s ease;
+}
+
+.traffic-stat-card:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.traffic-stat-card h3 {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.traffic-stat-card p {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+}
+
+.traffic-stat-icon {
+  color: #667eea;
+  margin-bottom: 12px;
+}
+
+.traffic-stat-icon .material-symbols-outlined {
+  font-size: 32px;
+}
+
+.traffic-stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.traffic-stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.traffic-stat-label {
+  font-size: 13px;
+  color: #9ca3af;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.top-pages-list {
+  background: #1a1f37;
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid #1e2538;
+}
+
+.top-pages-list h3 {
+  font-size: 16px;
+  color: #ffffff;
+  margin: 0 0 15px 0;
+  font-weight: 600;
+}
+
+.top-page-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #1e2538;
+}
+
+.top-page-item:last-child {
+  border-bottom: none;
+}
+
+.top-page-item span:first-child {
+  color: #f3f4f6;
+  font-size: 14px;
+}
+
+.top-page-item span:last-child {
+  color: #667eea;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Recent Logins Section */
+.recent-logins-section {
+  background: #0f1425;
+  border-radius: 12px;
+  padding: 25px;
+  border: 1px solid #1e2538;
+}
+
+.recent-logins-section h2 {
+  font-size: 20px;
+  color: #ffffff;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.logins-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #1a1f37;
+  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid #1e2538;
+  transition: all 0.3s ease;
+}
+
+.login-item:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.login-avatar {
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background: #10b981;
+  border-radius: 50%;
+  border: 2px solid #1a1f37;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.login-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.login-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.login-content strong {
+  font-size: 15px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.login-details h4 {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.login-details p {
+  margin: 0;
+  font-size: 13px;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.login-time {
+  font-size: 13px;
+  color: #667eea;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
 /* Admin Section for other tabs */
 .admin-section {
   background: #0f1425;
@@ -1642,6 +1873,103 @@ td div[style] {
 
 .admin-dashboard-modern.light-mode .activity-ip {
   color: #000000;
+}
+
+/* Light mode traffic stats section */
+.admin-dashboard-modern.light-mode .traffic-stats-section {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.admin-dashboard-modern.light-mode .traffic-stats-section h2 {
+  color: #000000;
+}
+
+.admin-dashboard-modern.light-mode .traffic-stat-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.admin-dashboard-modern.light-mode .traffic-stat-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.admin-dashboard-modern.light-mode .traffic-stat-card h3 {
+  color: #6b7280;
+}
+
+.admin-dashboard-modern.light-mode .traffic-stat-card p {
+  color: #000000;
+}
+
+.admin-dashboard-modern.light-mode .traffic-stat-value {
+  color: #000000;
+}
+
+.admin-dashboard-modern.light-mode .traffic-stat-label {
+  color: #6b7280;
+}
+
+.admin-dashboard-modern.light-mode .traffic-stat-icon {
+  color: #3b82f6;
+}
+
+.admin-dashboard-modern.light-mode .top-pages-list {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.admin-dashboard-modern.light-mode .top-pages-list h3 {
+  color: #000000;
+}
+
+.admin-dashboard-modern.light-mode .top-page-item {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-dashboard-modern.light-mode .top-page-item span:first-child {
+  color: #374151;
+}
+
+.admin-dashboard-modern.light-mode .top-page-item span:last-child {
+  color: #3b82f6;
+}
+
+/* Light mode recent logins section */
+.admin-dashboard-modern.light-mode .recent-logins-section {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.admin-dashboard-modern.light-mode .recent-logins-section h2 {
+  color: #000000;
+}
+
+.admin-dashboard-modern.light-mode .login-item {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.admin-dashboard-modern.light-mode .login-item:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.admin-dashboard-modern.light-mode .login-details h4 {
+  color: #000000;
+}
+
+.admin-dashboard-modern.light-mode .login-details p {
+  color: #6b7280;
+}
+
+.admin-dashboard-modern.light-mode .login-content strong {
+  color: #000000;
+}
+
+.admin-dashboard-modern.light-mode .login-time {
+  color: #3b82f6;
 }
 
 .admin-dashboard-modern.light-mode .data-table {

@@ -469,27 +469,6 @@
   gap: 15px;
 }
 
-.thumbnail-upload {
-  margin-top: 12px;
-}
-
-.thumbnail-placeholder {
-  width: 150px;
-  height: 120px;
-  background-color: #1a2137;
-  border: 2px dashed #2d3548;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 15px;
-}
-
-.thumbnail-icon {
-  font-size: 48px;
-  opacity: 0.3;
-}
-
 .upload-actions {
   display: flex;
   align-items: center;

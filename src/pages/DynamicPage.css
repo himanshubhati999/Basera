@@ -252,6 +252,28 @@
   margin-bottom: 20px;
 }
 
+.page-text img {
+  max-width: 100%;
+  height: auto;
+  display: block !important;
+  margin: 1.5em auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure images are visible even with inline styles */
+.page-text > img,
+.page-text p img,
+.page-text div img {
+  max-width: 100%;
+  height: auto;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 .page-text br {
   margin-bottom: 10px;
 }
@@ -341,6 +363,11 @@
     font-size: 17px;
   }
 
+  .page-text img {
+    margin: 1.2em auto;
+    border-radius: 6px;
+  }
+
   .no-content {
     padding: 60px 30px;
     font-size: 17px;
@@ -387,6 +414,11 @@
   .page-text {
     font-size: 16px;
     line-height: 1.7;
+  }
+
+  .page-text img {
+    margin: 1em auto;
+    border-radius: 4px;
   }
 
   .no-content {

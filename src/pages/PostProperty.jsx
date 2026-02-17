@@ -746,18 +746,6 @@ const PostProperty = ({ embedded, onBack }) => {
               placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
             />
             {fieldErrors.images && <div className="field-error-message">{fieldErrors.images}</div>}
-            
-            <label className="form-label" style={{ marginTop: '20px' }}>YouTube Video Thumbnail</label>
-            <div className="thumbnail-upload">
-              <div className="thumbnail-placeholder">
-                <div className="thumbnail-icon">🖼️</div>
-              </div>
-              <div className="upload-actions">
-                <button type="button" className="upload-btn">Choose Image</button>
-                <span>or</span>
-                <button type="button" className="url-btn">Add from URL</button>
-              </div>
-            </div>
           </div>
 
           <div className="form-section">

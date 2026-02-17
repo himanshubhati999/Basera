@@ -38,6 +38,7 @@ const Footer = () => {
         <div className="footer-column">
           <h3 className="footer-heading">QUICK LINKS</h3>
           <ul className="footer-links">
+            <li><Link to="/about-us">About Us</Link></li>
             <li><Link to="/projects">Projects</Link></li>
             <li><Link to="/properties">Properties</Link></li>
             <li><Link to="/contact">Contact us</Link></li>
@@ -89,6 +90,8 @@ const Footer = () => {
         <div className="footer-bottom-content">
           <p>&copy; 2026 Basera Infra Home. All rights reserved.</p>
           <div className="footer-bottom-links">
+            <Link to="/about-us">About Us</Link>
+            <span className="separator">•</span>
             <Link to="/privacy-policy">Privacy Policy</Link>
             <span className="separator">•</span>
             <Link to="/terms-of-service">Terms of Service</Link>

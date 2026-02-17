@@ -23,6 +23,9 @@ const DynamicPage = () => {
         // Only show published pages to public
         if (data.page.status === 'Published') {
           setPage(data.page);
+          // Debug: Log content to check for images
+          console.log('Page content:', data.page.content);
+          console.log('Has images:', data.page.content?.includes('<img'));
         } else {
           setError('This page is not available.');
         }
@@ -113,7 +116,7 @@ const DynamicPage = () => {
             {page.content ? (
               <div 
                 className="page-text"
-                dangerouslySetInnerHTML={{ __html: page.content.replace(/\n/g, '<br />') }}
+                dangerouslySetInnerHTML={{ __html: page.content }}
               />
             ) : (
               <div className="no-content">

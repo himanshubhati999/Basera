@@ -20,6 +20,7 @@ import DynamicPage from './pages/DynamicPage';
 import News from './pages/News';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import AboutUs from './pages/AboutUs';
 import './App.css';
 
 function AppContent() {
@@ -43,6 +44,7 @@ function AppContent() {
         <Route path="/news" element={<News />} />
         <Route path="/news/:slug" element={<DynamicPage />} />
         <Route path="/careers" element={<div className="page-placeholder" style={{padding: '100px 20px', textAlign: 'center', minHeight: '60vh'}}><h1>Careers Page</h1><p>Coming Soon</p></div>} />
+        <Route path="/about-us" element={<AboutUs />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/admin/dashboard" element={

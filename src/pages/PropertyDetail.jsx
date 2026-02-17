@@ -461,22 +461,30 @@ const PropertyDetail = () => {
     date: new Date(property.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     area: property.area ? `${property.area.value} ${property.area.unit}` : 'Area not specified',
     price: `₹${(property.price / 100000).toFixed(0)} Lac`,
-    status: property.status === 'available' ? 'Available' : 'Sold',
+    status: property.status === 'available' ? 'Available' : property.status.charAt(0).toUpperCase() + property.status.slice(1),
+    listingType: property.listingType,
     category: property.propertyType || 'Property',
+    categories: property.categories || [],
     image: property.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80',
     gallery: property.images || ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80'],
+    content: property.content || null,
     description: {
       intro: property.description || 'No description available.',
       location: `Located in ${property.location?.city || 'a prime location'}, this property offers excellent connectivity and amenities.`,
-      layout: `This ${property.propertyType} features ${property.bedrooms} bedrooms and ${property.bathrooms} bathrooms, spanning ${property.area?.value} ${property.area?.unit}.`,
+      layout: `This ${property.propertyType} features ${property.bedrooms || 'N/A'} bedrooms and ${property.bathrooms || 'N/A'} bathrooms, spanning ${property.area?.value || 'N/A'} ${property.area?.unit || ''}.`,
       ideal: ['Modern living', 'Prime location', 'Great investment'],
       conclusion: 'A perfect choice for your next home or investment.'
     },
+    projectDetails: property.projectDetails || null,
     features: property.amenities?.map(amenity => ({ icon: <span className="material-symbols-outlined">check</span>, name: amenity })) || [],
     mapUrl: getMapEmbedUrl(property.location?.coordinates?.latitude, property.location?.coordinates?.longitude),
     videoUrl: property.youtubeVideo || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     latitude: property.location?.coordinates?.latitude,
-    longitude: property.location?.coordinates?.longitude
+    longitude: property.location?.coordinates?.longitude,
+    bedrooms: property.bedrooms,
+    bathrooms: property.bathrooms,
+    uniqueId: property.uniqueId,
+    investor: property.investor
   } : (projects.find(p => p.id === parseInt(id)) || projects[0]);
 
   const [formData, setFormData] = useState({
@@ -636,32 +644,151 @@ const PropertyDetail = () => {
                 <span className="label">Category:</span>
                 <span className="value">{displayProperty.category}</span>
               </div>
+              {displayProperty.listingType && (
+                <div className="detail-item">
+                  <span className="label">Type:</span>
+                  <span className="value">{displayProperty.listingType === 'sale' ? 'For Sale' : 'For Rent'}</span>
+                </div>
+              )}
+              {displayProperty.bedrooms && (
+                <div className="detail-item">
+                  <span className="label">Bedrooms:</span>
+                  <span className="value">{displayProperty.bedrooms}</span>
+                </div>
+              )}
+              {displayProperty.bathrooms && (
+                <div className="detail-item">
+                  <span className="label">Bathrooms:</span>
+                  <span className="value">{displayProperty.bathrooms}</span>
+                </div>
+              )}
+              {displayProperty.area && (
+                <div className="detail-item">
+                  <span className="label">Area:</span>
+                  <span className="value">{displayProperty.area}</span>
+                </div>
+              )}
+              {displayProperty.uniqueId && (
+                <div className="detail-item">
+                  <span className="label">Property ID:</span>
+                  <span className="value">{displayProperty.uniqueId}</span>
+                </div>
+              )}
             </div>
+            
+            {/* Categories Tags */}
+            {displayProperty.categories && displayProperty.categories.length > 0 && (
+              <div style={{ marginTop: '16px' }}>
+                <span className="label" style={{ display: 'block', marginBottom: '8px' }}>Categories:</span>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {displayProperty.categories.map((cat, index) => (
+                    <span key={index} style={{
+                      padding: '4px 12px',
+                      background: '#f0f0f0',
+                      borderRadius: '4px',
+                      fontSize: '14px',
+                      color: '#333'
+                    }}>
+                      {cat}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Project Details Section (if available) */}
+          {displayProperty.projectDetails && (
+            <div className="overview-section">
+              <h2>Project Details</h2>
+              <div className="overview-details">
+                {displayProperty.projectDetails.numberBlocks && (
+                  <div className="detail-item">
+                    <span className="label">Number of Blocks:</span>
+                    <span className="value">{displayProperty.projectDetails.numberBlocks}</span>
+                  </div>
+                )}
+                {displayProperty.projectDetails.numberFloors && (
+                  <div className="detail-item">
+                    <span className="label">Number of Floors:</span>
+                    <span className="value">{displayProperty.projectDetails.numberFloors}</span>
+                  </div>
+                )}
+                {displayProperty.projectDetails.numberFlats && (
+                  <div className="detail-item">
+                    <span className="label">Number of Flats:</span>
+                    <span className="value">{displayProperty.projectDetails.numberFlats}</span>
+                  </div>
+                )}
+                {displayProperty.projectDetails.lowestPrice && (
+                  <div className="detail-item">
+                    <span className="label">Starting Price:</span>
+                    <span className="value">₹{(displayProperty.projectDetails.lowestPrice / 100000).toFixed(2)} Lac</span>
+                  </div>
+                )}
+                {displayProperty.projectDetails.maxPrice && (
+                  <div className="detail-item">
+                    <span className="label">Maximum Price:</span>
+                    <span className="value">₹{(displayProperty.projectDetails.maxPrice / 100000).toFixed(2)} Lac</span>
+                  </div>
+                )}
+                {displayProperty.projectDetails.openSellDate && (
+                  <div className="detail-item">
+                    <span className="label">Open Sell Date:</span>
+                    <span className="value">{new Date(displayProperty.projectDetails.openSellDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                  </div>
+                )}
+                {displayProperty.projectDetails.finishDate && (
+                  <div className="detail-item">
+                    <span className="label">Expected Completion:</span>
+                    <span className="value">{new Date(displayProperty.projectDetails.finishDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Description Section */}
           <div className="description-section">
             <h2>Description</h2>
-            <p className="description-text">
-              <strong>{displayProperty.name}</strong> {displayProperty.description.intro}
-            </p>
-            <p className="description-text">
-              {displayProperty.description.location}
-            </p>
-            <p className="description-text">
-              {displayProperty.description.layout}
-            </p>
-            <p className="description-text">
-              <strong>{displayProperty.name} plots are ideal for:</strong>
-            </p>
-            <ul className="ideal-list">
-              {displayProperty.description.ideal.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))}
-            </ul>
-            <p className="description-text">
-              {displayProperty.description.conclusion}
-            </p>
+            
+            {/* If property has rich content from ContentEditor, display it */}
+            {displayProperty.content ? (
+              <div 
+                className="property-content-html"
+                dangerouslySetInnerHTML={{ __html: displayProperty.content }}
+                style={{
+                  fontSize: '15px',
+                  lineHeight: '1.8',
+                  color: '#555',
+                  marginBottom: '20px'
+                }}
+              />
+            ) : (
+              /* Otherwise, display the structured description */
+              <>
+                <p className="description-text">
+                  <strong>{displayProperty.name}</strong> {displayProperty.description.intro}
+                </p>
+                <p className="description-text">
+                  {displayProperty.description.location}
+                </p>
+                <p className="description-text">
+                  {displayProperty.description.layout}
+                </p>
+                <p className="description-text">
+                  <strong>{displayProperty.name} plots are ideal for:</strong>
+                </p>
+                <ul className="ideal-list">
+                  {displayProperty.description.ideal.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+                <p className="description-text">
+                  {displayProperty.description.conclusion}
+                </p>
+              </>
+            )}
           </div>
 
           {/* Features Section */}

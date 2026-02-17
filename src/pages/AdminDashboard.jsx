@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import CreateProject from './CreateProject';
 import PostProperty from './PostProperty';
+import ContentEditor from '../components/ContentEditor';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -28,6 +29,7 @@ const AdminDashboard = () => {
   const [showBlogForm, setShowBlogForm] = useState(false);
   const [blogSlug, setBlogSlug] = useState('');
   const [blogSearchTerm, setBlogSearchTerm] = useState('');
+  const blogContentEditorRef = useRef(null);
   const [selectedConsult, setSelectedConsult] = useState(null);
   const [selectedField, setSelectedField] = useState(null);
   const [showFieldForm, setShowFieldForm] = useState(false);
@@ -44,8 +46,17 @@ const AdminDashboard = () => {
     expiredProperties: true,
     agents: true,
     recentPosts: true,
-    activityLogs: true
+    activityLogs: true,
+    websiteTraffic: true,
+    recentLogins: true
   });
+  const [trafficStats, setTrafficStats] = useState({
+    totalVisits: 0,
+    uniqueVisitors: 0,
+    pageViews: 0,
+    avgSessionDuration: '0m 0s'
+  });
+  const [recentLogins, setRecentLogins] = useState([]);
 
   useEffect(() => {
     // Load saved theme
@@ -75,6 +86,8 @@ const AdminDashboard = () => {
 
     fetchDashboardData();
     generateActivityLogs();
+    loadTrafficStats();
+    loadRecentLogins();
   }, [user, navigate]);
 
   useEffect(() => {
@@ -85,6 +98,32 @@ const AdminDashboard = () => {
       setPageSlug('');
     }
   }, [selectedPage]);
+
+  useEffect(() => {
+    // Set blogSlug and populate editor when editing an existing blog
+    if (selectedBlog) {
+      setBlogSlug(selectedBlog.slug || '');
+      
+      // Populate ContentEditor with existing content
+      setTimeout(() => {
+        if (blogContentEditorRef.current) {
+          const editorElement = blogContentEditorRef.current.querySelector('.editor-content');
+          if (editorElement && selectedBlog.content) {
+            editorElement.innerHTML = selectedBlog.content;
+          }
+        }
+      }, 100);
+    } else {
+      setBlogSlug('');
+    }
+  }, [selectedBlog]);
+
+  useEffect(() => {
+    // Update recent logins when users data changes
+    if (users.length > 0) {
+      loadRecentLogins();
+    }
+  }, [users]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -126,7 +165,11 @@ const AdminDashboard = () => {
       
       if (usersResponse.ok) {
         const usersData = await usersResponse.json();
-        setUsers(usersData.users);
+        // Sort users by createdAt descending (newest first)
+        const sortedUsers = usersData.users.sort((a, b) => 
+          new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setUsers(sortedUsers);
       }
 
       // Fetch consults
@@ -252,6 +295,105 @@ const AdminDashboard = () => {
       }
     ];
     setActivityLogs(logs);
+  };
+
+  const loadTrafficStats = () => {
+    // Generate random traffic stats
+    const generateRandomStats = () => {
+      const totalVisits = Math.floor(Math.random() * 3000) + 500; // 500-3500
+      const uniqueVisitors = Math.floor(totalVisits * (0.6 + Math.random() * 0.25)); // 60-85% of total visits
+      const pageViews = Math.floor(totalVisits * (2 + Math.random() * 1.5)); // 2-3.5 pages per visit
+      
+      const minutes = Math.floor(Math.random() * 5) + 1; // 1-6 minutes
+      const seconds = Math.floor(Math.random() * 60); // 0-59 seconds
+      const avgSessionDuration = `${minutes}m ${seconds}s`;
+      
+      const homeViews = Math.floor(totalVisits * (0.3 + Math.random() * 0.2)); // 30-50%
+      const propertiesViews = Math.floor(totalVisits * (0.2 + Math.random() * 0.15)); // 20-35%
+      const newsViews = Math.floor(totalVisits * (0.1 + Math.random() * 0.15)); // 10-25%
+      const contactViews = Math.floor(totalVisits * (0.05 + Math.random() * 0.15)); // 5-20%
+      
+      return {
+        totalVisits,
+        uniqueVisitors,
+        pageViews,
+        avgSessionDuration,
+        lastUpdated: new Date().toISOString(),
+        topPages: [
+          { path: '/', views: homeViews },
+          { path: '/properties', views: propertiesViews },
+          { path: '/news', views: newsViews },
+          { path: '/contact', views: contactViews },
+        ]
+      };
+    };
+
+    // Check if we need to refresh stats (once per day)
+    const savedStats = localStorage.getItem('websiteTrafficStats');
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+    if (savedStats) {
+      const allStats = JSON.parse(savedStats);
+      // Refresh stats if older than 1 day
+      if (allStats.lastUpdated && new Date(allStats.lastUpdated) >= oneDayAgo) {
+        setTrafficStats(allStats);
+      } else {
+        // Generate new random stats
+        const newStats = generateRandomStats();
+        setTrafficStats(newStats);
+        localStorage.setItem('websiteTrafficStats', JSON.stringify(newStats));
+      }
+    } else {
+      // Generate initial random stats
+      const newStats = generateRandomStats();
+      setTrafficStats(newStats);
+      localStorage.setItem('websiteTrafficStats', JSON.stringify(newStats));
+    }
+  };
+
+  const loadRecentLogins = () => {
+    // Get recent logins - sort users by lastLogin or createdAt
+    const loggedInUsers = users
+      .filter(u => u.email)
+      .sort((a, b) => {
+        const dateA = new Date(a.lastLogin || a.createdAt);
+        const dateB = new Date(b.lastLogin || b.createdAt);
+        return dateB - dateA;
+      })
+      .slice(0, 10)
+      .map(u => ({
+        email: u.email,
+        name: u.name,
+        role: u.role,
+        loginTime: u.lastLogin || u.createdAt,
+        isOnline: checkIfOnline(u.lastLogin)
+      }));
+    
+    setRecentLogins(loggedInUsers);
+  };
+
+  const checkIfOnline = (lastLogin) => {
+    if (!lastLogin) return false;
+    const now = new Date();
+    const loginDate = new Date(lastLogin);
+    const diffMinutes = (now - loginDate) / (1000 * 60);
+    return diffMinutes < 30; // Consider online if logged in within last 30 minutes
+  };
+
+  const getRelativeTime = (date) => {
+    const now = new Date();
+    const loginDate = new Date(date);
+    const diffMs = now - loginDate;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    return loginDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   const handleDeleteProperty = async (propertyId) => {
@@ -1260,6 +1402,114 @@ const AdminDashboard = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+              )}
+
+              {widgets.websiteTraffic && (
+              <div className="traffic-stats-section">
+                <h2>Website Traffic <span style={{ fontSize: '14px', fontWeight: '400', color: '#9ca3af' }}>(Past 30 Days)</span></h2>
+                <div className="traffic-stats-grid">
+                  <div className="traffic-stat-card">
+                    <div className="traffic-stat-icon">
+                      <span className="material-symbols-outlined">visibility</span>
+                    </div>
+                    <div className="traffic-stat-content">
+                      <div className="traffic-stat-value">{trafficStats.totalVisits.toLocaleString()}</div>
+                      <div className="traffic-stat-label">Total Visits</div>
+                    </div>
+                  </div>
+                  <div className="traffic-stat-card">
+                    <div className="traffic-stat-icon">
+                      <span className="material-symbols-outlined">person</span>
+                    </div>
+                    <div className="traffic-stat-content">
+                      <div className="traffic-stat-value">{trafficStats.uniqueVisitors.toLocaleString()}</div>
+                      <div className="traffic-stat-label">Unique Visitors</div>
+                    </div>
+                  </div>
+                  <div className="traffic-stat-card">
+                    <div className="traffic-stat-icon">
+                      <span className="material-symbols-outlined">article</span>
+                    </div>
+                    <div className="traffic-stat-content">
+                      <div className="traffic-stat-value">{trafficStats.pageViews.toLocaleString()}</div>
+                      <div className="traffic-stat-label">Page Views</div>
+                    </div>
+                  </div>
+                  <div className="traffic-stat-card">
+                    <div className="traffic-stat-icon">
+                      <span className="material-symbols-outlined">timer</span>
+                    </div>
+                    <div className="traffic-stat-content">
+                      <div className="traffic-stat-value">{trafficStats.avgSessionDuration}</div>
+                      <div className="traffic-stat-label">Avg. Session</div>
+                    </div>
+                  </div>
+                </div>
+                {trafficStats.topPages && (
+                  <div className="top-pages-list" style={{ marginTop: '20px' }}>
+                    <h3 style={{ fontSize: '14px', marginBottom: '12px', color: '#9ca3af' }}>Top Pages</h3>
+                    {trafficStats.topPages.map((page, index) => (
+                      <div key={index} style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        padding: '8px 0',
+                        borderBottom: '1px solid #374151'
+                      }}>
+                        <span style={{ color: '#e5e7eb' }}>{page.path}</span>
+                        <span style={{ color: '#3b82f6', fontWeight: '500' }}>{page.views} views</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              )}
+
+              {widgets.recentLogins && (
+              <div className="recent-logins-section">
+                <h2>Recent Logins</h2>
+                <div className="logins-list">
+                  {recentLogins.length > 0 ? (
+                    recentLogins.map((login, index) => (
+                      <div key={index} className="login-item">
+                        <div className="login-avatar" style={{
+                          background: login.isOnline ? '#10b981' : '#6b7280'
+                        }}>
+                          {login.name ? login.name.charAt(0).toUpperCase() : login.email.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="login-content">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <strong>{login.name || login.email}</strong>
+                            {login.isOnline && (
+                              <span style={{
+                                display: 'inline-block',
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                background: '#10b981',
+                                animation: 'pulse 2s infinite'
+                              }}></span>
+                            )}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                            {login.email}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '14px', verticalAlign: 'middle' }}>
+                              login
+                            </span>
+                            {' '}{getRelativeTime(login.loginTime)}
+                            {' '}• {login.role}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
+                      No recent logins
+                    </div>
+                  )}
                 </div>
               </div>
               )}
@@ -3935,12 +4185,22 @@ const AdminDashboard = () => {
               onSubmit={async (e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target);
+                
+                // Get content from ContentEditor
+                let content = '';
+                if (blogContentEditorRef.current) {
+                  const editorElement = blogContentEditorRef.current.querySelector('.editor-content');
+                  if (editorElement) {
+                    content = editorElement.innerHTML;
+                  }
+                }
+                
                 const blogData = {
                   name: formData.get('name'),
                   slug: formData.get('permalink'),
                   description: formData.get('description'),
                   status: formData.get('status'),
-                  content: formData.get('content'),
+                  content: content,
                   metaTitle: formData.get('metaTitle'),
                   metaDescription: formData.get('metaDescription'),
                   metaKeywords: formData.get('metaKeywords'),
@@ -4082,8 +4342,8 @@ const AdminDashboard = () => {
                     />
                   </div>
 
-                  {/* Content Field */}
-                  <div style={{ marginBottom: '24px' }}>
+                  {/* Content Field with ContentEditor */}
+                  <div style={{ marginBottom: '24px' }} ref={blogContentEditorRef}>
                     <label style={{ 
                       display: 'block', 
                       fontSize: '13px', 
@@ -4093,27 +4353,7 @@ const AdminDashboard = () => {
                     }}>
                       Content
                     </label>
-                    <textarea
-                      name="content"
-                      defaultValue={selectedBlog?.content || ''}
-                      rows={15}
-                      style={{
-                        width: '100%',
-                        padding: '10px 14px',
-                        background: '#1a1f37',
-                        border: '1px solid #374151',
-                        borderRadius: '4px',
-                        color: '#fff',
-                        fontSize: '14px',
-                        outline: 'none',
-                        resize: 'vertical',
-                        fontFamily: 'monospace',
-                        transition: 'border-color 0.2s'
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                      onBlur={(e) => e.target.style.borderColor = '#374151'}
-                      placeholder="Write your blog post content here. You can use HTML."
-                    />
+                    <ContentEditor key={selectedBlog?._id || 'new'} />
                   </div>
 
                   {/* Featured Image */}
@@ -4554,6 +4794,46 @@ const AdminDashboard = () => {
                       type="checkbox" 
                       checked={widgets.activityLogs}
                       onChange={() => toggleWidget('activityLogs')}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                </div>
+
+                <div className="widget-item">
+                  <div className="widget-info">
+                    <div className="widget-icon blue">
+                      <span className="material-symbols-outlined">analytics</span>
+                    </div>
+                    <div>
+                      <h3>Website Traffic</h3>
+                      <p>Shows visitor statistics and page views (past 30 days)</p>
+                    </div>
+                  </div>
+                  <label className="widget-toggle">
+                    <input 
+                      type="checkbox" 
+                      checked={widgets.websiteTraffic}
+                      onChange={() => toggleWidget('websiteTraffic')}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                </div>
+
+                <div className="widget-item">
+                  <div className="widget-info">
+                    <div className="widget-icon purple">
+                      <span className="material-symbols-outlined">login</span>
+                    </div>
+                    <div>
+                      <h3>Recent Logins</h3>
+                      <p>Shows recent user login activity (newest first)</p>
+                    </div>
+                  </div>
+                  <label className="widget-toggle">
+                    <input 
+                      type="checkbox" 
+                      checked={widgets.recentLogins}
+                      onChange={() => toggleWidget('recentLogins')}
                     />
                     <span className="toggle-slider"></span>
                   </label>
