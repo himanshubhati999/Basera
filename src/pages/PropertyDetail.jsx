@@ -11,8 +11,6 @@ const PropertyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, toggleWishlist, isInWishlist } = useAuth();
-  const [rating, setRating] = useState(0);
-  const [review, setReview] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -503,55 +501,22 @@ const PropertyDetail = () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
     
-    // Check if we're in dev mode
-    const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    
-    if (isDev) {
-      // In dev mode, simulate success
-      console.log('Dev mode - Form data:', {
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email,
-        property: displayProperty.name,
-        tourDate: formData.tourDate,
-        message: formData.message
-      });
-      
-      setTimeout(() => {
-        alert(`[DEV MODE] Form submitted successfully!\n\nThis will work on Vercel. Your data:\nName: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email}\nProperty: ${displayProperty.name}`);
-        setFormData({
-          name: '',
-          phone: '',
-          email: '',
-          tourDate: '',
-          message: ''
-        });
-        setIsSubmitting(false);
-      }, 1000);
-      return;
-    }
-    
-    // Prepare submission data for production
-    const submissionData = {
-      fields: [
-        { name: 'firstname', value: formData.name },
-        { name: 'phone', value: formData.phone },
-        { name: 'email', value: formData.email },
-        { name: 'property_inquiry', value: displayProperty.name },
-        { name: 'message', value: `Property: ${displayProperty.name}\nLocation: ${displayProperty.location}\nPrice: ${displayProperty.price}\nTour Date: ${formData.tourDate || 'Not specified'}\n\nMessage:\n${formData.message}` }
-      ],
-      context: {
-        pageUri: window.location.href,
-        pageName: `Property Detail - ${displayProperty.name}`
-      }
+    // Prepare submission data for consults
+    const consultData = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      property: displayProperty.name,
+      message: formData.tourDate 
+        ? `Tour Date: ${formData.tourDate}\n\n${formData.message}` 
+        : formData.message
     };
     
     try {
-      // Submit via serverless API (production only)
-      const response = await fetch('/api/submit-form', {
+      const response = await fetch(API_ENDPOINTS.CONSULTS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submissionData)
+        body: JSON.stringify(consultData)
       });
       
       const result = await response.json();
@@ -566,7 +531,7 @@ const PropertyDetail = () => {
           message: ''
         });
       } else {
-        throw new Error(result.error || 'Submission failed');
+        throw new Error(result.message || 'Submission failed');
       }
     } catch (error) {
       console.error('Form submission error:', error);
@@ -574,12 +539,6 @@ const PropertyDetail = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleReviewSubmit = (e) => {
-    e.preventDefault();
-    console.log('Review submitted:', { rating, review });
-    alert('Please log in to write review!');
   };
 
   const handleWishlistToggle = async () => {
@@ -636,16 +595,6 @@ const PropertyDetail = () => {
           <button className="gallery-btn btn-glare" onClick={handleOpenVideo}>
             <span className="icon">▶️</span> YouTube
           </button>
-          <button className="gallery-btn btn-glare">
-            <span className="icon">🖼️</span> Gallery
-          </button>
-          <button 
-            className={`gallery-btn btn-glare wishlist-toggle ${isInWishlist(parseInt(id)) ? 'active' : ''}`}
-            onClick={handleWishlistToggle}
-          >
-            <span className="icon"><span className="material-symbols-outlined">{isInWishlist(parseInt(id)) ? 'favorite' : 'favorite_border'}</span></span>
-            {isInWishlist(parseInt(id)) ? 'In Wishlist' : 'Add to Wishlist'}
-          </button>
         </div>
       </div>
 
@@ -665,11 +614,6 @@ const PropertyDetail = () => {
                 direction="left"
               />
             </h1>
-            <div className="rating">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span key={star} className="star">☆</span>
-              ))}
-            </div>
             <div className="property-meta">
               <span className="location"><span className="material-symbols-outlined" style={{fontSize: '20px', verticalAlign: 'middle'}}>location_on</span> {displayProperty.location}</span>
               <span className="date">📅 {displayProperty.date}</span>
@@ -751,32 +695,6 @@ const PropertyDetail = () => {
                 <button className="social-btn email btn-glare-radial">@</button>
               </div>
             </div>
-          </div>
-
-          {/* Review Section */}
-          <div className="review-section">
-            <h2>Write a review</h2>
-            <div className="review-rating">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span
-                  key={star}
-                  className={`review-star ${rating >= star ? 'active' : ''}`}
-                  onClick={() => setRating(star)}
-                >
-                  ★
-                </span>
-              ))}
-            </div>
-            <form onSubmit={handleReviewSubmit}>
-              <textarea
-                placeholder="Enter your message"
-                value={review}
-                onChange={(e) => setReview(e.target.value)}
-                rows="5"
-              ></textarea>
-              <p className="login-message">Please log in to write review!</p>
-              <button type="submit" className="submit-review-btn btn-glare">Submit review</button>
-            </form>
           </div>
 
           {/* Map Location Section */}
