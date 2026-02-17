@@ -52,6 +52,8 @@ const PostProperty = ({ embedded, onBack }) => {
 
   const [imageUrls, setImageUrls] = useState('');
   const [amenityInput, setAmenityInput] = useState('');
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   const availableCategories = ['Apartment', 'Villa', 'Condo', 'House', 'Land', 'Commercial property'];
   const availableFeatures = [
@@ -151,6 +153,71 @@ const PostProperty = ({ embedded, onBack }) => {
       ...prev,
       amenities: prev.amenities.filter((_, i) => i !== index)
     }));
+  };
+
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploadingImages(true);
+    const token = localStorage.getItem('token');
+
+    try {
+      const formData = new FormData();
+      files.forEach(file => {
+        formData.append('images', file);
+      });
+
+      const response = await fetch(API_ENDPOINTS.UPLOAD_MULTIPLE, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload images');
+      }
+
+      const result = await response.json();
+      const newUrls = result.images.map(img => img.url);
+      
+      // Add uploaded URLs to the image URLs textarea
+      setImageUrls(prev => {
+        const existing = prev.trim();
+        return existing ? `${existing}\n${newUrls.join('\n')}` : newUrls.join('\n');
+      });
+
+      setUploadedImages(prev => [...prev, ...result.images]);
+      
+      // Clear images error if it exists
+      if (fieldErrors.images) {
+        setFieldErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.images;
+          return newErrors;
+        });
+      }
+
+      alert(`${files.length} image(s) uploaded successfully!`);
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Error uploading images. Please try again.');
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const handleRemoveUploadedImage = (publicId, url) => {
+    // Remove from uploaded images list
+    setUploadedImages(prev => prev.filter(img => img.publicId !== publicId));
+    
+    // Remove from image URLs textarea
+    setImageUrls(prev => {
+      const urls = prev.split('\n').filter(u => u.trim() !== url);
+      return urls.join('\n');
+    });
   };
 
   const validateForm = () => {
@@ -598,7 +665,78 @@ const PostProperty = ({ embedded, onBack }) => {
             <h3 className="section-heading">Addition Information</h3>
             
             <label className="form-label">
-              Property Images (one URL per line) <span className="required">*</span>
+              Property Images <span className="required">*</span>
+            </label>
+            
+            {/* File Upload Section */}
+            <div style={{ marginBottom: '15px' }}>
+              <input
+                type="file"
+                id="imageFileInput"
+                multiple
+                accept="image/*"
+                onChange={handleFileUpload}
+                style={{ display: 'none' }}
+              />
+              <button
+                type="button"
+                className="upload-btn"
+                onClick={() => document.getElementById('imageFileInput').click()}
+                disabled={uploadingImages}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: uploadingImages ? '#ccc' : '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: uploadingImages ? 'not-allowed' : 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                {uploadingImages ? 'Uploading...' : '📤 Upload Images from Computer'}
+              </button>
+              {uploadedImages.length > 0 && (
+                <div style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
+                  {uploadedImages.length} image(s) uploaded to Cloudinary
+                </div>
+              )}
+            </div>
+
+            {/* Display uploaded images */}
+            {uploadedImages.length > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '10px', marginBottom: '15px' }}>
+                {uploadedImages.map((img, index) => (
+                  <div key={index} style={{ position: 'relative', border: '1px solid #ddd', borderRadius: '5px', overflow: 'hidden' }}>
+                    <img src={img.url} alt={`Uploaded ${index + 1}`} style={{ width: '100%', height: '150px', objectFit: 'cover' }} />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveUploadedImage(img.publicId, img.url)}
+                      style={{
+                        position: 'absolute',
+                        top: '5px',
+                        right: '5px',
+                        background: 'rgba(255, 0, 0, 0.8)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '25px',
+                        height: '25px',
+                        cursor: 'pointer',
+                        fontSize: '16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            <label className="form-label" style={{ marginTop: uploadedImages.length > 0 ? '15px' : '0' }}>
+              Or enter image URLs (one per line)
             </label>
             <textarea
               className={`form-textarea ${fieldErrors.images ? 'error' : ''}`}

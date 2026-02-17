@@ -21,15 +21,15 @@ const Footer = () => {
           </p>
           <div className="footer-contact">
             <p className="footer-address">
-              <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> 2A,54/13 Awas Vikas 1st DM Road
+              <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>location_on</span> 201, IInd Floor, Krishna Apra Royal Plaza, Above ICICI Bank, Alpha Comm. Belt Near Alpha-1, Metro Station, Greater Noida
             </p>
             <p className="footer-phone">
-              <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>call</span> Hotline: <a href="tel:9720444418">9720444418</a>
+              <span className="material-symbols-outlined" style={{fontSize: '18px', verticalAlign: 'middle'}}>call</span> Hotline: <a href="tel:+919811802157">+91 98118 02157</a>
             </p>
             <p className="footer-email">
               ✉ Email:{' '}
-              <a href="mailto:harshsingh08.hs@gmail.com">
-                harshsingh08.hs@gmail.com
+              <a href="mailto:baserainfrahome@gmail.com">
+                baserainfrahome@gmail.com
               </a>
             </p>
           </div>

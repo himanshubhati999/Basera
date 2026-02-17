@@ -2,7 +2,7 @@ import React from 'react';
 import './StickyDialPad.css';
 
 const StickyDialPad = () => {
-  const phoneNumber = '9720444418';
+  const phoneNumber = '+91 98118 02157';
 
   const handleCall = () => {
     window.location.href = `tel:${phoneNumber}`;

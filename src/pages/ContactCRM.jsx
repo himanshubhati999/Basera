@@ -161,13 +161,13 @@ const ContactCRM = () => {
             />
           </h2>
           <div className="info-item">
-            <p><strong>Address:</strong> 2A,54/13 Awas Vikas 1st DM Road</p>
+            <p><strong>Address:</strong> 201, IInd Floor, Krishna Apra Royal Plaza, Above ICICI Bank, Alpha Comm. Belt Near Alpha-1, Metro Station, Greater Noida</p>
           </div>
           <div className="info-item">
-            <p><strong>Hotline:</strong> <a href="tel:9720444418">9720444418</a></p>
+            <p><strong>Hotline:</strong> <a href="tel:+919811802157">+91 98118 02157</a></p>
           </div>
           <div className="info-item">
-            <p><strong>Email:</strong> <a href="mailto:harshsingh08.hs@gmail.com">harshsingh08.hs@gmail.com</a></p>
+            <p><strong>Email:</strong> <a href="mailto:baserainfrahome@gmail.com">baserainfrahome@gmail.com</a></p>
           </div>
           <div className="info-section">
             <h3>Business Hours</h3>
@@ -248,7 +248,7 @@ const ContactCRM = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+91 9720444418"
+                  placeholder="+91 98118 02157"
                   className={errors.phone ? 'error' : ''}
                   disabled={formState.status === 'submitting'}
                 />

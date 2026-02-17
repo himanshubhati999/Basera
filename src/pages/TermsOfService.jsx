@@ -176,9 +176,9 @@ const TermsOfService = () => {
             <h2>16. Contact Information</h2>
             <p>If you have any questions about these Terms of Service, please contact us:</p>
             <ul className="contact-info">
-              <li><strong>Email:</strong> harshsingh08.hs@gmail.com</li>
-              <li><strong>Phone:</strong> 9720444418</li>
-              <li><strong>Address:</strong> 2A,54/13 Awas Vikas 1st DM Road</li>
+              <li><strong>Email:</strong> baserainfrahome@gmail.com</li>
+              <li><strong>Phone:</strong> +91 98118 02157</li>
+              <li><strong>Address:</strong> 201, IInd Floor, Krishna Apra Royal Plaza, Above ICICI Bank, Alpha Comm. Belt Near Alpha-1, Metro Station, Greater Noida</li>
             </ul>
           </section>
         </div>

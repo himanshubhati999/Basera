@@ -41,6 +41,11 @@ export const API_ENDPOINTS = {
   PAGE_BY_SLUG: (slug) => `${API_BASE_URL}/api/pages/slug/${slug}`,
   PAGE_STATUS: (id) => `${API_BASE_URL}/api/pages/${id}/status`,
   PAGES_BULK_DELETE: `${API_BASE_URL}/api/pages/bulk-delete`,
+  
+  // Upload endpoints
+  UPLOAD_SINGLE: `${API_BASE_URL}/api/upload/single`,
+  UPLOAD_MULTIPLE: `${API_BASE_URL}/api/upload/multiple`,
+  DELETE_IMAGE: `${API_BASE_URL}/api/upload/delete`,
 };
 
 export default API_BASE_URL;
