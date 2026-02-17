@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { CategoryProvider } from './context/CategoryContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import StickyDialPad from './components/StickyDialPad';
@@ -67,7 +68,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <CategoryProvider>
+          <AppContent />
+        </CategoryProvider>
       </AuthProvider>
     </Router>
   );

@@ -1,42 +1,57 @@
-.sticky-phone-button {
+.sticky-contact-buttons {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-  color: white;
-  padding: 15px 20px;
-  border-radius: 50px;
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  z-index: 1000;
+}
+
+.contact-button {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
   display: flex;
   align-items: center;
-  gap: 10px;
-  z-index: 1000;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
-  font-weight: 600;
-  font-size: 16px;
   animation: pulse 2s infinite;
 }
 
-.sticky-phone-button:hover {
+.phone-button {
+  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+}
+
+.phone-button:hover {
   transform: translateY(-3px) scale(1.05);
   box-shadow: 0 6px 30px rgba(255, 0, 0, 0.6);
   background: linear-gradient(135deg, #ff3333 0%, #dd0000 100%);
 }
 
-.sticky-phone-button:active {
+.whatsapp-button {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+}
+
+.whatsapp-button:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 30px rgba(37, 211, 102, 0.6);
+  background: linear-gradient(135deg, #34E677 0%, #1AA689 100%);
+}
+
+.contact-button:active {
   transform: translateY(-1px) scale(1.02);
+}
+
+.contact-icon {
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
 }
 
 .phone-icon {
   animation: ring 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
-}
-
-.phone-number-text {
-  white-space: nowrap;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* Pulse animation */
@@ -67,35 +82,38 @@
 
 /* Mobile responsive */
 @media (max-width: 768px) {
-  .sticky-phone-button {
+  .sticky-contact-buttons {
     bottom: 20px;
     right: 20px;
-    padding: 12px 16px;
-    font-size: 14px;
+    gap: 12px;
   }
   
-  .phone-icon {
-    width: 18px;
-    height: 18px;
+  .contact-button {
+    width: 50px;
+    height: 50px;
   }
   
-  .phone-number-text {
-    font-size: 14px;
+  .contact-icon {
+    width: 22px;
+    height: 22px;
   }
 }
 
-/* Extra small screens - show only icon */
+/* Extra small screens */
 @media (max-width: 480px) {
-  .sticky-phone-button {
-    padding: 15px;
-    border-radius: 50%;
-    min-width: 56px;
-    min-height: 56px;
-    justify-content: center;
+  .sticky-contact-buttons {
+    bottom: 15px;
+    right: 15px;
   }
   
-  .phone-number-text {
-    display: none;
+  .contact-button {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .contact-icon {
+    width: 20px;
+    height: 20px;
   }
   
   .phone-icon {

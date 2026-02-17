@@ -1,19 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCategory } from '../context/CategoryContext';
 import './SearchBar.css';
 
-const SearchBar = ({ compact = false }) => {
+const SearchBar = ({ compact = false, onCategoryChange = null, selectedCategory = 'projects', onHomePage = false }) => {
   const navigate = useNavigate();
+  const { setSearchFilters } = useCategory();
   const [keyword, setKeyword] = useState('');
   const [locationSearch, setLocationSearch] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [category, setCategory] = useState('');
   const [priceFrom, setPriceFrom] = useState('');
   const [priceTo, setPriceTo] = useState('');
-  const [propertyType, setPropertyType] = useState('properties'); // properties or projects
+  const [propertyType, setPropertyType] = useState(selectedCategory); // projects, sale, or rent
+  
+  // Sync with external selectedCategory changes
+  useEffect(() => {
+    setPropertyType(selectedCategory);
+  }, [selectedCategory]);
+  
+  // Real-time search on home page
+  useEffect(() => {
+    if (onHomePage) {
+      setSearchFilters({
+        keyword,
+        location: locationSearch,
+        category,
+        priceFrom,
+        priceTo
+      });
+    }
+  }, [keyword, locationSearch, category, priceFrom, priceTo, onHomePage, setSearchFilters]);
+  
+  const handleCategoryChange = (newCategory) => {
+    setPropertyType(newCategory);
+    if (onCategoryChange) {
+      onCategoryChange(newCategory);
+    }
+  };
 
   const handleSearch = () => {
-    // Build search params
+    // If on home page, filters are already updating in real-time via useEffect
+    if (onHomePage) {
+      return;
+    }
+    
+    // Build search params for navigation
     const params = new URLSearchParams();
     
     if (keyword) params.append('keyword', keyword);
@@ -23,7 +55,14 @@ const SearchBar = ({ compact = false }) => {
     if (priceTo) params.append('priceTo', priceTo);
     
     // Determine which page to navigate to
-    let searchPath = propertyType === 'projects' ? '/projects' : '/properties';
+    let searchPath = '/properties';
+    if (propertyType === 'projects') {
+      searchPath = '/projects';
+    } else if (propertyType === 'sale') {
+      params.append('listingType', 'sale');
+    } else if (propertyType === 'rent') {
+      params.append('listingType', 'rent');
+    }
     
     // Navigate to the appropriate page with search params
     navigate(`${searchPath}?${params.toString()}`);
@@ -41,16 +80,22 @@ const SearchBar = ({ compact = false }) => {
         <div className="compact-search-bar">
           <div className="search-toggle-group">
             <button 
-              className={`search-toggle-btn ${propertyType === 'properties' ? 'active' : ''}`}
-              onClick={() => setPropertyType('properties')}
-            >
-              Properties
-            </button>
-            <button 
               className={`search-toggle-btn ${propertyType === 'projects' ? 'active' : ''}`}
-              onClick={() => setPropertyType('projects')}
+              onClick={() => handleCategoryChange('projects')}
             >
               Projects
+            </button>
+            <button 
+              className={`search-toggle-btn ${propertyType === 'sale' ? 'active' : ''}`}
+              onClick={() => handleCategoryChange('sale')}
+            >
+              Sale
+            </button>
+            <button 
+              className={`search-toggle-btn ${propertyType === 'rent' ? 'active' : ''}`}
+              onClick={() => handleCategoryChange('rent')}
+            >
+              Rent
             </button>
           </div>
           <div className="compact-search-inputs">
@@ -82,12 +127,11 @@ const SearchBar = ({ compact = false }) => {
               onChange={(e) => setCategory(e.target.value)}
               className="compact-select"
             >
-              <option value="">Category</option>
+              <option value="">All Categories</option>
               <option value="residential">Residential</option>
               <option value="commercial">Commercial</option>
               <option value="land">Land</option>
-              <option value="apartment">Apartment</option>
-              <option value="villa">Villa</option>
+              <option value="project">Project</option>
             </select>
             <input 
               type="number" 
@@ -124,16 +168,22 @@ const SearchBar = ({ compact = false }) => {
       <div className="full-search-bar">
         <div className="search-tabs">
           <button 
-            className={`search-tab ${propertyType === 'properties' ? 'active' : ''}`}
-            onClick={() => setPropertyType('properties')}
-          >
-            Properties
-          </button>
-          <button 
             className={`search-tab ${propertyType === 'projects' ? 'active' : ''}`}
-            onClick={() => setPropertyType('projects')}
+            onClick={() => handleCategoryChange('projects')}
           >
             Projects
+          </button>
+          <button 
+            className={`search-tab ${propertyType === 'sale' ? 'active' : ''}`}
+            onClick={() => handleCategoryChange('sale')}
+          >
+            Sale
+          </button>
+          <button 
+            className={`search-tab ${propertyType === 'rent' ? 'active' : ''}`}
+            onClick={() => handleCategoryChange('rent')}
+          >
+            Rent
           </button>
         </div>
       
@@ -185,12 +235,11 @@ const SearchBar = ({ compact = false }) => {
               onChange={(e) => setCategory(e.target.value)}
               className="advanced-select"
             >
-              <option value="">Select Category</option>
+              <option value="">All Categories</option>
               <option value="residential">Residential</option>
               <option value="commercial">Commercial</option>
               <option value="land">Land</option>
-              <option value="apartment">Apartment</option>
-              <option value="villa">Villa</option>
+              <option value="project">Project</option>
             </select>
           </div>
           

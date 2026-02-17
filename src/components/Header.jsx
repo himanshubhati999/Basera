@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useCategory } from '../context/CategoryContext';
 import AuthModal from './AuthModal';
+import SearchBar from './SearchBar';
 import logo from '../assets/file_000000001b5072088ef1791356e73429.png';
 import './Header.css';
 import './ButtonGlare.css';
 
 const Header = () => {
   const { user, logout, wishlist } = useAuth();
+  const { selectedCategory, setSelectedCategory } = useCategory();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Check if we're on the home page
+  const isHomePage = location.pathname === '/';
 
   const headlines = [
     'Join Us for Exclusive Open House Events This Weekend and Find Your Perfect Home!',
@@ -158,6 +165,17 @@ const Header = () => {
               <span className="logo-real-estate">INFRA HOME</span>
             </div>
           </Link>
+          
+          {isHomePage && (
+            <div className="header-search-wrapper">
+              <SearchBar 
+                compact={true} 
+                onCategoryChange={setSelectedCategory} 
+                selectedCategory={selectedCategory}
+                onHomePage={true}
+              />
+            </div>
+          )}
           
           <button 
             className={`hamburger-menu ${isMobileMenuOpen ? 'active' : ''}`} 

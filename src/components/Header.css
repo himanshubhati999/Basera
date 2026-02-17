@@ -212,6 +212,13 @@
   flex-wrap: nowrap;
 }
 
+.header-component .header-search-wrapper {
+  flex: 1;
+  max-width: 600px;
+  display: flex;
+  justify-content: center;
+}
+
 .header-component .logo {
   display: flex;
   align-items: center;
@@ -537,6 +544,10 @@
     padding: 15px 20px;
     display: flex;
     justify-content: space-between;
+  }
+  
+  .header-component .header-search-wrapper {
+    display: none;
   }
 
   .header-component .hamburger-menu {

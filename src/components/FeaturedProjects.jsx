@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useCategory } from '../context/CategoryContext';
 import { API_ENDPOINTS } from '../config/api';
 import './FeaturedProjects.css';
 import ShinyText from './ShinyText';
@@ -8,17 +9,24 @@ import './ButtonGlare.css';
 
 const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
   const { isAuthenticated, toggleWishlist, isInWishlist } = useAuth();
+  const { searchFilters } = useCategory();
   const navigate = useNavigate();
   
   const [projects, setProjects] = useState([]);
   const [saleProperties, setSaleProperties] = useState([]);
   const [rentProperties, setRentProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterTrigger, setFilterTrigger] = useState(0);
 
   // Fetch properties from database
   useEffect(() => {
     fetchProperties();
   }, []);
+
+  // Watch for searchFilters changes and trigger re-render
+  useEffect(() => {
+    setFilterTrigger(prev => prev + 1);
+  }, [searchFilters]);
 
   const fetchProperties = async () => {
     try {
@@ -44,7 +52,10 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
           location: prop.location?.city || prop.location?.address || 'Location not specified',
           image: prop.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80',
           isFavorite: false,
-          type: 'projects'
+          type: 'projects',
+          propertyType: prop.propertyType,
+          categories: prop.categories || [],
+          rawPrice: prop.price
         }));
 
       const transformedSaleProps = featuredProperties
@@ -56,7 +67,10 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
           location: prop.location?.city || prop.location?.address || 'Location not specified',
           image: prop.images?.[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&q=80',
           price: `₹${prop.price.toLocaleString('en-IN')}`,
-          type: 'sale'
+          type: 'sale',
+          propertyType: prop.propertyType,
+          categories: prop.categories || [],
+          rawPrice: prop.price
         }));
 
       const transformedRentProps = featuredProperties
@@ -68,7 +82,10 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
           location: prop.location?.city || prop.location?.address || 'Location not specified',
           image: prop.images?.[0] || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80',
           price: `₹${prop.price.toLocaleString('en-IN')}/month`,
-          type: 'rent'
+          type: 'rent',
+          propertyType: prop.propertyType,
+          categories: prop.categories || [],
+          rawPrice: prop.price
         }));
 
       // Use featured properties if available, otherwise use fallback
@@ -255,6 +272,64 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
     }
   };
 
+  // Filter data based on search filters
+  const applyFilters = (items) => {
+    if (!items || items.length === 0) return items;
+
+    // Check if any filters are active
+    const hasFilters = searchFilters.keyword || searchFilters.location || 
+                      searchFilters.category || searchFilters.priceFrom || searchFilters.priceTo;
+    
+    // If no filters, return all items
+    if (!hasFilters) return items;
+
+    return items.filter(item => {
+      // Keyword filter (search in name and location)
+      if (searchFilters.keyword) {
+        const keyword = searchFilters.keyword.toLowerCase();
+        const matchesKeyword = 
+          (item.name && item.name.toLowerCase().includes(keyword)) ||
+          (item.location && item.location.toLowerCase().includes(keyword));
+        
+        if (!matchesKeyword) return false;
+      }
+
+      // Location filter
+      if (searchFilters.location) {
+        const location = searchFilters.location.toLowerCase();
+        if (!item.location || !item.location.toLowerCase().includes(location)) {
+          return false;
+        }
+      }
+
+      // Category filter (check propertyType and categories array)
+      if (searchFilters.category && searchFilters.category !== 'all' && searchFilters.category !== '') {
+        const categoryMatch = 
+          (item.propertyType && item.propertyType.toLowerCase() === searchFilters.category.toLowerCase()) ||
+          (item.categories && item.categories.some(cat => cat.toLowerCase() === searchFilters.category.toLowerCase()));
+        
+        if (!categoryMatch) return false;
+      }
+
+      // Price filter (use rawPrice for accurate filtering)
+      if (searchFilters.priceFrom || searchFilters.priceTo) {
+        const itemPrice = item.rawPrice || 0;
+        
+        if (searchFilters.priceFrom) {
+          const minPrice = parseFloat(searchFilters.priceFrom);
+          if (itemPrice < minPrice) return false;
+        }
+        
+        if (searchFilters.priceTo) {
+          const maxPrice = parseFloat(searchFilters.priceTo);
+          if (itemPrice > maxPrice) return false;
+        }
+      }
+
+      return true;
+    });
+  };
+
   // Get the appropriate data based on selected category
   const getDisplayData = () => {
     switch(selectedCategory) {
@@ -268,6 +343,10 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
   };
 
   const { data, title } = getDisplayData();
+  
+  const filteredData = useMemo(() => {
+    return applyFilters(data);
+  }, [data, searchFilters, filterTrigger]);
 
   return (
     <div className="featured-projects-component">
@@ -297,9 +376,13 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
           <div style={{ textAlign: 'center', padding: '40px' }}>
             <p>Loading properties...</p>
           </div>
+        ) : filteredData.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <p>No properties found matching your search criteria.</p>
+          </div>
         ) : (
           <div className="projects-grid">
-            {data.map(project => (
+            {filteredData.map(project => (
             <Link 
               key={project.id} 
               to={`/projects/${project.id}`} 

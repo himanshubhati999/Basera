@@ -18,6 +18,8 @@ const Properties = () => {
   const [listingType, setListingType] = useState('');
   const [bedrooms, setBedrooms] = useState('');
   const [priceRange, setPriceRange] = useState('');
+  const [priceFrom, setPriceFrom] = useState('');
+  const [priceTo, setPriceTo] = useState('');
 
   const [propertiesList, setPropertiesList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,17 +38,8 @@ const Properties = () => {
     setLocation(urlLocation);
     if (urlCategory) setPropertyType(urlCategory);
     if (urlListingType) setListingType(urlListingType);
-    
-    // Convert price range to our format
-    if (urlPriceFrom || urlPriceTo) {
-      const from = parseFloat(urlPriceFrom) || 0;
-      const to = parseFloat(urlPriceTo) || Infinity;
-      
-      if (to < 50) setPriceRange('under-50');
-      else if (from >= 50 && to < 100) setPriceRange('50-100');
-      else if (from >= 100 && to < 200) setPriceRange('100-200');
-      else if (from >= 200) setPriceRange('above-200');
-    }
+    if (urlPriceFrom) setPriceFrom(urlPriceFrom);
+    if (urlPriceTo) setPriceTo(urlPriceTo);
   }, [searchParams]);
 
   // Fetch properties from database
@@ -120,10 +113,10 @@ const Properties = () => {
 
   // Auto-search when properties are loaded and search params exist
   useEffect(() => {
-    if (propertiesList.length > 0 && (keyword || location || propertyType || listingType || bedrooms || priceRange)) {
+    if (propertiesList.length > 0 && (keyword || location || propertyType || listingType || bedrooms || priceRange || priceFrom || priceTo)) {
       handleSearch();
     }
-  }, [propertiesList, keyword, location, propertyType, listingType, bedrooms, priceRange]);
+  }, [propertiesList, keyword, location, propertyType, listingType, bedrooms, priceRange, priceFrom, priceTo]);
 
   const [oldPropertiesList] = useState([
     {
@@ -344,6 +337,16 @@ const Properties = () => {
         }
       });
     }
+    
+    // Filter by custom price from/to (from search bar)
+    if (priceFrom || priceTo) {
+      filtered = filtered.filter(property => {
+        const price = parseFloat(property.price.replace(/[^\d.]/g, ''));
+        const from = priceFrom ? parseFloat(priceFrom) : 0;
+        const to = priceTo ? parseFloat(priceTo) : Infinity;
+        return price >= from && price <= to;
+      });
+    }
 
     setFilteredProperties(filtered);
     console.log('Search results:', filtered.length, 'properties found');
@@ -357,6 +360,8 @@ const Properties = () => {
     setListingType('');
     setBedrooms('');
     setPriceRange('');
+    setPriceFrom('');
+    setPriceTo('');
     setFilteredProperties(propertiesList);
   };
 

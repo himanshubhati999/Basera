@@ -16,6 +16,8 @@ const Projects = () => {
   const [choices, setChoices] = useState('');
   const [floors, setFloors] = useState('');
   const [flatRange, setFlatRange] = useState('');
+  const [priceFrom, setPriceFrom] = useState('');
+  const [priceTo, setPriceTo] = useState('');
 
   const [projectsList, setProjectsList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,10 +28,14 @@ const Projects = () => {
     const urlKeyword = searchParams.get('keyword') || '';
     const urlLocation = searchParams.get('location') || '';
     const urlCategory = searchParams.get('category') || '';
+    const urlPriceFrom = searchParams.get('priceFrom') || '';
+    const urlPriceTo = searchParams.get('priceTo') || '';
     
     setKeyword(urlKeyword);
     setLocation(urlLocation);
     if (urlCategory) setChoices(urlCategory);
+    if (urlPriceFrom) setPriceFrom(urlPriceFrom);
+    if (urlPriceTo) setPriceTo(urlPriceTo);
   }, [searchParams]);
 
   // Fetch properties from database
@@ -81,10 +87,10 @@ const Projects = () => {
 
   // Auto-search when projects are loaded and search params exist
   useEffect(() => {
-    if (projectsList.length > 0 && (keyword || location || choices || floors || flatRange)) {
+    if (projectsList.length > 0 && (keyword || location || choices || floors || flatRange || priceFrom || priceTo)) {
       handleSearch();
     }
-  }, [projectsList, keyword, location, choices, floors, flatRange]);
+  }, [projectsList, keyword, location, choices, floors, flatRange, priceFrom, priceTo]);
 
   const [oldProjectsList] = useState([
     {
@@ -246,6 +252,24 @@ const Projects = () => {
         project.bhk === flatRange
       );
     }
+    
+    // Filter by custom price from/to (from search bar)
+    if (priceFrom || priceTo) {
+      filtered = filtered.filter(project => {
+        // Extract numeric price from string like "₹45 Lac Onwards" or "₹1.2 Cr"
+        const priceStr = project.price.replace(/[^\d.]/g, '');
+        let price = parseFloat(priceStr);
+        
+        // Convert to lakhs for comparison
+        if (project.price.includes('Cr')) {
+          price = price * 100; // Convert crores to lakhs
+        }
+        
+        const from = priceFrom ? parseFloat(priceFrom) : 0;
+        const to = priceTo ? parseFloat(priceTo) : Infinity;
+        return price >= from && price <= to;
+      });
+    }
 
     setFilteredProjects(filtered);
     console.log('Search results:', filtered.length, 'projects found');
@@ -258,6 +282,8 @@ const Projects = () => {
     setChoices('');
     setFloors('');
     setFlatRange('');
+    setPriceFrom('');
+    setPriceTo('');
     setFilteredProjects(projectsList);
   };
 

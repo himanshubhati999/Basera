@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import HeroSection from '../components/HeroSection';
 import FeaturedProjects from '../components/FeaturedProjects';
+import { useCategory } from '../context/CategoryContext';
 
 const Home = () => {
-  const [selectedCategory, setSelectedCategory] = useState('projects');
+  const { selectedCategory } = useCategory();
 
   return (
     <>
-      <HeroSection onCategoryChange={setSelectedCategory} selectedCategory={selectedCategory} />
+      <HeroSection />
       <FeaturedProjects selectedCategory={selectedCategory} />
     </>
   );
