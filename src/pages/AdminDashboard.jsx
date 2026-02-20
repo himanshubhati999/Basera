@@ -1615,6 +1615,14 @@ const AdminDashboard = () => {
                               {property.isFeatured ? <><span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>star</span> Featured</> : <><span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>star_outline</span> Feature</>}
                             </button>
                             <button
+                              className="action-btn edit"
+                              onClick={() => window.open(`/admin/edit-property/${property._id}`, '_blank')}
+                              style={{ background: '#3b82f6', color: 'white' }}
+                              title="Edit property"
+                            >
+                              <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>edit</span> Edit
+                            </button>
+                            <button
                               className="action-btn view"
                               onClick={() => navigate(`/properties/${property._id}`)}
                             >
@@ -2270,6 +2278,14 @@ const AdminDashboard = () => {
                                 <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>
                                   {project.isPublished ? 'visibility_off' : 'publish'}
                                 </span>
+                              </button>
+                              <button 
+                                className="action-btn edit" 
+                                style={{ background: '#3b82f6', color: 'white', padding: '6px 12px', marginRight: '5px' }}
+                                onClick={() => window.open(`/admin/edit-project/${project._id}`, '_blank')}
+                                title="Edit project"
+                              >
+                                <span className="material-symbols-outlined" style={{fontSize: '16px', verticalAlign: 'middle'}}>edit</span>
                               </button>
                               <button 
                                 className="action-btn view" 

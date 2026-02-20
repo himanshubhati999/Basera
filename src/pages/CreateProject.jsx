@@ -1,11 +1,14 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import ContentEditor from '../components/ContentEditor';
 import { API_ENDPOINTS } from '../config/api';
 import './CreateProject.css';
 
 const CreateProject = ({ embedded, onBack }) => {
   const navigate = useNavigate();
+  const { id } = useParams(); // Get project ID if editing
+  const isEditMode = Boolean(id);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -51,7 +54,6 @@ const CreateProject = ({ embedded, onBack }) => {
   const [amenityInput, setAmenityInput] = useState('');
   const [uploadedImages, setUploadedImages] = useState([]);
   const [uploadingImages, setUploadingImages] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [showSeoModal, setShowSeoModal] = useState(false);
@@ -80,6 +82,72 @@ const CreateProject = ({ embedded, onBack }) => {
     'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
     'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Puducherry'
   ];
+
+  // Fetch project data if in edit mode
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      if (!isEditMode) return;
+
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_ENDPOINTS.PROPERTIES}/${id}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const project = data.data;
+          setFormData({
+            title: project.title || '',
+            description: project.description || '',
+            shortDescription: project.shortDescription || '',
+            content: project.content || '',
+            location: project.location?.address || '',
+            price: project.price || '',
+            isFeatured: project.isFeatured || false,
+            isPublished: project.isPublished || false,
+            status: project.status || '',
+            categories: project.categories || [],
+            images: project.images || [],
+            amenities: project.amenities || [],
+            specifications: {
+              totalUnits: project.specifications?.totalUnits || '',
+              completionDate: project.specifications?.completionDate || '',
+              area: project.area?.value || '',
+              bedrooms: project.bedrooms || '',
+              bathrooms: project.bathrooms || ''
+            },
+            country: project.location?.country || 'India',
+            state: project.location?.state || '',
+            city: project.location?.city || '',
+            latitude: project.location?.coordinates?.latitude || '',
+            longitude: project.location?.coordinates?.longitude || '',
+            numberBlocks: project.numberBlocks || '',
+            numberFloors: project.numberFloors || '',
+            numberFlats: project.numberFlats || '',
+            lowestPrice: project.lowestPrice || '',
+            maxPrice: project.maxPrice || '',
+            currency: project.currency || 'INR',
+            privateNotes: project.privateNotes || '',
+            features: project.features || [],
+            youtubeThumbnail: project.youtubeThumbnail || '',
+            youtubeVideoUrl: project.youtubeVideo || '',
+            seoTitle: project.seo?.title || '',
+            seoDescription: project.seo?.description || '',
+            openSellDate: project.openSellDate || '',
+            lastUpdated: new Date().toISOString().split('T')[0],
+            account: project.account || ''
+          });
+          setUploadedImages(project.images || []);
+        }
+      } catch (err) {
+        console.error('Error fetching project:', err);
+        setError('Failed to load project data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjectData();
+  }, [id, isEditMode]);
 
   const generatePermalink = (title) => {
     return title
@@ -367,8 +435,8 @@ const CreateProject = ({ embedded, onBack }) => {
 
       console.log('Sending projectData:', projectData);
 
-      const response = await fetch(API_ENDPOINTS.PROPERTIES, {
-        method: 'POST',
+      const response = await fetch(isEditMode ? `${API_ENDPOINTS.PROPERTIES}/${id}` : API_ENDPOINTS.PROPERTIES, {
+        method: isEditMode ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -379,22 +447,24 @@ const CreateProject = ({ embedded, onBack }) => {
       if (!response.ok) {
         const data = await response.json();
         console.error('Backend error response:', data);
-        throw new Error(data.message || 'Failed to create project');
+        throw new Error(data.message || `Failed to ${isEditMode ? 'update' : 'create'} project`);
       }
 
       const result = await response.json();
       console.log('Success response:', result);
 
-      const statusMessage = formData.isPublished 
-        ? 'Project published successfully!' 
-        : 'Project saved as draft successfully!';
+      const statusMessage = isEditMode 
+        ? 'Project updated successfully!'
+        : formData.isPublished 
+          ? 'Project published successfully!' 
+          : 'Project saved as draft successfully!';
       alert(statusMessage);
       if (exitAfter) {
         navigate('/admin/dashboard');
       }
     } catch (err) {
-      console.error('Create project error:', err);
-      setError(err.message || 'An error occurred while creating the project');
+      console.error(`${isEditMode ? 'Update' : 'Create'} project error:`, err);
+      setError(err.message || `An error occurred while ${isEditMode ? 'updating' : 'creating'} the project`);
     } finally {
       setLoading(false);
     }
@@ -413,7 +483,7 @@ const CreateProject = ({ embedded, onBack }) => {
           <span>/</span>
           <span onClick={() => embedded && onBack ? onBack() : null} style={{ cursor: embedded ? 'pointer' : 'default' }}>PROJECTS</span>
           <span>/</span>
-          <span className="active">NEW PROJECT</span>
+          <span className="active">{isEditMode ? 'EDIT PROJECT' : 'NEW PROJECT'}</span>
         </div>
       </div>
 
@@ -900,14 +970,14 @@ const CreateProject = ({ embedded, onBack }) => {
               className="save-btn"
               disabled={loading}
             >
-              💾 {loading ? 'Saving...' : 'Save'}
+              💾 {loading ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update' : 'Save')}
             </button>
             <button 
               onClick={() => handleSave(true)} 
               className="save-exit-btn"
               disabled={loading}
             >
-              ↗ Save & Exit
+              ↗ {isEditMode ? 'Update & Exit' : 'Save & Exit'}
             </button>
           </div>
 

@@ -4,9 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { useCategory } from '../context/CategoryContext';
 import AuthModal from './AuthModal';
 import SearchBar from './SearchBar';
-import logo from '../assets/file_000000001b5072088ef1791356e73429.png';
 import './Header.css';
 import './ButtonGlare.css';
+
+const logo = '/IMG_6870.PNG';
 
 const Header = () => {
   const { user, logout, wishlist } = useAuth();

@@ -16,6 +16,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Wishlist from './pages/Wishlist';
 import CreateProject from './pages/CreateProject';
+import PostProperty from './pages/PostProperty';
 import DynamicPage from './pages/DynamicPage';
 import News from './pages/News';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -75,6 +76,16 @@ function AppContent() {
         <Route path="/admin/projects/create" element={
           <AdminRoute>
             <CreateProject />
+          </AdminRoute>
+        } />
+        <Route path="/admin/edit-project/:id" element={
+          <AdminRoute>
+            <CreateProject />
+          </AdminRoute>
+        } />
+        <Route path="/admin/edit-property/:id" element={
+          <AdminRoute>
+            <PostProperty />
           </AdminRoute>
         } />
         {/* Dynamic Pages Route - catches custom page slugs */}

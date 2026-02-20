@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ContentEditor from '../components/ContentEditor';
 import { API_ENDPOINTS } from '../config/api';
@@ -8,6 +8,8 @@ import './PostProperty.css';
 const PostProperty = ({ embedded, onBack }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { id } = useParams(); // Get property ID if editing
+  const isEditMode = Boolean(id);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
@@ -75,6 +77,66 @@ const PostProperty = ({ embedded, onBack }) => {
       navigate('/login');
     }
   }, [user, navigate]);
+
+  // Fetch property data if in edit mode
+  useEffect(() => {
+    const fetchPropertyData = async () => {
+      if (!isEditMode) return;
+
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_ENDPOINTS.PROPERTIES}/${id}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const property = data.data;
+          setFormData({
+            title: property.title || '',
+            description: property.description || '',
+            shortDescription: property.shortDescription || '',
+            content: property.content || '',
+            propertyType: property.propertyType || 'residential',
+            listingType: property.listingType || 'sale',
+            price: property.price || '',
+            location: property.location?.address || '',
+            city: property.location?.city || '',
+            state: property.location?.state || '',
+            country: property.location?.country || 'India',
+            zipCode: property.location?.zipCode || '',
+            latitude: property.location?.latitude || '',
+            longitude: property.location?.longitude || '',
+            area: property.area || '',
+            areaUnit: property.areaUnit || 'sqft',
+            bedrooms: property.bedrooms || '',
+            bathrooms: property.bathrooms || '',
+            amenities: property.amenities || [],
+            features: property.features || [],
+            images: property.images || [],
+            isFeatured: property.isFeatured || false,
+            isPublished: property.isPublished || false,
+            status: property.status || 'available',
+            categories: property.categories || [],
+            ownerPhone: property.ownerPhone || '',
+            ownerEmail: property.ownerEmail || user?.email || '',
+            youtubeThumbnail: property.youtubeThumbnail || '',
+            youtubeVideoUrl: property.youtubeVideoUrl || '',
+            seoTitle: property.seoTitle || '',
+            seoDescription: property.seoDescription || '',
+            privateNotes: property.privateNotes || '',
+            currency: property.currency || 'INR'
+          });
+          setUploadedImages(property.images || []);
+        }
+      } catch (err) {
+        console.error('Error fetching property:', err);
+        setError('Failed to load property data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPropertyData();
+  }, [id, isEditMode, user]);
 
   // Function to get content from editor
   const getEditorContent = () => {
@@ -327,8 +389,8 @@ const PostProperty = ({ embedded, onBack }) => {
         ownerEmail: formData.ownerEmail
       };
 
-      const response = await fetch(API_ENDPOINTS.PROPERTIES, {
-        method: 'POST',
+      const response = await fetch(isEditMode ? `${API_ENDPOINTS.PROPERTIES}/${id}` : API_ENDPOINTS.PROPERTIES, {
+        method: isEditMode ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -338,13 +400,15 @@ const PostProperty = ({ embedded, onBack }) => {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Failed to post property');
+        throw new Error(data.message || `Failed to ${isEditMode ? 'update' : 'post'} property`);
       }
 
       const result = await response.json();
-      const statusMessage = formData.isPublished 
-        ? 'Property published successfully!' 
-        : 'Property saved as draft successfully!';
+      const statusMessage = isEditMode 
+        ? 'Property updated successfully!'
+        : formData.isPublished 
+          ? 'Property published successfully!' 
+          : 'Property saved as draft successfully!';
       alert(statusMessage);
       
       if (exitAfter) {
@@ -371,7 +435,7 @@ const PostProperty = ({ embedded, onBack }) => {
           <span>/</span>
           <span onClick={() => embedded && onBack ? onBack() : null} style={{ cursor: embedded ? 'pointer' : 'default' }}>PROPERTIES</span>
           <span>/</span>
-          <span className="active">NEW PROPERTY</span>
+          <span className="active">{isEditMode ? 'EDIT PROPERTY' : 'NEW PROPERTY'}</span>
         </div>
       </div>
 
@@ -850,14 +914,14 @@ const PostProperty = ({ embedded, onBack }) => {
               className="save-btn"
               disabled={loading}
             >
-              💾 {loading ? 'Saving...' : 'Save'}
+              💾 {loading ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update' : 'Save')}
             </button>
             <button 
               onClick={() => handleSave(true)} 
               className="save-exit-btn"
               disabled={loading}
             >
-              ↗ Save & Exit
+              ↗ {isEditMode ? 'Update & Exit' : 'Save & Exit'}
             </button>
           </div>
 

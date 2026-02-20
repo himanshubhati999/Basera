@@ -20,11 +20,6 @@ const AuthModal = ({ isOpen, onClose }) => {
   
   const { login, signup, verifyOTP, resendOTP } = useAuth();
 
-  // Debug: Track activeTab changes
-  useEffect(() => {
-    console.log('ActiveTab changed to:', activeTab);
-  }, [activeTab]);
-
   if (!isOpen) return null;
 
   const handleChange = (e) => {
@@ -107,14 +102,7 @@ const AuthModal = ({ isOpen, onClose }) => {
       resetForm();
       onClose();
     } else {
-      // Check if error is about email verification
-      if (result.error && (result.error.includes('verify your email') || result.error.includes('Check your inbox for OTP'))) {
-        setOtpEmail(formData.email);
-        setActiveTab('verify-otp');
-        setSuccess('Please enter the OTP sent to your email to complete verification.');
-      } else {
-        setError(result.error);
-      }
+      setError(result.error);
     }
 
     setLoading(false);
@@ -137,19 +125,11 @@ const AuthModal = ({ isOpen, onClose }) => {
       password: formData.password
     });
 
-    console.log('🚀 Signup result:', result);
-
     if (result.success) {
-      console.log('✅ Signup successful! Showing OTP screen...');
-      console.log('📧 Setting OTP email to:', formData.email);
       setOtpEmail(formData.email);
-      console.log('🔄 Switching activeTab to verify-otp');
       setActiveTab('verify-otp');
-      setSuccess('✅ OTP sent to your email! Please check your inbox.');
-      console.log('✨ Active tab is now: verify-otp');
-      // IMPORTANT: Do NOT close modal, do NOT redirect
+      setSuccess('OTP sent to your email! Please check your inbox and enter the code.');
     } else {
-      console.error('❌ Signup failed:', result.error);
       setError(result.error);
     }
 
@@ -275,11 +255,11 @@ const AuthModal = ({ isOpen, onClose }) => {
 
         {activeTab === 'verify-otp' ? (
           <div className="auth-modal-form">
-            <div style={{background: '#4CAF50', color: 'white', padding: '10px', marginBottom: '20px', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold'}}>
-              ✅ NEW OTP VERIFICATION SYSTEM - CODE IS UPDATED ✅
+            <div style={{background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)', color: 'white', padding: '20px', marginBottom: '20px', borderRadius: '12px', textAlign: 'center', fontWeight: 'bold', fontSize: '18px', boxShadow: '0 4px 12px rgba(76, 175, 80, 0.3)'}}>
+              🎉 OTP VERIFICATION SCREEN ACTIVE! 🎉
             </div>
             <h2>Verify Your Email</h2>
-            <p className="auth-subtitle">Enter the 6-digit OTP sent to {otpEmail}</p>
+            <p className="auth-subtitle">Enter the 6-digit OTP sent to <strong>{otpEmail}</strong></p>
 
             <form onSubmit={handleVerifyOTP}>
               {error && (
