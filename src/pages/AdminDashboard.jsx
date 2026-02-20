@@ -297,68 +297,49 @@ const AdminDashboard = () => {
     setActivityLogs(logs);
   };
 
-  const loadTrafficStats = () => {
-    // Generate random traffic stats
-    const generateRandomStats = () => {
-      const totalVisits = Math.floor(Math.random() * 3000) + 500; // 500-3500
-      const uniqueVisitors = Math.floor(totalVisits * (0.6 + Math.random() * 0.25)); // 60-85% of total visits
-      const pageViews = Math.floor(totalVisits * (2 + Math.random() * 1.5)); // 2-3.5 pages per visit
+  const loadTrafficStats = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_ENDPOINTS.ANALYTICS}/stats?days=30`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      const minutes = Math.floor(Math.random() * 5) + 1; // 1-6 minutes
-      const seconds = Math.floor(Math.random() * 60); // 0-59 seconds
-      const avgSessionDuration = `${minutes}m ${seconds}s`;
-      
-      const homeViews = Math.floor(totalVisits * (0.3 + Math.random() * 0.2)); // 30-50%
-      const propertiesViews = Math.floor(totalVisits * (0.2 + Math.random() * 0.15)); // 20-35%
-      const newsViews = Math.floor(totalVisits * (0.1 + Math.random() * 0.15)); // 10-25%
-      const contactViews = Math.floor(totalVisits * (0.05 + Math.random() * 0.15)); // 5-20%
-      
-      return {
-        totalVisits,
-        uniqueVisitors,
-        pageViews,
-        avgSessionDuration,
-        lastUpdated: new Date().toISOString(),
-        topPages: [
-          { path: '/', views: homeViews },
-          { path: '/properties', views: propertiesViews },
-          { path: '/news', views: newsViews },
-          { path: '/contact', views: contactViews },
-        ]
-      };
-    };
-
-    // Check if we need to refresh stats (once per day)
-    const savedStats = localStorage.getItem('websiteTrafficStats');
-    const oneDayAgo = new Date();
-    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-
-    if (savedStats) {
-      const allStats = JSON.parse(savedStats);
-      // Refresh stats if older than 1 day
-      if (allStats.lastUpdated && new Date(allStats.lastUpdated) >= oneDayAgo) {
-        setTrafficStats(allStats);
+      if (response.ok) {
+        const data = await response.json();
+        setTrafficStats(data);
       } else {
-        // Generate new random stats
-        const newStats = generateRandomStats();
-        setTrafficStats(newStats);
-        localStorage.setItem('websiteTrafficStats', JSON.stringify(newStats));
+        console.error('Failed to fetch traffic stats');
+        // Set default values if fetch fails
+        setTrafficStats({
+          totalVisits: 0,
+          uniqueVisitors: 0,
+          pageViews: 0,
+          avgSessionDuration: '0m 0s',
+          topPages: []
+        });
       }
-    } else {
-      // Generate initial random stats
-      const newStats = generateRandomStats();
-      setTrafficStats(newStats);
-      localStorage.setItem('websiteTrafficStats', JSON.stringify(newStats));
+    } catch (error) {
+      console.error('Error loading traffic stats:', error);
+      // Set default values if error occurs
+      setTrafficStats({
+        totalVisits: 0,
+        uniqueVisitors: 0,
+        pageViews: 0,
+        avgSessionDuration: '0m 0s',
+        topPages: []
+      });
     }
   };
 
   const loadRecentLogins = () => {
-    // Get recent logins - sort users by lastLogin or createdAt
-    const loggedInUsers = users
-      .filter(u => u.email)
+    // Get new signups - sort users by createdAt (signup date)
+    const newSignups = users
+      .filter(u => u.email && u.createdAt)
       .sort((a, b) => {
-        const dateA = new Date(a.lastLogin || a.createdAt);
-        const dateB = new Date(b.lastLogin || b.createdAt);
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
         return dateB - dateA;
       })
       .slice(0, 10)
@@ -366,11 +347,11 @@ const AdminDashboard = () => {
         email: u.email,
         name: u.name,
         role: u.role,
-        loginTime: u.lastLogin || u.createdAt,
-        isOnline: checkIfOnline(u.lastLogin)
+        loginTime: u.createdAt,
+        isOnline: false
       }));
     
-    setRecentLogins(loggedInUsers);
+    setRecentLogins(newSignups);
   };
 
   const checkIfOnline = (lastLogin) => {
@@ -1468,36 +1449,34 @@ const AdminDashboard = () => {
 
               {widgets.recentLogins && (
               <div className="recent-logins-section">
-                <h2>Recent Logins</h2>
+                <h2>New Signups</h2>
                 <div className="logins-list">
                   {recentLogins.length > 0 ? (
                     recentLogins.map((login, index) => (
                       <div key={index} className="login-item">
                         <div className="login-avatar" style={{
-                          background: login.isOnline ? '#10b981' : '#6b7280'
+                          background: '#3b82f6'
                         }}>
                           {login.name ? login.name.charAt(0).toUpperCase() : login.email.charAt(0).toUpperCase()}
                         </div>
                         <div className="login-content">
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <strong>{login.name || login.email}</strong>
-                            {login.isOnline && (
-                              <span style={{
-                                display: 'inline-block',
-                                width: '8px',
-                                height: '8px',
-                                borderRadius: '50%',
-                                background: '#10b981',
-                                animation: 'pulse 2s infinite'
-                              }}></span>
-                            )}
+                            <span style={{
+                              fontSize: '11px',
+                              padding: '2px 6px',
+                              background: '#10b981',
+                              color: 'white',
+                              borderRadius: '4px',
+                              fontWeight: '500'
+                            }}>NEW</span>
                           </div>
                           <div style={{ fontSize: '12px', color: '#9ca3af' }}>
                             {login.email}
                           </div>
                           <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
                             <span className="material-symbols-outlined" style={{ fontSize: '14px', verticalAlign: 'middle' }}>
-                              login
+                              person_add
                             </span>
                             {' '}{getRelativeTime(login.loginTime)}
                             {' '}• {login.role}
@@ -1507,7 +1486,7 @@ const AdminDashboard = () => {
                     ))
                   ) : (
                     <div style={{ textAlign: 'center', padding: '20px', color: '#6b7280' }}>
-                      No recent logins
+                      No new signups
                     </div>
                   )}
                 </div>

@@ -4,6 +4,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 export const API_ENDPOINTS = {
   // Auth endpoints
   SIGNUP: `${API_BASE_URL}/api/auth/signup`,
+  VERIFY_OTP: `${API_BASE_URL}/api/auth/verify-otp`,
+  RESEND_OTP: `${API_BASE_URL}/api/auth/resend-otp`,
   LOGIN: `${API_BASE_URL}/api/auth/login`,
   
   // Properties endpoints
@@ -52,6 +54,13 @@ export const API_ENDPOINTS = {
   CREATE_REVIEW: (propertyId) => `${API_BASE_URL}/api/reviews/property/${propertyId}`,
   UPDATE_REVIEW: (reviewId) => `${API_BASE_URL}/api/reviews/${reviewId}`,
   DELETE_REVIEW: (reviewId) => `${API_BASE_URL}/api/reviews/${reviewId}`,
+  
+  // Analytics endpoints
+  ANALYTICS: `${API_BASE_URL}/api/analytics`,
+  ANALYTICS_TRACK_PAGEVIEW: `${API_BASE_URL}/api/analytics/track/pageview`,
+  ANALYTICS_TRACK_SESSION: `${API_BASE_URL}/api/analytics/track/session`,
+  ANALYTICS_STATS: `${API_BASE_URL}/api/analytics/stats`,
+  ANALYTICS_OVERTIME: `${API_BASE_URL}/api/analytics/overtime`,
 };
 
 export default API_BASE_URL;

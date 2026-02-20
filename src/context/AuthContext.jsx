@@ -16,6 +16,25 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [wishlist, setWishlist] = useState([]);
 
+  // IMPORTANT: Clear old localStorage data when implementing OTP
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        // If user doesn't have a token or was created before OTP system, clear it
+        if (!localStorage.getItem('token')) {
+          console.log('Clearing old user data from localStorage');
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+        }
+      } catch (e) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
+    }
+  }, []);
+
   useEffect(() => {
     // Check if user is logged in (from localStorage)
     const storedUser = localStorage.getItem('user');
@@ -57,6 +76,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (userData) => {
     try {
+      console.log('Calling signup API with:', userData);
       const response = await fetch(API_ENDPOINTS.SIGNUP, {
         method: 'POST',
         headers: {
@@ -66,12 +86,40 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await response.json();
+      console.log('Signup API response:', data);
 
       if (!response.ok) {
         throw new Error(data.message || 'Signup failed');
       }
 
-      // Store user data and token
+      // Return success with email for OTP verification
+      console.log('Returning signup success - should NOT log in yet');
+      return { success: true, email: userData.email, message: data.message };
+    } catch (error) {
+      console.error('Signup error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const verifyOTP = async (email, otp) => {
+    try {
+      console.log('Verifying OTP for:', email, 'OTP:', otp);
+      const response = await fetch(API_ENDPOINTS.VERIFY_OTP, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, otp })
+      });
+
+      const data = await response.json();
+      console.log('Verify OTP response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'OTP verification failed');
+      }
+
+      // Store user data and token after successful verification
       const userWithToken = {
         id: data.data._id,
         name: data.data.name,
@@ -80,6 +128,7 @@ export const AuthProvider = ({ children }) => {
         token: data.data.token
       };
       
+      console.log('OTP verified! Logging in user:', userWithToken);
       setUser(userWithToken);
       localStorage.setItem('user', JSON.stringify(userWithToken));
       localStorage.setItem('token', data.data.token);
@@ -88,6 +137,29 @@ export const AuthProvider = ({ children }) => {
       setWishlist([]);
 
       return { success: true, user: userWithToken };
+    } catch (error) {
+      console.error('Verify OTP error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const resendOTP = async (email) => {
+    try {
+      const response = await fetch(API_ENDPOINTS.RESEND_OTP, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to resend OTP');
+      }
+
+      return { success: true, message: data.message };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -248,6 +320,8 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     signup,
+    verifyOTP,
+    resendOTP,
     login,
     logout,
     isAuthenticated: !!user,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CategoryProvider } from './context/CategoryContext';
@@ -21,11 +21,31 @@ import News from './pages/News';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import AboutUs from './pages/AboutUs';
+import { trackPageView, trackSession } from './utils/analytics';
 import './App.css';
 
 function AppContent() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+
+  // Track page views on route change
+  useEffect(() => {
+    trackPageView(location.pathname);
+  }, [location]);
+
+  // Track session on component mount and unmount
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      trackSession();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      trackSession();
+    };
+  }, []);
 
   return (
     <div className="App">
