@@ -544,10 +544,16 @@
     padding: 15px 20px;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
   }
   
   .header-component .header-search-wrapper {
-    display: none;
+    order: 3;
+    width: 100%;
+    max-width: 100%;
+    flex-basis: 100%;
+    margin-top: 8px;
   }
 
   .header-component .hamburger-menu {

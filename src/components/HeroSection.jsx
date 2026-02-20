@@ -4,9 +4,9 @@ import "./ButtonGlare.css";
 
 const HeroSection = () => {
   const images = [
-    "https://res.cloudinary.com/dxxsh8aha/image/upload/v1771601944/file_000000006750720b8be2e07181e51781_vkhche.png",
-    "https://res.cloudinary.com/dxxsh8aha/image/upload/v1771601914/file_000000003380720bbc0fb7108f878125_okg4qi.png",
-    "https://res.cloudinary.com/dxxsh8aha/image/upload/v1771601873/file_00000000d0b0720bb64b691110531d80_rfk055.png"
+    "https://res.cloudinary.com/dxxsh8aha/image/upload/v1771607847/file_000000000c947208957660a277218cbb_auecox.png",
+    "https://res.cloudinary.com/dxxsh8aha/image/upload/v1771607865/file_000000008e287209a5a6425e169d9899_kqcgit.png",
+    "https://res.cloudinary.com/dxxsh8aha/image/upload/v1771607880/file_00000000191472099b136140b25dda97_x79hfw.png"
   ];
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
