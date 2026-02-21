@@ -1,6 +1,6 @@
 .content-editor-demo-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   padding: 40px 20px;
 }
 
@@ -58,7 +58,7 @@
 .demo-instructions li {
   padding: 10px;
   background: #f8fafc;
-  border-left: 3px solid #667eea;
+  border-left: 3px solid #D4AF37;
   border-radius: 4px;
   font-size: 14px;
   color: #334155;

@@ -487,12 +487,12 @@
 }
 
 .content-right::-webkit-scrollbar-thumb {
-  background: #ff3333;
+  background: #D4AF37;
   border-radius: 10px;
 }
 
 .content-right::-webkit-scrollbar-thumb:hover {
-  background: #cc0000;
+  background: #B8860B;
 }
 
 .contact-form-card {

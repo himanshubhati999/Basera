@@ -53,7 +53,7 @@
 }
 
 .breadcrumb a:hover {
-  color: #6b7c8f;
+  color: #D4AF37;
 }
 
 .wishlist-container {
@@ -150,10 +150,10 @@
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, rgba(107, 124, 143, 0.2), rgba(107, 124, 143, 0.1));
-  border-color: #6b7c8f;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
+  border-color: #D4AF37;
   color: #fff;
-  box-shadow: 0 5px 25px rgba(107, 124, 143, 0.3);
+  box-shadow: 0 5px 25px rgba(212, 175, 55, 0.3);
 }
 
 .tab-btn.active::after {
@@ -163,7 +163,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #6b7c8f, #8a9db0, #6b7c8f);
+  background: linear-gradient(90deg, #D4AF37, #FFD700, #D4AF37);
   animation: shimmer 2s infinite;
 }
 
@@ -212,9 +212,9 @@
   align-items: center;
   margin-bottom: 25px;
   padding: 20px 25px;
-  background: rgba(107, 124, 143, 0.1);
+  background: rgba(212, 175, 55, 0.1);
   border-radius: 10px;
-  border-left: 4px solid #6b7c8f;
+  border-left: 4px solid #D4AF37;
   backdrop-filter: blur(10px);
 }
 
@@ -310,14 +310,14 @@
   position: absolute;
   top: 15px;
   left: 15px;
-  background: linear-gradient(135deg, #6b7c8f, #5a6c7d);
+  background: linear-gradient(135deg, #D4AF37, #B8860B);
   color: white;
   padding: 8px 15px;
   border-radius: 25px;
   font-size: 0.75rem;
   font-weight: bold;
   z-index: 5;
-  box-shadow: 0 4px 15px rgba(107, 124, 143, 0.4);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
 }
 
 .wishlist-card img {
@@ -349,7 +349,7 @@
 
 .property-price {
   font-size: 1.4rem;
-  color: #6b7c8f;
+  color: #D4AF37;
   font-weight: bold;
   margin: 15px 0 !important;
 }
@@ -414,19 +414,19 @@
 .browse-btn {
   display: inline-block;
   padding: 15px 40px;
-  background: linear-gradient(135deg, #6b7c8f, #5a6c7d);
+  background: linear-gradient(135deg, #D4AF37, #B8860B);
   color: white;
   text-decoration: none;
   border-radius: 30px;
   font-weight: bold;
   transition: all 0.3s;
-  box-shadow: 0 5px 20px rgba(107, 124, 143, 0.3);
+  box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
 }
 
 .browse-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 30px rgba(107, 124, 143, 0.5);
-  background: linear-gradient(135deg, #5a6c7d, #6b7c8f);
+  box-shadow: 0 8px 30px rgba(212, 175, 55, 0.5);
+  background: linear-gradient(135deg, #B8860B, #D4AF37);
 }
 
 /* Responsive Design */

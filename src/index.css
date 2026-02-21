@@ -5,21 +5,21 @@
   line-height: 1.6;
   font-weight: 400;
   
-  /* Color Variables */
-  --primary-color: #6b7c8f;
-  --primary-dark: #4a5a6d;
-  --primary-light: #8a9db0;
-  --secondary-color: #a89f91;
-  --accent-color: #c4b5a0;
-  --text-dark: #2c3e50;
-  --text-medium: #5a6c7d;
-  --text-light: #7f8c9a;
-  --bg-light: #f5f7fa;
+  /* Color Variables - Golden & White Theme */
+  --primary-color: #D4AF37;
+  --primary-dark: #B8860B;
+  --primary-light: #FFD700;
+  --secondary-color: #F5F5DC;
+  --accent-color: #DAA520;
+  --text-dark: #3d3d3d;
+  --text-medium: #666666;
+  --text-light: #999999;
+  --bg-light: #FFFEF7;
   --bg-white: #ffffff;
-  --border-color: #e8ecef;
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+  --border-color: #E5D5B7;
+  --shadow-sm: 0 2px 8px rgba(212, 175, 55, 0.15);
+  --shadow-md: 0 4px 16px rgba(212, 175, 55, 0.2);
+  --shadow-lg: 0 8px 32px rgba(212, 175, 55, 0.25);
   
   font-synthesis: none;
   text-rendering: optimizeLegibility;

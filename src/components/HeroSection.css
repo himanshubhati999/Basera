@@ -145,9 +145,9 @@
 
 
 .hero-section-component .search-tab.active {
-  background: #ff0000;
+  background: #D4AF37;
   color: white;
-  border-bottom-color: #cc0000;
+  border-bottom-color: #B8860B;
 }
 
 .hero-section-component .search-form {
@@ -224,7 +224,7 @@
 }
 
 .hero-section-component .search-button {
-  background: #ff0000;
+  background: #D4AF37;
   color: white;
   border: none;
   padding: 14px 36px;
@@ -238,8 +238,8 @@
 }
 
 .hero-section-component .search-button:hover {
-  background: #e60000;
-  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+  background: #B8860B;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
   transform: translateY(-1px);
 }
 
@@ -267,7 +267,7 @@
 
 .hero-section-component .advanced-toggle:hover {
   background: transparent;
-  color: #ff0000;
+  color: #D4AF37;
 }
 
 .hero-section-component .advanced-search {

@@ -85,7 +85,11 @@ const Signup = () => {
     });
 
     if (result.success) {
-      navigate('/', { replace: true });
+      // Navigate to OTP verification page with email
+      navigate('/verify-otp', { 
+        state: { email: formData.email },
+        replace: true 
+      });
     } else {
       setError(result.error);
     }
@@ -227,18 +231,9 @@ const Signup = () => {
             </p>
           </div>
 
-          <div className="divider">
-            <span>OR</span>
-          </div>
+         
 
-          <div className="social-login">
-            <button className="social-btn google-btn">
-              <span>🔍</span> Continue with Google
-            </button>
-            <button className="social-btn facebook-btn">
-              <span>📘</span> Continue with Facebook
-            </button>
-          </div>
+          
         </div>
       </div>
     </div>

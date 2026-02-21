@@ -14,6 +14,7 @@ import PropertyDetail from './pages/PropertyDetail';
 import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import OTPVerificationPage from './pages/OTPVerificationPage';
 import Wishlist from './pages/Wishlist';
 import CreateProject from './pages/CreateProject';
 import PostProperty from './pages/PostProperty';
@@ -60,6 +61,7 @@ function AppContent() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/verify-otp" element={<OTPVerificationPage />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/agents" element={<div className="page-placeholder" style={{padding: '100px 20px', textAlign: 'center', minHeight: '60vh'}}><h1>Agents Page</h1><p>Coming Soon</p></div>} />
         <Route path="/news" element={<News />} />

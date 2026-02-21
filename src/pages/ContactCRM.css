@@ -93,9 +93,9 @@
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #ff0000;
+  border-color: #D4AF37;
   background: white;
-  box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.1);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
   transform: translateY(-2px);
 }
 
@@ -139,7 +139,7 @@
 }
 
 .submit-btn-crm {
-  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   color: white;
   padding: 16px 50px;
   border: none;
@@ -150,7 +150,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: fit-content;
   margin-top: 10px;
-  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
   position: relative;
   overflow: hidden;
   display: flex;

@@ -21,7 +21,7 @@
 }
 
 .header-component .header-top {
-  background: linear-gradient(135deg, #6b7c8f 0%, #5a6c7d 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   color: white;
   padding: 3px 0;
   position: relative;
@@ -103,7 +103,7 @@
   background: rgba(255, 255, 255, 0.25);
   border-color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
 }
 
 .header-component .header-top-right {
@@ -190,7 +190,7 @@
 }
 
 .header-component .user-dropdown button {
-  color: #ff0000;
+  color: #D4AF37;
   font-weight: 600;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
@@ -204,7 +204,7 @@
 .header-component .header-main-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 8px 40px;
+  padding: 2px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -226,6 +226,7 @@
   transition: transform 0.3s ease;
   text-decoration: none;
   flex-shrink: 0;
+  margin-right: auto;
 }
 
 .header-component .logo:hover {
@@ -233,9 +234,11 @@
 }
 
 .header-component .logo img {
-  width: 70px;
-  height: 70px;
+  width: 120px;
+  height: 120px;
   transition: transform 0.3s ease;
+  margin-top: -15px;
+  margin-bottom: -15px;
 }
 
 .header-component .logo:hover img {
@@ -286,7 +289,7 @@
 
 .header-component .main-nav a:hover {
   color: var(--primary-color);
-  background: rgba(255, 0, 0, 0.05);
+  background: rgba(212, 175, 55, 0.1);
 }
 
 .header-component .main-nav a::after {
@@ -307,7 +310,7 @@
 }
 
 .header-component .add-property-btn {
-  background: #ff0000;
+  background: #D4AF37;
   color: white;
   border: none;
   padding: 8px 20px;
@@ -319,15 +322,15 @@
   align-items: center;
   gap: 6px;
   transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
   text-decoration: none;
   white-space: nowrap;
 }
 
 .header-component .add-property-btn:hover {
-  background: #e60000;
+  background: #B8860B;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
 }
 
 .header-component .plus-icon {
@@ -403,7 +406,7 @@
   align-items: center;
   padding: 20px 25px;
   border-bottom: 1px solid #f0f0f0;
-  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   color: white;
 }
 
@@ -450,13 +453,13 @@
 
 .header-component .mobile-nav a:hover {
   background: #f8f8f8;
-  border-left-color: #ff0000;
-  color: #ff0000;
+  border-left-color: #D4AF37;
+  color: #D4AF37;
 }
 
 .header-component .mobile-add-property-btn {
   margin: 20px 25px;
-  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   color: white;
   border: none;
   padding: 15px;
@@ -487,7 +490,7 @@
 
 .header-component .mobile-logout-btn {
   padding: 16px 25px;
-  color: #ff0000;
+  color: #D4AF37;
   text-decoration: none;
   font-size: 16px;
   font-weight: 600;
@@ -502,8 +505,8 @@
 }
 
 .header-component .mobile-logout-btn:hover {
-  background: #fff5f5;
-  border-left-color: #ff0000;
+  background: #fffdf5;
+  border-left-color: #D4AF37;
 }
 
 @keyframes header-mobile-fadeIn {
@@ -570,8 +573,8 @@
   }
 
   .header-component .logo img {
-    width: 60px;
-    height: 60px;
+    width: 95px;
+    height: 95px;
   }
 
   .header-component .logo-sunshine {

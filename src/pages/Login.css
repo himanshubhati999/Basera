@@ -109,9 +109,9 @@
 
 .input-with-icon input:focus {
   outline: none;
-  border-color: #ff0000;
+  border-color: #D4AF37;
   background: white;
-  box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.1);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
 }
 
 .input-with-icon input:disabled {
@@ -142,9 +142,9 @@
 }
 
 .error-message {
-  background: #fff5f5;
-  border: 1px solid #ffcccc;
-  color: #cc0000;
+  background: #fffdf5;
+  border: 1px solid #F5DEB3;
+  color: #B8860B;
   padding: 12px 15px;
   border-radius: 8px;
   font-size: 14px;
@@ -177,21 +177,21 @@
 }
 
 .forgot-link {
-  color: #ff0000;
+  color: #D4AF37;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s;
 }
 
 .forgot-link:hover {
-  color: #cc0000;
+  color: #B8860B;
   text-decoration: underline;
 }
 
 .auth-submit-btn {
   width: 100%;
   padding: 16px;
-  background: linear-gradient(135deg, #ff0000, #cc0000);
+  background: linear-gradient(135deg, #D4AF37, #B8860B);
   color: white;
   border: none;
   border-radius: 10px;
@@ -199,13 +199,13 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
   margin-top: 10px;
 }
 
 .auth-submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
 }
 
 .auth-submit-btn:active:not(:disabled) {
@@ -225,14 +225,14 @@
 }
 
 .auth-link {
-  color: #ff0000;
+  color: #D4AF37;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s;
 }
 
 .auth-link:hover {
-  color: #cc0000;
+  color: #B8860B;
   text-decoration: underline;
 }
 
@@ -280,8 +280,8 @@
 }
 
 .social-btn:hover {
-  border-color: #ff0000;
-  background: #fff5f5;
+  border-color: #D4AF37;
+  background: #fffdf5;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }

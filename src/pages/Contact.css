@@ -5,14 +5,14 @@
 }
 
 .contact-page .contact-banner {
-  background: linear-gradient(135deg, #6b7c8f 0%, #5a6c7d 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   color: white;
   padding: 14px 20px;
   text-align: center;
   font-size: 14px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(107, 124, 143, 0.2);
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.2);
   margin-top: 20px;
 }
 
@@ -58,7 +58,7 @@
 }
 
 .contact-page .contact-info h2 {
-  background: linear-gradient(135deg, #6b7c8f 0%, #5a6c7d 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -108,7 +108,7 @@
 }
 
 .contact-page .contact-form-section h2 {
-  background: linear-gradient(135deg, #6b7c8f 0%, #5a6c7d 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -130,7 +130,7 @@
 }
 
 .contact-page .property-inquiry strong {
-  color: #6b7c8f;
+  color: #D4AF37;
   font-weight: 700;
 }
 
@@ -145,7 +145,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid #f0f0f0;
-  border-top-color: #6b7c8f;
+  border-top-color: #D4AF37;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 20px;
@@ -178,7 +178,7 @@
 }
 
 .contact-page .form-error a {
-  color: #6b7c8f;
+  color: #D4AF37;
   font-weight: 700;
   text-decoration: none;
 }
@@ -281,7 +281,7 @@
 }
 
 .contact-page .submit-btn {
-  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
   color: white;
   padding: 14px 50px;
   border: none;
@@ -292,7 +292,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: fit-content;
   margin-top: 10px;
-  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
   position: relative;
   overflow: hidden;
 }

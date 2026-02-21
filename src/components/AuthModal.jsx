@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import OTPVerification from './OTPVerification';
 import './AuthModal.css';
 
 const AuthModal = ({ isOpen, onClose }) => {
@@ -10,15 +11,19 @@ const AuthModal = ({ isOpen, onClose }) => {
     password: '',
     confirmPassword: ''
   });
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [otpEmail, setOtpEmail] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
-  const { login, signup, verifyOTP, resendOTP } = useAuth();
+  const { login, signup, resendOTP } = useAuth();
+
+  // Monitor activeTab changes for debugging
+  useEffect(() => {
+    console.log('🔍 ActiveTab changed to:', activeTab);
+    console.log('📧 OTP Email:', otpEmail);
+  }, [activeTab, otpEmail]);
 
   if (!isOpen) return null;
 
@@ -111,7 +116,6 @@ const AuthModal = ({ isOpen, onClose }) => {
   const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
     if (!validateSignupForm()) {
       return;
@@ -119,84 +123,50 @@ const AuthModal = ({ isOpen, onClose }) => {
 
     setLoading(true);
 
+    console.log('🚀 Starting signup with email:', formData.email);
+    
     const result = await signup({
       name: formData.name,
       email: formData.email,
       password: formData.password
     });
 
+    console.log('📨 Signup result:', result);
+    console.log('✅ result.success:', result.success);
+
     if (result.success) {
-      setOtpEmail(formData.email);
+      console.log('✓ Signup successful, switching to OTP screen');
+      console.log('📧 Setting OTP email to:', formData.email);
+      
+      // Store the email for OTP verification
+      const emailForOTP = formData.email;
+      
+      // Update all states together - React will batch these
+      setOtpEmail(emailForOTP);
       setActiveTab('verify-otp');
-      setSuccess('OTP sent to your email! Please check your inbox and enter the code.');
-    } else {
-      setError(result.error);
-    }
-
-    setLoading(false);
-  };
-
-  const handleOTPChange = (index, value) => {
-    if (value.length > 1) value = value[0];
-    if (!/^[0-9]*$/.test(value)) return;
-
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-
-    // Auto-focus next input
-    if (value && index < 5) {
-      const nextInput = document.getElementById(`otp-${index + 1}`);
-      if (nextInput) nextInput.focus();
-    }
-  };
-
-  const handleOTPKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      const prevInput = document.getElementById(`otp-${index - 1}`);
-      if (prevInput) prevInput.focus();
-    }
-  };
-
-  const handleVerifyOTP = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    const otpValue = otp.join('');
-    if (otpValue.length !== 6) {
-      setError('Please enter a complete 6-digit OTP');
-      return;
-    }
-
-    setLoading(true);
-
-    const result = await verifyOTP(otpEmail, otpValue);
-
-    if (result.success) {
-      setSuccess('Email verified successfully!');
+      
+      // Immediate check after state update
+      console.log('🔄 State update requested - activeTab should become: verify-otp');
+      console.log('📧 otpEmail should become:', emailForOTP);
+      
+      // Force a re-render check with setTimeout
       setTimeout(() => {
-        resetForm();
-        onClose();
-      }, 1000);
+        console.log('⏰ After 100ms - checking state...');
+        console.log('Current activeTab value:', activeTab);
+        console.log('Current otpEmail value:', otpEmail);
+      }, 100);
+      
+      // Clear form data except email
+      setFormData({
+        name: '',
+        email: emailForOTP,
+        password: '',
+        confirmPassword: ''
+      });
+      
+      console.log('🎯 All state updates requested - component should re-render');
     } else {
-      setError(result.error);
-    }
-
-    setLoading(false);
-  };
-
-  const handleResendOTP = async () => {
-    setError('');
-    setSuccess('');
-    setLoading(true);
-
-    const result = await resendOTP(otpEmail);
-
-    if (result.success) {
-      setSuccess('OTP resent successfully! Please check your email.');
-      setOtp(['', '', '', '', '', '']);
-    } else {
+      console.error('❌ Signup failed:', result.error);
       setError(result.error);
     }
 
@@ -210,10 +180,8 @@ const AuthModal = ({ isOpen, onClose }) => {
       password: '',
       confirmPassword: ''
     });
-    setOtp(['', '', '', '', '', '']);
     setOtpEmail('');
     setError('');
-    setSuccess('');
     setShowPassword(false);
     setShowConfirmPassword(false);
     setActiveTab('login');
@@ -225,16 +193,44 @@ const AuthModal = ({ isOpen, onClose }) => {
   };
 
   const switchTab = (tab) => {
+    console.log('🔄 switchTab called:', tab);
     setActiveTab(tab);
     setError('');
   };
 
-  console.log('Rendering AuthModal with activeTab:', activeTab, 'otpEmail:', otpEmail);
+  const handleOTPSuccess = () => {
+    resetForm();
+    onClose();
+  };
+
+  const handleOTPBack = () => {
+    setActiveTab('signup');
+    setError('');
+  };
+
+  console.log('🎨 Rendering AuthModal - activeTab:', activeTab, '| otpEmail:', otpEmail, '| isOpen:', isOpen);
+  console.log('🔍 Conditional check: activeTab === "verify-otp"?', activeTab === 'verify-otp');
 
   return (
     <div className="auth-modal-overlay" onClick={handleClose}>
       <div className="auth-modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close-btn" onClick={handleClose}><span className="material-symbols-outlined">close</span></button>
+        
+        {/* Debug indicator - shows current state */}
+        <div style={{
+          position: 'absolute',
+          top: '60px',
+          right: '20px',
+          background: activeTab === 'verify-otp' ? '#4CAF50' : '#2196F3',
+          color: 'white',
+          padding: '5px 10px',
+          borderRadius: '5px',
+          fontSize: '11px',
+          fontWeight: 'bold',
+          zIndex: 100
+        }}>
+          {activeTab.toUpperCase()}
+        </div>
         
         {activeTab !== 'verify-otp' && (
           <div className="auth-modal-tabs">
@@ -254,72 +250,12 @@ const AuthModal = ({ isOpen, onClose }) => {
         )}
 
         {activeTab === 'verify-otp' ? (
-          <div className="auth-modal-form">
-            <div style={{background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)', color: 'white', padding: '20px', marginBottom: '20px', borderRadius: '12px', textAlign: 'center', fontWeight: 'bold', fontSize: '18px', boxShadow: '0 4px 12px rgba(76, 175, 80, 0.3)'}}>
-              🎉 OTP VERIFICATION SCREEN ACTIVE! 🎉
-            </div>
-            <h2>Verify Your Email</h2>
-            <p className="auth-subtitle">Enter the 6-digit OTP sent to <strong>{otpEmail}</strong></p>
-
-            <form onSubmit={handleVerifyOTP}>
-              {error && (
-                <div className="error-message">
-                  <span>⚠️</span> {error}
-                </div>
-              )}
-
-              {success && (
-                <div className="success-message">
-                  <span>✅</span> {success}
-                </div>
-              )}
-
-              <div className="otp-inputs">
-                {otp.map((digit, index) => (
-                  <input
-                    key={index}
-                    id={`otp-${index}`}
-                    type="text"
-                    maxLength="1"
-                    value={digit}
-                    onChange={(e) => handleOTPChange(index, e.target.value)}
-                    onKeyDown={(e) => handleOTPKeyDown(index, e)}
-                    disabled={loading}
-                    className="otp-input"
-                    autoComplete="off"
-                  />
-                ))}
-              </div>
-
-              <button
-                type="submit"
-                className="auth-submit-btn"
-                disabled={loading}
-              >
-                {loading ? 'Verifying...' : 'Verify OTP'}
-              </button>
-
-              <div className="resend-otp">
-                <p>Didn't receive the code?</p>
-                <button
-                  type="button"
-                  onClick={handleResendOTP}
-                  disabled={loading}
-                  className="resend-btn"
-                >
-                  Resend OTP
-                </button>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('signup')}
-                className="back-btn"
-              >
-                ← Back to Sign Up
-              </button>
-            </form>
-          </div>
+          <OTPVerification 
+            email={otpEmail}
+            onSuccess={handleOTPSuccess}
+            onBack={handleOTPBack}
+            isStandalone={false}
+          />
         ) : activeTab === 'login' ? (
           <div className="auth-modal-form">
             <h2>Welcome Back</h2>
@@ -336,7 +272,6 @@ const AuthModal = ({ isOpen, onClose }) => {
                         setOtpEmail(formData.email);
                         setActiveTab('verify-otp');
                         setError('');
-                        setSuccess('Enter the OTP sent to your email');
                       }}
                       style={{
                         display: 'block',
@@ -440,7 +375,6 @@ const AuthModal = ({ isOpen, onClose }) => {
                     setFormData({...formData, email: email});
                     setOtpEmail(email);
                     setActiveTab('verify-otp');
-                    setSuccess('Enter your OTP or click Resend OTP');
                   }
                 }}
                 style={{
@@ -463,6 +397,32 @@ const AuthModal = ({ isOpen, onClose }) => {
             <div style={{background: '#2196F3', color: 'white', padding: '8px', marginBottom: '15px', borderRadius: '8px', textAlign: 'center', fontSize: '13px', fontWeight: 'bold'}}>
               📧 OTP VERIFICATION ENABLED - You will receive OTP via email
             </div>
+            
+            {/* Test button to directly open OTP screen */}
+            <div style={{marginBottom: '15px', textAlign: 'center'}}>
+              <button
+                type="button"
+                onClick={() => {
+                  const testEmail = formData.email || 'test@example.com';
+                  console.log('🧪 TEST: Manually triggering OTP screen with email:', testEmail);
+                  setOtpEmail(testEmail);
+                  setActiveTab('verify-otp');
+                }}
+                style={{
+                  padding: '8px 16px',
+                  background: '#ff9800',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '600'
+                }}
+              >
+                🧪 TEST: Open OTP Screen
+              </button>
+            </div>
+            
             <h2>Create Account</h2>
             <p className="auth-subtitle">Sign up to get started with your property journey</p>
 
@@ -501,7 +461,6 @@ const AuthModal = ({ isOpen, onClose }) => {
                           if (result.success) {
                             setOtpEmail(formData.email);
                             setActiveTab('verify-otp');
-                            setSuccess('New OTP sent to your email!');
                           } else {
                             setError(result.error);
                           }

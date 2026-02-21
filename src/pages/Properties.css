@@ -93,11 +93,11 @@
 
 .properties-page .filter-group input:focus,
 .properties-page .filter-group select:focus {
-  border-color: #6b7c8f;
+  border-color: #D4AF37;
 }
 
 .properties-page .search-btn {
-  background: #6b7c8f;
+  background: #D4AF37;
   color: white;
   border: none;
   padding: 12px 40px;
@@ -226,7 +226,7 @@
 }
 
 .properties-page .listing-type-badge.sale {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%);
 }
 
 .properties-page .listing-type-badge.rent {
@@ -313,7 +313,7 @@
 .properties-page .property-price {
   font-size: 19px !important;
   font-weight: 700 !important;
-  color: #6b7c8f !important;
+  color: #D4AF37 !important;
   margin-top: 8px !important;
   margin-bottom: 8px !important;
 }

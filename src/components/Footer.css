@@ -1,8 +1,8 @@
 /* Footer Styles */
 .footer-component .footer {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
   padding: 50px 20px 20px;
-  border-top: 3px solid var(--primary-color);
+  border-top: 3px solid #D4AF37;
   position: relative;
   overflow: hidden;
 }
@@ -14,7 +14,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--primary-color) 100%);
+  background: linear-gradient(90deg, #D4AF37 0%, #FFD700 50%, #D4AF37 100%);
   animation: footer-gradientShift 3s ease infinite;
 }
 
@@ -58,12 +58,12 @@
 .footer-component .footer-logo-sunshine {
   font-size: 16px;
   font-weight: bold;
-  color: #ff8c00;
+  color: #D4AF37;
 }
 
 .footer-component .footer-logo-real-estate {
   font-size: 11px;
-  color: #d4a574;
+  color: #FFD700;
   font-weight: 600;
 }
 
@@ -91,7 +91,7 @@
 
 .footer-component .footer-phone a,
 .footer-component .footer-email a {
-  color: var(--secondary-color);
+  color: #FFD700;
   text-decoration: none;
   transition: all 0.3s;
   font-weight: 600;
@@ -121,7 +121,7 @@
   left: 0;
   width: 40px;
   height: 2px;
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(90deg, #D4AF37, #FFD700);
 }
 
 .footer-component .footer-links {
@@ -148,7 +148,7 @@
   left: -20px;
   opacity: 0;
   transition: all 0.3s;
-  color: var(--primary-color);
+  color: #D4AF37;
 }
 
 .footer-component .footer-links li a:hover {
@@ -183,7 +183,7 @@
 }
 
 .footer-component .hours-time {
-  color: var(--secondary-color);
+  color: #FFD700;
   font-weight: 500;
   margin-top: 4px !important;
   margin-bottom: 16px !important;
@@ -222,10 +222,10 @@
 }
 
 .footer-component .social-links a:hover {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
+  background: #D4AF37;
+  border-color: #D4AF37;
   transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
 }
 
 .footer-component .social-icon {
@@ -275,7 +275,7 @@
 
 .footer-component .footer-bottom-links a:hover,
 .footer-component .footer-bottom-links span:not(.separator):hover {
-  color: var(--primary-color);
+  color: #D4AF37;
 }
 
 .footer-component .footer-bottom-links .separator {
