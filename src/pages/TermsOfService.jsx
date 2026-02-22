@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import './LegalPages.css';
 
 const TermsOfService = () => {
@@ -7,7 +8,18 @@ const TermsOfService = () => {
   }, []);
 
   return (
-    <div className="legal-page">
+    <>
+      <Helmet>
+        <title>Terms of Service - Basera Infra Home</title>
+        <meta 
+          name="description" 
+          content="Terms of Service for Basera Infra Home. Read our terms and conditions for using our real estate platform and services." 
+        />
+        <meta property="og:title" content="Terms of Service - Basera Infra Home" />
+        <link rel="canonical" href="https://baserainfrahome.com/terms" />
+      </Helmet>
+      
+      <div className="legal-page">
       <div className="legal-container">
         <h1 className="legal-title">Terms of Service</h1>
         <p className="legal-updated">Last Updated: February 15, 2026</p>
@@ -188,6 +200,7 @@ const TermsOfService = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

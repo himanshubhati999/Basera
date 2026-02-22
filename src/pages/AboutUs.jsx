@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import './LegalPages.css';
 
 const AboutUs = () => {
@@ -7,7 +8,20 @@ const AboutUs = () => {
   }, []);
 
   return (
-    <div className="legal-page">
+    <>
+      <Helmet>
+        <title>About Us - Basera Infra Home | Trusted Real Estate Company in Greater Noida</title>
+        <meta 
+          name="description" 
+          content="Basera Infra Home is a trusted real estate company in Greater Noida with years of experience. We offer transparent, reliable property solutions with legal clarity and customer focus." 
+        />
+        <meta property="og:title" content="About Us - Basera Infra Home" />
+        <meta property="og:description" content="Your trusted real estate partner in Greater Noida for residential and investment properties." />
+        <meta name="keywords" content="about Basera Infra, real estate company Greater Noida, trusted property dealer, real estate experience" />
+        <link rel="canonical" href="https://baserainfrahome.com/about" />
+      </Helmet>
+      
+      <div className="legal-page">
       <div className="legal-container">
         <h1 className="legal-title">About Us</h1>
         <p className="legal-subtitle">Basera Infra Home – Your Trusted Real Estate Partner</p>
@@ -126,6 +140,7 @@ const AboutUs = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

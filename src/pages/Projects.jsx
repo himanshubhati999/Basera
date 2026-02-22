@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import './Projects.css';
@@ -304,6 +305,19 @@ const Projects = () => {
 
   return (
     <div className="projects-page">
+      <Helmet>
+        <title>Our Projects - Residential & Commercial Properties | Basera Infra Home</title>
+        <meta 
+          name="description" 
+          content="Explore premium residential and commercial property projects in Greater Noida. Find your dream plot, apartment, or investment opportunity with Basera Infra Home." 
+        />
+        <meta property="og:title" content="Our Projects - Basera Infra Home" />
+        <meta property="og:description" content="Explore premium residential and commercial property projects in Greater Noida." />
+        <meta property="og:type" content="website" />
+        <meta name="keywords" content="real estate projects, Greater Noida properties, residential plots, commercial properties, property investment" />
+        <link rel="canonical" href="https://baserainfrahome.com/projects" />
+      </Helmet>
+      
       <div className="projects-hero">
         <h1>
           <ShinyText

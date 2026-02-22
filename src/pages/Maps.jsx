@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import './Maps.css';
 
 const Maps = () => {
@@ -18,7 +19,19 @@ const Maps = () => {
   ];
 
   return (
-    <div className="maps-page">
+    <>
+      <Helmet>
+        <title>Location Maps - Properties in Greater Noida | Basera Infra Home</title>
+        <meta 
+          name="description" 
+          content="Explore detailed location maps of our premium properties in Greater Noida. View connectivity, nearby landmarks and strategic locations." 
+        />
+        <meta property="og:title" content="Location Maps - Basera Infra Home" />
+        <meta name="keywords" content="property location maps, Greater Noida property maps, location connectivity, property landmarks" />
+        <link rel="canonical" href="https://baserainfrahome.com/maps" />
+      </Helmet>
+      
+      <div className="maps-page">
       {/* Hero Section */}
       <div className="maps-hero">
         <div className="maps-hero-content">
@@ -58,6 +71,7 @@ const Maps = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

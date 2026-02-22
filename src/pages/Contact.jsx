@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { API_ENDPOINTS } from '../config/api';
 import './Contact.css';
 import './ContactCRM.css';
@@ -140,7 +141,20 @@ const Contact = () => {
   };
 
   return (
-    <div className="contact-page">
+    <>
+      <Helmet>
+        <title>Contact Us - Get in Touch with Basera Infra Home</title>
+        <meta 
+          name="description" 
+          content="Contact Basera Infra Home for property inquiries in Greater Noida. Visit our office at Alpha-1 Metro Station or call +91 98118 02157. Email: baserainfrahome@gmail.com" 
+        />
+        <meta property="og:title" content="Contact Us - Basera Infra Home" />
+        <meta property="og:description" content="Get in touch with our real estate experts in Greater Noida for property consultation and inquiries." />
+        <meta name="keywords" content="contact real estate, Greater Noida property office, Basera Infra contact, property inquiry" />
+        <link rel="canonical" href="https://baserainfrahome.com/contact" />
+      </Helmet>
+      
+      <div className="contact-page">
       <div className="contact-banner">
         <div className="banner-text">
           ← → Join Us for Exclusive Open House Events This Weekend and Find Your Perfect Home!
@@ -320,6 +334,7 @@ const Contact = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

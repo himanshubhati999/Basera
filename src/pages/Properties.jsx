@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import './Properties.css';
@@ -388,8 +389,21 @@ const Properties = () => {
   };
 
   return (
-    <div className="properties-page">
-      <div className="properties-hero">
+    <>
+      <Helmet>
+        <title>Properties for Sale - Residential & Commercial Real Estate | Basera Infra Home</title>
+        <meta 
+          name="description" 
+          content="Browse available properties for sale in Greater Noida. Residential plots, flats, villas and commercial spaces with flexible payment plans and legal support." 
+        />
+        <meta property="og:title" content="Properties for Sale - Basera Infra Home" />
+        <meta property="og:description" content="Find residential and commercial properties in Greater Noida with transparent pricing and legal support." />
+        <meta name="keywords" content="properties for sale, Greater Noida properties, buy property, residential flats, commercial plots, real estate listings" />
+        <link rel="canonical" href="https://baserainfrahome.com/properties" />
+      </Helmet>
+      
+      <div className="properties-page">
+        <div className="properties-hero">
         <h1>
           <ShinyText
             text="PROPERTIES FOR SALE"
@@ -543,6 +557,7 @@ const Properties = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

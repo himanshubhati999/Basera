@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import './PropertyDetail.css';
@@ -587,6 +588,23 @@ const PropertyDetail = () => {
 
   return (
     <div className="property-detail-page">
+      <Helmet>
+        <title>{displayProperty.seo?.title || `${displayProperty.name} - Basera Infra Home`}</title>
+        <meta 
+          name="description" 
+          content={displayProperty.seo?.description || displayProperty.description?.substring(0, 160) || `${displayProperty.name} in ${displayProperty.location}. ${displayProperty.category} property available.`} 
+        />
+        <meta property="og:title" content={displayProperty.seo?.title || displayProperty.name} />
+        <meta property="og:description" content={displayProperty.seo?.description || displayProperty.description?.substring(0, 160)} />
+        <meta property="og:image" content={displayProperty.image} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={displayProperty.seo?.title || displayProperty.name} />
+        <meta name="twitter:description" content={displayProperty.seo?.description || displayProperty.description?.substring(0, 160)} />
+        <meta name="twitter:image" content={displayProperty.image} />
+        <link rel="canonical" href={`https://baserainfrahome.com/properties/${displayProperty._id || displayProperty.id}`} />
+      </Helmet>
+      
       {/* Hero Image Gallery */}
       <div className="hero-gallery">
         <div className="main-image">

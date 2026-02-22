@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import './News.css';
 import { API_ENDPOINTS } from '../config/api';
 
@@ -121,7 +122,19 @@ const News = () => {
   }
 
   return (
-    <div className="news-page">
+    <>
+      <Helmet>
+        <title>Latest News & Real Estate Insights | Basera Infra Home</title>
+        <meta 
+          name="description" 
+          content="Stay updated with latest real estate news, market trends, and property insights from Basera Infra Home. Expert analysis on Greater Noida property market." 
+        />
+        <meta property="og:title" content="Latest News & Insights - Basera Infra Home" />
+        <meta name="keywords" content="real estate news, property market trends, Greater Noida updates, property insights" />
+        <link rel="canonical" href="https://baserainfrahome.com/news" />
+      </Helmet>
+      
+      <div className="news-page">
       <div className="news-hero">
         <div className="news-hero-content">
           <h1>Latest News & Insights</h1>
@@ -185,6 +198,7 @@ const News = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

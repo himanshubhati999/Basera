@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import './LegalPages.css';
 
 const PrivacyPolicy = () => {
@@ -7,7 +8,18 @@ const PrivacyPolicy = () => {
   }, []);
 
   return (
-    <div className="legal-page">
+    <>
+      <Helmet>
+        <title>Privacy Policy - Basera Infra Home</title>
+        <meta 
+          name="description" 
+          content="Privacy Policy for Basera Infra Home. Learn how we collect, use, and protect your personal information when you use our real estate services." 
+        />
+        <meta property="og:title" content="Privacy Policy - Basera Infra Home" />
+        <link rel="canonical" href="https://baserainfrahome.com/privacy" />
+      </Helmet>
+      
+      <div className="legal-page">
       <div className="legal-container">
         <h1 className="legal-title">Privacy Policy</h1>
         <p className="legal-updated">Last Updated: February 15, 2026</p>
@@ -134,6 +146,7 @@ const PrivacyPolicy = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
