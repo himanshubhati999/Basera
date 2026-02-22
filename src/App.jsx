@@ -23,6 +23,7 @@ import News from './pages/News';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import AboutUs from './pages/AboutUs';
+import Maps from './pages/Maps';
 import { trackPageView, trackSession } from './utils/analytics';
 import './App.css';
 
@@ -63,7 +64,8 @@ function AppContent() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-otp" element={<OTPVerificationPage />} />
         <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/agents" element={<div className="page-placeholder" style={{padding: '100px 20px', textAlign: 'center', minHeight: '60vh'}}><h1>Agents Page</h1><p>Coming Soon</p></div>} />
+        <Route path="/agents" element={<Maps />} />
+        <Route path="/maps" element={<Maps />} />
         <Route path="/news" element={<News />} />
         <Route path="/news/:slug" element={<DynamicPage />} />
         <Route path="/careers" element={<div className="page-placeholder" style={{padding: '100px 20px', textAlign: 'center', minHeight: '60vh'}}><h1>Careers Page</h1><p>Coming Soon</p></div>} />

@@ -647,7 +647,7 @@ const PropertyDetail = () => {
               {displayProperty.listingType && (
                 <div className="detail-item">
                   <span className="label">Type:</span>
-                  <span className="value">{displayProperty.listingType === 'sale' ? 'For Sale' : 'For Rent'}</span>
+                  <span className="value">{displayProperty.listingType === 'sale' ? 'For Sale' : 'For Construction'}</span>
                 </div>
               )}
               {displayProperty.bedrooms && (

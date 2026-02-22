@@ -130,7 +130,7 @@ const Projects = () => {
       type: 'apartment',
       bhk: '2bhk',
       floors: '4+',
-      status: 'rent'
+      status: 'construction'
     },
     {
       id: 4,
@@ -156,7 +156,7 @@ const Projects = () => {
       type: 'commercial',
       bhk: '',
       floors: '4+',
-      status: 'rent'
+      status: 'construction'
     },
     {
       id: 6,
@@ -182,7 +182,7 @@ const Projects = () => {
       type: 'apartment',
       bhk: '2bhk',
       floors: '3',
-      status: 'rent'
+      status: 'construction'
     },
     {
       id: 8,
@@ -208,7 +208,7 @@ const Projects = () => {
       type: 'residential',
       bhk: '3bhk',
       floors: '4+',
-      status: 'rent'
+      status: 'construction'
     }
   ]);
 

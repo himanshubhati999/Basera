@@ -11,6 +11,15 @@ const OTPVerification = ({ email, onSuccess, onBack, isStandalone = false }) => 
   
   const { verifyOTP, resendOTP } = useAuth();
 
+  // Log email for debugging
+  useEffect(() => {
+    if (!email) {
+      console.error('❌ OTPVerification: No email provided');
+    } else {
+      console.log('✅ OTPVerification loaded with email:', email);
+    }
+  }, [email]);
+
   // Countdown timer for resend button
   useEffect(() => {
     if (resendCooldown > 0) {
@@ -119,6 +128,35 @@ const OTPVerification = ({ email, onSuccess, onBack, isStandalone = false }) => 
   return (
     <div className={`otp-verification-container ${isStandalone ? 'standalone' : ''}`}>
       <div className="otp-verification-card">
+        {!email ? (
+          // Show error if email is not provided
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            <div style={{ fontSize: '48px', marginBottom: '20px' }}>⚠️</div>
+            <h2 style={{ color: '#ef4444', marginBottom: '10px' }}>Email Not Found</h2>
+            <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+              We couldn't find the email address for verification.
+            </p>
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                style={{
+                  padding: '10px 24px',
+                  background: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Go Back to Signup
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
         {/* Success Banner */}
         <div className="otp-success-banner">
           <div className="success-icon">✅</div>
@@ -218,6 +256,8 @@ const OTPVerification = ({ email, onSuccess, onBack, isStandalone = false }) => 
             </button>
           )}
         </form>
+          </>
+        )}
       </div>
     </div>
   );

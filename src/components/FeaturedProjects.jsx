@@ -14,7 +14,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
   
   const [projects, setProjects] = useState([]);
   const [saleProperties, setSaleProperties] = useState([]);
-  const [rentProperties, setRentProperties] = useState([]);
+  const [constructionProperties, setConstructionProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterTrigger, setFilterTrigger] = useState(0);
 
@@ -73,8 +73,8 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
           rawPrice: prop.price
         }));
 
-      const transformedRentProps = featuredProperties
-        .filter(prop => prop.listingType === 'rent')
+      const transformedConstructionProps = featuredProperties
+        .filter(prop => prop.listingType === 'construction')
         .slice(0, 6)
         .map(prop => ({
           id: prop._id,
@@ -82,7 +82,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
           location: prop.location?.city || prop.location?.address || 'Location not specified',
           image: prop.images?.[0] || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80',
           price: `₹${prop.price.toLocaleString('en-IN')}/month`,
-          type: 'rent',
+          type: 'construction',
           propertyType: prop.propertyType,
           categories: prop.categories || [],
           rawPrice: prop.price
@@ -91,13 +91,13 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
       // Use featured properties if available, otherwise use fallback
       setProjects(transformedProjects.length > 0 ? transformedProjects : oldProjects);
       setSaleProperties(transformedSaleProps.length > 0 ? transformedSaleProps : oldSaleProperties);
-      setRentProperties(transformedRentProps.length > 0 ? transformedRentProps : oldRentProperties);
+      setConstructionProperties(transformedConstructionProps.length > 0 ? transformedConstructionProps : oldConstructionProperties);
     } catch (err) {
       console.error('Error fetching properties:', err);
       // Use fallback mock data if fetch fails
       setProjects(oldProjects);
       setSaleProperties(oldSaleProperties);
-      setRentProperties(oldRentProperties);
+      setConstructionProperties(oldConstructionProperties);
     } finally {
       setLoading(false);
     }
@@ -206,14 +206,14 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
     }
   ];
 
-  const oldRentProperties = [
+  const oldConstructionProperties = [
     {
       id: 13,
       name: '2 BHK Furnished Apartment',
       location: 'Sector 78, Noida',
       image: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80',
       price: '₹25,000/month',
-      type: 'rent'
+      type: 'construction'
     },
     {
       id: 14,
@@ -221,7 +221,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
       location: 'Sector 120, Noida',
       image: 'https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=400&q=80',
       price: '₹35,000/month',
-      type: 'rent'
+      type: 'construction'
     },
     {
       id: 15,
@@ -229,7 +229,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
       location: 'Sector 16, Noida',
       image: 'https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=400&q=80',
       price: '₹15,000/month',
-      type: 'rent'
+      type: 'construction'
     },
     {
       id: 16,
@@ -237,7 +237,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
       location: 'Sector 44, Noida',
       image: 'https://images.unsplash.com/photo-1515263487990-61b07816b324?w=400&q=80',
       price: '₹75,000/month',
-      type: 'rent'
+      type: 'construction'
     },
     {
       id: 17,
@@ -245,7 +245,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
       location: 'Sector 137, Noida',
       image: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=400&q=80',
       price: '₹22,000/month',
-      type: 'rent'
+      type: 'construction'
     },
     {
       id: 18,
@@ -253,7 +253,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
       location: 'Greater Noida West',
       image: 'https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=400&q=80',
       price: '₹40,000/month',
-      type: 'rent'
+      type: 'construction'
     }
   ];
 
@@ -335,8 +335,8 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
     switch(selectedCategory) {
       case 'sale':
         return { data: saleProperties, title: 'Apartments for Sale' };
-      case 'rent':
-        return { data: rentProperties, title: 'Apartments for Rent' };
+      case 'construction':
+        return { data: constructionProperties, title: 'Sites for Construction' };
       default:
         return { data: projects, title: 'Featured projects' };
     }
@@ -368,7 +368,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
             ? 'We make the best choices with the hottest and most prestigious projects, please visit the details below to find out more.'
             : selectedCategory === 'sale'
             ? 'Browse through our exclusive collection of apartments available for sale.'
-            : 'Find your perfect rental apartment from our curated selection.'
+            : 'Find your perfect construction sites from our curated selection.'
           }
         </p>
         

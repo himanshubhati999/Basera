@@ -204,17 +204,17 @@
 .header-component .header-main-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2px 40px;
+  padding: 2px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
   flex-wrap: nowrap;
 }
 
 .header-component .header-search-wrapper {
   flex: 1;
-  max-width: 600px;
+  max-width: 500px;
   display: flex;
   justify-content: center;
 }
@@ -234,11 +234,11 @@
 }
 
 .header-component .logo img {
-  width: 120px;
-  height: 120px;
+  width: 180px;
+  height: 180px;
   transition: transform 0.3s ease;
-  margin-top: -15px;
-  margin-bottom: -15px;
+  margin-top: -35px;
+  margin-bottom: -55px;
 }
 
 .header-component .logo:hover img {
@@ -271,7 +271,7 @@
 
 .header-component .main-nav {
   display: flex;
-  gap: 25px;
+  gap: 20px;
   align-items: center;
   flex-shrink: 0;
 }
@@ -573,8 +573,10 @@
   }
 
   .header-component .logo img {
-    width: 95px;
-    height: 95px;
+    width: 140px;
+    height: 140px;
+    margin-top: -35px;
+    margin-bottom: -35px;
   }
 
   .header-component .logo-sunshine {

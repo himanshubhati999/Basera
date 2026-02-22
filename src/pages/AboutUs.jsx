@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './LegalPages.css';
 
 const AboutUs = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="legal-page">
       <div className="legal-container">
@@ -43,7 +47,7 @@ const AboutUs = () => {
               With deep local market knowledge and a customer-first approach, our experienced team provides expert 
               guidance based on current market trends and future growth potential.
             </p>
-            <p style={{ fontSize: '18px', lineHeight: '1.8', fontWeight: '600', color: '#3b82f6' }}>
+            <p style={{ fontSize: '18px', lineHeight: '1.8', fontWeight: '600', color: '#D4AF37' }}>
               At Basera Infra Home, we don't just sell properties — we help build secure futures and happy homes.
             </p>
           </section>
@@ -51,29 +55,29 @@ const AboutUs = () => {
           <section className="legal-section">
             <h2>Why Choose Us?</h2>
             <div style={{ display: 'grid', gap: '20px', marginTop: '20px' }}>
-              <div style={{ padding: '20px', background: 'rgba(59, 130, 246, 0.05)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                <h3 style={{ color: '#3b82f6', marginBottom: '10px' }}>
+              <div style={{ padding: '20px', background: 'rgba(212, 175, 55, 0.08)', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+                <h3 style={{ color: '#D4AF37', marginBottom: '10px' }}>
                   <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', marginRight: '8px' }}>verified</span>
                   Transparency & Trust
                 </h3>
                 <p>We believe in complete transparency with proper documentation and clear titles for all properties.</p>
               </div>
-              <div style={{ padding: '20px', background: 'rgba(59, 130, 246, 0.05)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                <h3 style={{ color: '#3b82f6', marginBottom: '10px' }}>
+              <div style={{ padding: '20px', background: 'rgba(212, 175, 55, 0.08)', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+                <h3 style={{ color: '#D4AF37', marginBottom: '10px' }}>
                   <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', marginRight: '8px' }}>support_agent</span>
                   Expert Guidance
                 </h3>
                 <p>Our experienced team provides personalized guidance based on market trends and your specific needs.</p>
               </div>
-              <div style={{ padding: '20px', background: 'rgba(59, 130, 246, 0.05)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                <h3 style={{ color: '#3b82f6', marginBottom: '10px' }}>
+              <div style={{ padding: '20px', background: 'rgba(212, 175, 55, 0.08)', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+                <h3 style={{ color: '#D4AF37', marginBottom: '10px' }}>
                   <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', marginRight: '8px' }}>balance</span>
                   Legal Support
                 </h3>
                 <p>Complete documentation and legal assistance to ensure your investment is secure and hassle-free.</p>
               </div>
-              <div style={{ padding: '20px', background: 'rgba(59, 130, 246, 0.05)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                <h3 style={{ color: '#3b82f6', marginBottom: '10px' }}>
+              <div style={{ padding: '20px', background: 'rgba(212, 175, 55, 0.08)', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+                <h3 style={{ color: '#D4AF37', marginBottom: '10px' }}>
                   <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', marginRight: '8px' }}>handshake</span>
                   Customer-Centric Approach
                 </h3>
@@ -82,7 +86,7 @@ const AboutUs = () => {
             </div>
           </section>
 
-          <section className="legal-section" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)', padding: '30px', borderRadius: '12px', textAlign: 'center' }}>
+          <section className="legal-section" style={{ background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 215, 0, 0.1) 100%)', padding: '30px', borderRadius: '12px', textAlign: 'center' }}>
             <h2 style={{ marginBottom: '15px' }}>Ready to Find Your Dream Home?</h2>
             <p style={{ fontSize: '17px', marginBottom: '25px' }}>
               Contact us today and let our experts guide you to the perfect property.
@@ -90,7 +94,7 @@ const AboutUs = () => {
             <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <a href="/contact" style={{ 
                 padding: '12px 30px', 
-                background: '#3b82f6', 
+                background: '#D4AF37', 
                 color: '#fff', 
                 borderRadius: '6px', 
                 textDecoration: 'none',
@@ -105,8 +109,8 @@ const AboutUs = () => {
               <a href="/properties" style={{ 
                 padding: '12px 30px', 
                 background: '#fff', 
-                color: '#3b82f6', 
-                border: '2px solid #3b82f6',
+                color: '#D4AF37', 
+                border: '2px solid #D4AF37',
                 borderRadius: '6px', 
                 textDecoration: 'none',
                 fontWeight: '600',

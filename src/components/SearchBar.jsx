@@ -12,7 +12,7 @@ const SearchBar = ({ compact = false, onCategoryChange = null, selectedCategory 
   const [category, setCategory] = useState('');
   const [priceFrom, setPriceFrom] = useState('');
   const [priceTo, setPriceTo] = useState('');
-  const [propertyType, setPropertyType] = useState(selectedCategory); // projects, sale, or rent
+  const [propertyType, setPropertyType] = useState(selectedCategory); // projects, sale, or construction
   
   // Sync with external selectedCategory changes
   useEffect(() => {
@@ -60,8 +60,8 @@ const SearchBar = ({ compact = false, onCategoryChange = null, selectedCategory 
       searchPath = '/projects';
     } else if (propertyType === 'sale') {
       params.append('listingType', 'sale');
-    } else if (propertyType === 'rent') {
-      params.append('listingType', 'rent');
+    } else if (propertyType === 'construction') {
+      params.append('listingType', 'construction');
     }
     
     // Navigate to the appropriate page with search params
@@ -92,10 +92,10 @@ const SearchBar = ({ compact = false, onCategoryChange = null, selectedCategory 
               Sale
             </button>
             <button 
-              className={`search-toggle-btn ${propertyType === 'rent' ? 'active' : ''}`}
-              onClick={() => handleCategoryChange('rent')}
+              className={`search-toggle-btn ${propertyType === 'construction' ? 'active' : ''}`}
+              onClick={() => handleCategoryChange('construction')}
             >
-              Rent
+              Construction
             </button>
           </div>
           <div className="compact-search-inputs">
@@ -180,10 +180,10 @@ const SearchBar = ({ compact = false, onCategoryChange = null, selectedCategory 
             Sale
           </button>
           <button 
-            className={`search-tab ${propertyType === 'rent' ? 'active' : ''}`}
-            onClick={() => handleCategoryChange('rent')}
+            className={`search-tab ${propertyType === 'construction' ? 'active' : ''}`}
+            onClick={() => handleCategoryChange('construction')}
           >
-            Rent
+            Construction
           </button>
         </div>
       

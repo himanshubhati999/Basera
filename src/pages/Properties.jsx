@@ -304,7 +304,7 @@ const Properties = () => {
       );
     }
 
-    // Filter by listing type (sale/rent)
+    // Filter by listing type (sale/construction)
     if (listingType) {
       filtered = filtered.filter(property => 
         property.listingType === listingType
@@ -453,7 +453,7 @@ const Properties = () => {
           <select value={listingType} onChange={(e) => setListingType(e.target.value)}>
             <option value="">All</option>
             <option value="sale">For Sale</option>
-            <option value="rent">For Rent</option>
+            <option value="construction">For Construction</option>
           </select>
         </div>
 
@@ -513,7 +513,7 @@ const Properties = () => {
               <div className="property-card">
                 <div className="property-badge">{property.badge}</div>
                 <div className={`listing-type-badge ${property.listingType}`}>
-                  {property.listingType === 'sale' ? 'FOR SALE' : 'FOR RENT'}
+                  {property.listingType === 'sale' ? 'FOR SALE' : 'FOR CONSTRUCTION'}
                 </div>
                 <button 
                   className={`wishlist-heart ${isInWishlist(property.id) ? 'active' : ''}`}

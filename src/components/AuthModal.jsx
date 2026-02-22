@@ -141,20 +141,15 @@ const AuthModal = ({ isOpen, onClose }) => {
       // Store the email for OTP verification
       const emailForOTP = formData.email;
       
-      // Update all states together - React will batch these
+      // First set the email, then switch tab to ensure email is set before render
       setOtpEmail(emailForOTP);
-      setActiveTab('verify-otp');
       
-      // Immediate check after state update
-      console.log('🔄 State update requested - activeTab should become: verify-otp');
-      console.log('📧 otpEmail should become:', emailForOTP);
-      
-      // Force a re-render check with setTimeout
+      // Use setTimeout to ensure state update completes before switching tab
+      // This prevents race condition where activeTab changes before otpEmail is set
       setTimeout(() => {
-        console.log('⏰ After 100ms - checking state...');
-        console.log('Current activeTab value:', activeTab);
-        console.log('Current otpEmail value:', otpEmail);
-      }, 100);
+        setActiveTab('verify-otp');
+        console.log('🔄 Switched to OTP verification tab');
+      }, 0);
       
       // Clear form data except email
       setFormData({
@@ -164,7 +159,7 @@ const AuthModal = ({ isOpen, onClose }) => {
         confirmPassword: ''
       });
       
-      console.log('🎯 All state updates requested - component should re-render');
+      console.log('🎯 State updates completed');
     } else {
       console.error('❌ Signup failed:', result.error);
       setError(result.error);
@@ -251,7 +246,7 @@ const AuthModal = ({ isOpen, onClose }) => {
 
         {activeTab === 'verify-otp' ? (
           <OTPVerification 
-            email={otpEmail}
+            email={otpEmail || formData.email}
             onSuccess={handleOTPSuccess}
             onBack={handleOTPBack}
             isStandalone={false}

@@ -948,7 +948,7 @@ const PostProperty = ({ embedded, onBack }) => {
               onChange={handleChange}
             >
               <option value="sale">For Sale</option>
-              <option value="rent">For Rent</option>
+              <option value="construction">For Construction</option>
             </select>
           </div>
 
