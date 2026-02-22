@@ -592,15 +592,15 @@ const PropertyDetail = () => {
         <title>{displayProperty.seo?.title || `${displayProperty.name} - Basera Infra Home`}</title>
         <meta 
           name="description" 
-          content={displayProperty.seo?.description || displayProperty.description?.substring(0, 160) || `${displayProperty.name} in ${displayProperty.location}. ${displayProperty.category} property available.`} 
+          content={displayProperty.seo?.description || (typeof displayProperty.description === 'string' ? displayProperty.description?.substring(0, 160) : displayProperty.description?.intro?.substring(0, 160)) || `${displayProperty.name} in ${displayProperty.location}. ${displayProperty.category} property available.`} 
         />
         <meta property="og:title" content={displayProperty.seo?.title || displayProperty.name} />
-        <meta property="og:description" content={displayProperty.seo?.description || displayProperty.description?.substring(0, 160)} />
+        <meta property="og:description" content={displayProperty.seo?.description || (typeof displayProperty.description === 'string' ? displayProperty.description?.substring(0, 160) : displayProperty.description?.intro?.substring(0, 160)) || `${displayProperty.name} in ${displayProperty.location}`} />
         <meta property="og:image" content={displayProperty.image} />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={displayProperty.seo?.title || displayProperty.name} />
-        <meta name="twitter:description" content={displayProperty.seo?.description || displayProperty.description?.substring(0, 160)} />
+        <meta name="twitter:description" content={displayProperty.seo?.description || (typeof displayProperty.description === 'string' ? displayProperty.description?.substring(0, 160) : displayProperty.description?.intro?.substring(0, 160)) || `${displayProperty.name} in ${displayProperty.location}`} />
         <meta name="twitter:image" content={displayProperty.image} />
         <link rel="canonical" href={`https://baserainfrahome.com/properties/${displayProperty._id || displayProperty.id}`} />
       </Helmet>
