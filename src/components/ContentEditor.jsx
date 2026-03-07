@@ -186,8 +186,8 @@ const ContentEditor = () => {
     if (!confirm('Delete this image?')) return;
 
     try {
-      // Only call delete API if image has publicId (was uploaded to Cloudinary)
-      if (image.publicId) {
+      // Only call delete API if image has filename (was uploaded to server)
+      if (image.filename) {
         const token = localStorage.getItem('token');
         const response = await fetch(API_ENDPOINTS.DELETE_IMAGE, {
           method: 'DELETE',
@@ -195,11 +195,11 @@ const ContentEditor = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ publicId: image.publicId })
+          body: JSON.stringify({ filename: image.filename })
         });
 
         if (!response.ok) {
-          throw new Error('Failed to delete image from Cloudinary');
+          throw new Error('Failed to delete image from server');
         }
       }
       
@@ -226,8 +226,8 @@ const ContentEditor = () => {
       return;
     }
 
-    // Add image from URL (without publicId, so it won't be deleted from Cloudinary)
-    setUploadedImages(prev => [...prev, { url: imageUrl, publicId: null }]);
+    // Add image from URL (without filename, so it won't be deleted from server)
+    setUploadedImages(prev => [...prev, { url: imageUrl, filename: null }]);
     setImageUrl('');
     alert('Image added from URL!');
   };

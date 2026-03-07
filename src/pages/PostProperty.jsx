@@ -271,9 +271,9 @@ const PostProperty = ({ embedded, onBack }) => {
     }
   };
 
-  const handleRemoveUploadedImage = (publicId, url) => {
+  const handleRemoveUploadedImage = (filename, url) => {
     // Remove from uploaded images list
-    setUploadedImages(prev => prev.filter(img => img.publicId !== publicId));
+    setUploadedImages(prev => prev.filter(img => img.filename !== filename));
     
     // Remove from image URLs textarea
     setImageUrls(prev => {
@@ -774,7 +774,7 @@ const PostProperty = ({ embedded, onBack }) => {
                     <img src={img.url} alt={`Uploaded ${index + 1}`} style={{ width: '100%', height: '150px', objectFit: 'cover' }} />
                     <button
                       type="button"
-                      onClick={() => handleRemoveUploadedImage(img.publicId, img.url)}
+                      onClick={() => handleRemoveUploadedImage(img.filename, img.url)}
                       style={{
                         position: 'absolute',
                         top: '5px',
