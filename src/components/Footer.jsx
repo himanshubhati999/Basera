@@ -69,17 +69,20 @@ const Footer = () => {
           <div className="footer-social">
             <h4 className="social-heading">Follow Us</h4>
             <div className="social-links">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+              <a href="https://www.facebook.com/share/1EF8ubiHH5/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                 <span className="social-icon">f</span>
               </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <a href="https://www.instagram.com/baserainfrahome?igsh=dXQybmV2MHpsNmY4" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                 <span className="social-icon">📷</span>
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                <span className="social-icon">𝕏</span>
-              </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                <span className="social-icon">in</span>
+              <a
+                className="youtube-link"
+                href="https://youtube.com/@baserainfrahome?si=T3GNEPJ-14uQ73QK"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
+              >
+                <span className="material-symbols-outlined social-icon youtube-icon">smart_display</span>
               </a>
             </div>
           </div>

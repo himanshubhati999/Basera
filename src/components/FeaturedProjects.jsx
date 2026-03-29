@@ -336,7 +336,7 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
       case 'sale':
         return { data: saleProperties, title: 'Apartments for Sale' };
       case 'construction':
-        return { data: constructionProperties, title: 'Sites for Construction' };
+        return { data: constructionProperties, title: 'Construction Services - Basera Infra Home' };
       default:
         return { data: projects, title: 'Featured projects' };
     }
@@ -368,11 +368,105 @@ const FeaturedProjects = ({ selectedCategory = 'projects' }) => {
             ? 'We make the best choices with the hottest and most prestigious projects, please visit the details below to find out more.'
             : selectedCategory === 'sale'
             ? 'Browse through our exclusive collection of apartments available for sale.'
-            : 'Find your perfect construction sites from our curated selection.'
+            : 'Reliable and high-quality construction services designed to turn your dream home into reality.'
           }
         </p>
-        
-        {loading ? (
+
+        {selectedCategory === 'construction' ? (
+          <div className="construction-services-content">
+            <div className="construction-hero-image-wrapper">
+              <img
+                src="/Construction.jpeg"
+                alt="Basera Infra Home construction work"
+                className="construction-hero-image"
+                loading="lazy"
+              />
+            </div>
+
+            <div className="construction-intro">
+              <p>
+                At Basera Infra Home, we focus on strong structural work, premium materials, and modern finishing with transparent and affordable pricing.
+              </p>
+            </div>
+
+            <div className="construction-package-card">
+              <h3>Our Construction Packages</h3>
+
+              <div className="package-block">
+                <h4>Basic Construction Package</h4>
+                <p className="package-price">Rs. 2,000 - Rs. 3,000 per sq. ft.</p>
+                <p>
+                  This package is ideal for customers looking for a complete and durable home construction solution with essential finishing.
+                </p>
+
+                <h5>Included in Basic Construction</h5>
+                <ul>
+                  <li>High-quality cement, steel and bricks</li>
+                  <li>Complete structural work</li>
+                  <li>Marble flooring</li>
+                  <li>Wood work</li>
+                  <li>Glass railing</li>
+                  <li>Iron work with jaal</li>
+                  <li>Skilled labour and supervision</li>
+                </ul>
+
+                <h5>Detailed Specifications</h5>
+                <ul>
+                  <li>Cement: UltraTech / ACC or equivalent premium brand</li>
+                  <li>Steel: TATA / JSW or equivalent high-grade steel</li>
+                  <li>Electrical Fittings: Anchor / Havells or equivalent branded fittings</li>
+                  <li>Plumbing: Ashirvad / Astral or equivalent quality pipes and fixtures</li>
+                </ul>
+              </div>
+
+              <div className="package-block">
+                <h4>Completion Package</h4>
+                <p className="package-price">Rs. 1,000 - Rs. 1,500 per sq. ft.</p>
+                <p>
+                  Perfect for customers who already have a basic structure and need finishing work.
+                </p>
+
+                <h5>Included in Completion</h5>
+                <ul>
+                  <li>All completion work</li>
+                  <li>Plastering and finishing</li>
+                  <li>Flooring work</li>
+                  <li>Electrical and plumbing basics</li>
+                </ul>
+
+                <h5>Not Included</h5>
+                <ul>
+                  <li>Furniture / Furnishing</li>
+                  <li>Boundary wall</li>
+                </ul>
+              </div>
+
+              <div className="package-block">
+                <h4>Service Area</h4>
+                <p>
+                  We provide construction services in and around your local region with a strong commitment to quality and timely delivery.
+                </p>
+              </div>
+
+              <div className="package-block">
+                <h4>Why Choose Basera Infra Home?</h4>
+                <ul>
+                  <li>Transparent pricing with no hidden costs</li>
+                  <li>Quality materials and skilled labour</li>
+                  <li>Modern design and finishing</li>
+                  <li>On-time project delivery</li>
+                  <li>Customer satisfaction is our priority</li>
+                </ul>
+              </div>
+
+              <div className="construction-cta">
+                <h4>Get in Touch</h4>
+                <p>Planning to build your dream home?</p>
+                <p>Contact Basera Infra Home today for consultation and site visit.</p>
+              </div>
+            </div>
+          </div>
+        ) : loading ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>
             <p>Loading properties...</p>
           </div>

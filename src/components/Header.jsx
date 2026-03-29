@@ -188,7 +188,13 @@ const Header = () => {
             <Link to="/">Home</Link>
             <Link to="/projects">Projects</Link>
             <Link to="/properties">Properties</Link>
-            <Link to="/maps">Maps</Link>
+            <div className="nav-dropdown maps-dropdown">
+              <Link to="/maps" className="nav-dropdown-trigger">Maps</Link>
+              <div className="nav-dropdown-menu">
+                <Link to="/maps?map=greater-noida">Greater Noida Map</Link>
+                <Link to="/maps?map=yamuna-expressway">Yamuna Expressway Map</Link>
+              </div>
+            </div>
             <Link to="/news">News</Link>
             <Link to="/careers">Careers</Link>
             <Link to="/contact">Contact</Link>
@@ -209,7 +215,8 @@ const Header = () => {
               <Link to="/" onClick={closeMobileMenu}>Home</Link>
               <Link to="/projects" onClick={closeMobileMenu}>Projects</Link>
               <Link to="/properties" onClick={closeMobileMenu}>Properties</Link>
-              <Link to="/maps" onClick={closeMobileMenu}>Maps</Link>
+              <Link to="/maps?map=greater-noida" onClick={closeMobileMenu}>Greater Noida Map</Link>
+              <Link to="/maps?map=yamuna-expressway" onClick={closeMobileMenu}>Yamuna Expressway Map</Link>
               <Link to="/news" onClick={closeMobileMenu}>News</Link>
               <Link to="/careers" onClick={closeMobileMenu}>Careers</Link>
               <Link to="/contact" onClick={closeMobileMenu}>Contact</Link>

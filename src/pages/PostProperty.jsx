@@ -86,10 +86,19 @@ const PostProperty = ({ embedded, onBack }) => {
       try {
         setLoading(true);
         const response = await fetch(`${API_ENDPOINTS.PROPERTIES}/${id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch property data');
+        }
         const data = await response.json();
 
-        if (data.success && data.data) {
-          const property = data.data;
+        const property = data.property || data.data || null;
+        if (property) {
+          const normalizedImages = (property.images || []).map((img) => (
+            typeof img === 'string'
+              ? { url: img, filename: img.split('/').pop() || '' }
+              : img
+          ));
+
           setFormData({
             title: property.title || '',
             description: property.description || '',
@@ -103,10 +112,10 @@ const PostProperty = ({ embedded, onBack }) => {
             state: property.location?.state || '',
             country: property.location?.country || 'India',
             zipCode: property.location?.zipCode || '',
-            latitude: property.location?.latitude || '',
-            longitude: property.location?.longitude || '',
-            area: property.area || '',
-            areaUnit: property.areaUnit || 'sqft',
+            latitude: property.location?.coordinates?.latitude || property.location?.latitude || '',
+            longitude: property.location?.coordinates?.longitude || property.location?.longitude || '',
+            area: property.area?.value || property.area || '',
+            areaUnit: property.area?.unit || property.areaUnit || 'sqft',
             bedrooms: property.bedrooms || '',
             bathrooms: property.bathrooms || '',
             amenities: property.amenities || [],
@@ -119,13 +128,14 @@ const PostProperty = ({ embedded, onBack }) => {
             ownerPhone: property.ownerPhone || '',
             ownerEmail: property.ownerEmail || user?.email || '',
             youtubeThumbnail: property.youtubeThumbnail || '',
-            youtubeVideoUrl: property.youtubeVideoUrl || '',
-            seoTitle: property.seoTitle || '',
-            seoDescription: property.seoDescription || '',
+            youtubeVideoUrl: property.youtubeVideo || property.youtubeVideoUrl || '',
+            seoTitle: property.seo?.title || property.seoTitle || '',
+            seoDescription: property.seo?.description || property.seoDescription || '',
             privateNotes: property.privateNotes || '',
             currency: property.currency || 'INR'
           });
-          setUploadedImages(property.images || []);
+          setUploadedImages(normalizedImages);
+          setImageUrls((property.images || []).join('\n'));
         }
       } catch (err) {
         console.error('Error fetching property:', err);
@@ -137,6 +147,21 @@ const PostProperty = ({ embedded, onBack }) => {
 
     fetchPropertyData();
   }, [id, isEditMode, user]);
+
+  useEffect(() => {
+    if (!isEditMode || !formData.content) return;
+
+    const timer = setTimeout(() => {
+      if (contentEditorRef.current) {
+        const editorElement = contentEditorRef.current.querySelector('.editor-content');
+        if (editorElement) {
+          editorElement.innerHTML = formData.content;
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [isEditMode, formData.content]);
 
   // Function to get content from editor
   const getEditorContent = () => {
@@ -466,11 +491,11 @@ const PostProperty = ({ embedded, onBack }) => {
             <input
               type="text"
               className="form-input permalink-input"
-              value={`https://sunshinerealestatepvtltd.com/properties/${permalink}`}
+              value={`https://baserainfrahome.com/properties/${permalink}`}
               readOnly
             />
             <div className="permalink-preview">
-              Preview: https://sunshinerealestatepvtltd.com/properties/{permalink || ''}
+              Preview: https://baserainfrahome.com/properties/{permalink || ''}
             </div>
           </div>
 
@@ -1025,7 +1050,7 @@ const PostProperty = ({ embedded, onBack }) => {
               <h4>Search Preview</h4>
               <div className="search-preview">
                 <div className="preview-title">{formData.seoTitle || formData.title || 'Your Page Title'}</div>
-                <div className="preview-url">https://sunshinerealestatepvtltd.com/properties/{generatePermalink(formData.title) || 'property-name'}</div>
+                <div className="preview-url">https://baserainfrahome.com/properties/{generatePermalink(formData.title) || 'property-name'}</div>
                 <div className="preview-description">{formData.seoDescription || formData.shortDescription || 'Your meta description will appear here...'}</div>
               </div>
             </div>

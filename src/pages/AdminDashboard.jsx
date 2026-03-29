@@ -3056,7 +3056,7 @@ const AdminDashboard = () => {
                       }}
                       onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                       onBlur={(e) => e.target.style.borderColor = '#374151'}
-                      placeholder="https://sunshinerealestatepvtltd.com/"
+                      placeholder="https://baserainfrahome.com/"
                     />
                     {pageSlug && (
                       <div style={{ 
@@ -3066,7 +3066,7 @@ const AdminDashboard = () => {
                       }}>
                         <span style={{ color: '#9ca3af' }}>Preview: </span>
                         <span style={{ color: '#3b82f6' }}>
-                          https://yourdomain.com/{pageSlug}
+                          https://baserainfrahome.com/{pageSlug}
                         </span>
                       </div>
                     )}

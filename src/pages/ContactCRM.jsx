@@ -308,7 +308,7 @@ const ContactCRM = () => {
         <h2>Directions</h2>
         <div className="map-container">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3506.9999999999995!2d77.4832!3d28.4746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cc1f3c78fffff%3A0xfffffff!2sParasnath%20Bibhab%20Plaza%2C%20Alpha%20I%2C%20Greater%20Noida%2C%20Uttar%20Pradesh%20201310!5e0!3m2!1sen!2sin!4v1234567890"
+            src="https://maps.google.com/maps?q=28.47232949013374,77.514062730273&z=17&output=embed"
             width="100%"
             height="450"
             style={{ border: 0 }}

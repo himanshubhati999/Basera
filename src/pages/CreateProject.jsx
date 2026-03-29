@@ -91,10 +91,19 @@ const CreateProject = ({ embedded, onBack }) => {
       try {
         setLoading(true);
         const response = await fetch(`${API_ENDPOINTS.PROPERTIES}/${id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch project data');
+        }
         const data = await response.json();
 
-        if (data.success && data.data) {
-          const project = data.data;
+        const project = data.property || data.data || null;
+        if (project) {
+          const normalizedImages = (project.images || []).map((img) => (
+            typeof img === 'string'
+              ? { url: img, filename: img.split('/').pop() || '' }
+              : img
+          ));
+
           setFormData({
             title: project.title || '',
             description: project.description || '',
@@ -120,11 +129,11 @@ const CreateProject = ({ embedded, onBack }) => {
             city: project.location?.city || '',
             latitude: project.location?.coordinates?.latitude || '',
             longitude: project.location?.coordinates?.longitude || '',
-            numberBlocks: project.numberBlocks || '',
-            numberFloors: project.numberFloors || '',
-            numberFlats: project.numberFlats || '',
-            lowestPrice: project.lowestPrice || '',
-            maxPrice: project.maxPrice || '',
+            numberBlocks: project.projectDetails?.numberBlocks || '',
+            numberFloors: project.projectDetails?.numberFloors || '',
+            numberFlats: project.projectDetails?.numberFlats || '',
+            lowestPrice: project.projectDetails?.lowestPrice || '',
+            maxPrice: project.projectDetails?.maxPrice || '',
             currency: project.currency || 'INR',
             privateNotes: project.privateNotes || '',
             features: project.features || [],
@@ -132,11 +141,12 @@ const CreateProject = ({ embedded, onBack }) => {
             youtubeVideoUrl: project.youtubeVideo || '',
             seoTitle: project.seo?.title || '',
             seoDescription: project.seo?.description || '',
-            openSellDate: project.openSellDate || '',
+            openSellDate: project.projectDetails?.openSellDate || '',
             lastUpdated: new Date().toISOString().split('T')[0],
             account: project.account || ''
           });
-          setUploadedImages(project.images || []);
+          setUploadedImages(normalizedImages);
+          setImageUrls((project.images || []).join('\n'));
         }
       } catch (err) {
         console.error('Error fetching project:', err);
@@ -148,6 +158,21 @@ const CreateProject = ({ embedded, onBack }) => {
 
     fetchProjectData();
   }, [id, isEditMode]);
+
+  useEffect(() => {
+    if (!isEditMode || !formData.content) return;
+
+    const timer = setTimeout(() => {
+      if (contentEditorRef.current) {
+        const editorElement = contentEditorRef.current.querySelector('.editor-content');
+        if (editorElement) {
+          editorElement.innerHTML = formData.content;
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [isEditMode, formData.content]);
 
   const generatePermalink = (title) => {
     return title
@@ -514,11 +539,11 @@ const CreateProject = ({ embedded, onBack }) => {
             <input
               type="text"
               className="form-input permalink-input"
-              value={`https://sunshinerealestatepvtltd.com/projects/${permalink}`}
+              value={`https://baserainfrahome.com/projects/${permalink}`}
               readOnly
             />
             <div className="permalink-preview">
-              Preview: https://sunshinerealestatepvtltd.com/projects/{permalink || ''}
+              Preview: https://baserainfrahome.com/projects/{permalink || ''}
             </div>
           </div>
 
@@ -1066,7 +1091,7 @@ const CreateProject = ({ embedded, onBack }) => {
               <h4>Search Preview</h4>
               <div className="search-preview">
                 <div className="preview-title">{formData.seoTitle || formData.title || 'Your Page Title'}</div>
-                <div className="preview-url">https://sunshinerealestatepvtltd.com/projects/{generatePermalink(formData.title) || 'project-name'}</div>
+                <div className="preview-url">https://baserainfrahome.com/projects/{generatePermalink(formData.title) || 'project-name'}</div>
                 <div className="preview-description">{formData.seoDescription || formData.shortDescription || 'Your meta description will appear here...'}</div>
               </div>
             </div>

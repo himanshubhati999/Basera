@@ -51,7 +51,7 @@ const PropertyDetail = () => {
 
   // Handle opening video modal
   const handleOpenVideo = () => {
-    if (property?.youtubeVideo || displayProperty?.videoUrl) {
+    if (hasBackendVideo) {
       setShowVideoModal(true);
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
@@ -479,7 +479,7 @@ const PropertyDetail = () => {
     projectDetails: property.projectDetails || null,
     features: property.amenities?.map(amenity => ({ icon: <span className="material-symbols-outlined">check</span>, name: amenity })) || [],
     mapUrl: getMapEmbedUrl(property.location?.coordinates?.latitude, property.location?.coordinates?.longitude),
-    videoUrl: property.youtubeVideo || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    videoUrl: property.youtubeVideo || null,
     latitude: property.location?.coordinates?.latitude,
     longitude: property.location?.coordinates?.longitude,
     bedrooms: property.bedrooms,
@@ -487,6 +487,9 @@ const PropertyDetail = () => {
     uniqueId: property.uniqueId,
     investor: property.investor
   } : (projects.find(p => p.id === parseInt(id)) || projects[0]);
+
+  const videoEmbedUrl = getYoutubeEmbedUrl(property?.youtubeVideo);
+  const hasBackendVideo = Boolean(videoEmbedUrl);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -617,11 +620,13 @@ const PropertyDetail = () => {
             </div>
           ))}
         </div>
-        <div className="gallery-actions">
-          <button className="gallery-btn btn-glare" onClick={handleOpenVideo}>
-            <span className="icon">▶️</span> YouTube
-          </button>
-        </div>
+        {hasBackendVideo && (
+          <div className="gallery-actions">
+            <button className="gallery-btn btn-glare" onClick={handleOpenVideo}>
+              <span className="icon">▶️</span> YouTube
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
@@ -823,24 +828,26 @@ const PropertyDetail = () => {
           </div>
 
           {/* Video Section */}
-          <div className="video-section">
-            <h2>Project video</h2>
-            <div className="video-container">
-              <img src={displayProperty.image} alt="Video thumbnail" className="video-thumbnail" />
-              <button className="play-button btn-glare-radial" onClick={handleOpenVideo}>▶</button>
-            </div>
-            <div className="share-section">
-              <p>Share this project:</p>
-              <div className="social-buttons">
-                <button className="social-btn facebook btn-glare-radial">f</button>
-                <button className="social-btn twitter btn-glare-radial">𝕏</button>
-                <button className="social-btn pinterest btn-glare-radial">P</button>
-                <button className="social-btn linkedin btn-glare-radial">in</button>
-                <button className="social-btn whatsapp btn-glare-radial">W</button>
-                <button className="social-btn email btn-glare-radial">@</button>
+          {hasBackendVideo && (
+            <div className="video-section">
+              <h2>Project video</h2>
+              <div className="video-container">
+                <img src={displayProperty.image} alt="Video thumbnail" className="video-thumbnail" />
+                <button className="play-button btn-glare-radial" onClick={handleOpenVideo}>▶</button>
+              </div>
+              <div className="share-section">
+                <p>Share this project:</p>
+                <div className="social-buttons">
+                  <button className="social-btn facebook btn-glare-radial">f</button>
+                  <button className="social-btn twitter btn-glare-radial">𝕏</button>
+                  <button className="social-btn pinterest btn-glare-radial">P</button>
+                  <button className="social-btn linkedin btn-glare-radial">in</button>
+                  <button className="social-btn whatsapp btn-glare-radial">W</button>
+                  <button className="social-btn email btn-glare-radial">@</button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Map Location Section */}
           {displayProperty.mapUrl && displayProperty.latitude && displayProperty.longitude && (
@@ -963,16 +970,16 @@ const PropertyDetail = () => {
       <PropertyReviews propertyId={id} />
 
       {/* Video Modal */}
-      {showVideoModal && (
+      {showVideoModal && hasBackendVideo && (
         <div className="video-modal-overlay" onClick={handleCloseVideo}>
           <div className="video-modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="video-modal-close" onClick={handleCloseVideo}>
               <span className="material-symbols-outlined">close</span>
             </button>
             <div className="video-modal-wrapper">
-              {getYoutubeEmbedUrl(displayProperty.videoUrl) ? (
+              {videoEmbedUrl ? (
                 <iframe
-                  src={getYoutubeEmbedUrl(displayProperty.videoUrl)}
+                  src={videoEmbedUrl}
                   title="Property Video"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
