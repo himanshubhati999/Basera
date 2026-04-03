@@ -1,5 +1,6 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { API_ENDPOINTS } from '../config/api';
+import { clearAuthStorage, getValidatedStoredToken } from '../utils/authToken';
 
 const AuthContext = createContext();
 
@@ -16,34 +17,40 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [wishlist, setWishlist] = useState([]);
 
-  // IMPORTANT: Clear old localStorage data when implementing OTP
+  const clearSessionState = useCallback(() => {
+    setUser(null);
+    setWishlist([]);
+    clearAuthStorage();
+  }, []);
+
+  // Remove stale auth if token is missing/expired/corrupt.
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
+    const token = getValidatedStoredToken();
+
+    if (storedUser && !token) {
+      clearSessionState();
+      return;
+    }
+
     if (storedUser) {
       try {
-        const parsedUser = JSON.parse(storedUser);
-        // If user doesn't have a token or was created before OTP system, clear it
-        if (!localStorage.getItem('token')) {
-          console.log('Clearing old user data from localStorage');
-          localStorage.removeItem('user');
-          localStorage.removeItem('token');
-        }
-      } catch (e) {
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        JSON.parse(storedUser);
+      } catch {
+        clearSessionState();
       }
     }
-  }, []);
+  }, [clearSessionState]);
 
   useEffect(() => {
     // Check if user is logged in (from localStorage)
     const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
+    const token = getValidatedStoredToken();
     
     if (storedUser && token) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
+        setUser({ ...parsedUser, token });
         
         // Fetch wishlist from backend
         fetch(API_ENDPOINTS.WISHLIST, {
@@ -51,7 +58,13 @@ export const AuthProvider = ({ children }) => {
             'Authorization': `Bearer ${token}`
           }
         })
-        .then(response => response.json())
+        .then(response => {
+          if (response.status === 401) {
+            clearSessionState();
+            return { success: false, data: [] };
+          }
+          return response.json();
+        })
         .then(data => {
           if (data.success) {
             setWishlist(data.data || []);
@@ -65,14 +78,16 @@ export const AuthProvider = ({ children }) => {
           setLoading(false);
         });
       } catch {
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        clearSessionState();
         setLoading(false);
       }
     } else {
+      if (storedUser && !token) {
+        clearSessionState();
+      }
       setLoading(false);
     }
-  }, []);
+  }, [clearSessionState]);
 
   const signup = async (userData) => {
     try {
@@ -117,6 +132,10 @@ export const AuthProvider = ({ children }) => {
 
       if (!response.ok) {
         throw new Error(data.message || 'OTP verification failed');
+      }
+
+      if (!data?.data?.token) {
+        throw new Error('Authentication token is missing. Please login again.');
       }
 
       // Store user data and token after successful verification
@@ -181,6 +200,10 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || 'Login failed');
       }
 
+      if (!data?.data?.token) {
+        throw new Error('Authentication token is missing. Please login again.');
+      }
+
       // Store user data and token
       const userWithToken = {
         id: data.data._id,
@@ -220,10 +243,7 @@ export const AuthProvider = ({ children }) => {
   };
   
   const logout = () => {
-    setUser(null);
-    setWishlist([]);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    clearSessionState();
   };
 
   const addToWishlist = async (propertyId) => {
@@ -242,13 +262,23 @@ export const AuthProvider = ({ children }) => {
     console.log('API URL:', `${API_ENDPOINTS.WISHLIST}/${propertyId}`);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = getValidatedStoredToken();
+      if (!token) {
+        clearSessionState();
+        return { success: false, error: 'Session expired. Please login again.' };
+      }
+
       const response = await fetch(`${API_ENDPOINTS.WISHLIST}/${propertyId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
+
+      if (response.status === 401) {
+        clearSessionState();
+        return { success: false, error: 'Session expired. Please login again.' };
+      }
 
       const data = await response.json();
       console.log('API Response status:', response.status);
@@ -274,13 +304,23 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = getValidatedStoredToken();
+      if (!token) {
+        clearSessionState();
+        return { success: false, error: 'Session expired. Please login again.' };
+      }
+
       const response = await fetch(`${API_ENDPOINTS.WISHLIST}/${propertyId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
+
+      if (response.status === 401) {
+        clearSessionState();
+        return { success: false, error: 'Session expired. Please login again.' };
+      }
 
       const data = await response.json();
 

@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import CreateProject from './CreateProject';
 import PostProperty from './PostProperty';
 import ContentEditor from '../components/ContentEditor';
+import { clearAuthStorage, getValidatedStoredToken } from '../utils/authToken';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -58,6 +59,36 @@ const AdminDashboard = () => {
   });
   const [recentLogins, setRecentLogins] = useState([]);
 
+  const handleSessionExpired = useCallback(() => {
+    clearAuthStorage();
+    setError('Session expired. Please login again.');
+    logout();
+    navigate('/login', { replace: true });
+  }, [logout, navigate]);
+
+  const fetchWithAuth = useCallback(async (url, options = {}) => {
+    const token = getValidatedStoredToken();
+    if (!token) {
+      handleSessionExpired();
+      return null;
+    }
+
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...(options.headers || {}),
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.status === 401) {
+      handleSessionExpired();
+      return null;
+    }
+
+    return response;
+  }, [handleSessionExpired]);
+
   useEffect(() => {
     // Load saved theme
     const savedTheme = localStorage.getItem('adminTheme') || 'dark';
@@ -84,10 +115,17 @@ const AdminDashboard = () => {
       return;
     }
 
+    const token = getValidatedStoredToken();
+    if (!token) {
+      handleSessionExpired();
+      return;
+    }
+
     fetchDashboardData();
     generateActivityLogs();
     loadTrafficStats();
     loadRecentLogins();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, navigate]);
 
   useEffect(() => {
@@ -123,21 +161,17 @@ const AdminDashboard = () => {
     if (users.length > 0) {
       loadRecentLogins();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [users]);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     setLoading(true);
     setError('');
     
     try {
-      const token = localStorage.getItem('token');
-      
       // Fetch stats
-      const statsResponse = await fetch(API_ENDPOINTS.ADMIN_STATS, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const statsResponse = await fetchWithAuth(API_ENDPOINTS.ADMIN_STATS);
+      if (!statsResponse) return;
       
       if (statsResponse.ok) {
         const statsData = await statsResponse.json();
@@ -145,11 +179,8 @@ const AdminDashboard = () => {
       }
 
       // Fetch properties
-      const propsResponse = await fetch(API_ENDPOINTS.ADMIN_PROPERTIES, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const propsResponse = await fetchWithAuth(API_ENDPOINTS.ADMIN_PROPERTIES);
+      if (!propsResponse) return;
       
       if (propsResponse.ok) {
         const propsData = await propsResponse.json();
@@ -157,11 +188,8 @@ const AdminDashboard = () => {
       }
 
       // Fetch users
-      const usersResponse = await fetch(API_ENDPOINTS.ADMIN_USERS, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const usersResponse = await fetchWithAuth(API_ENDPOINTS.ADMIN_USERS);
+      if (!usersResponse) return;
       
       if (usersResponse.ok) {
         const usersData = await usersResponse.json();
@@ -173,11 +201,8 @@ const AdminDashboard = () => {
       }
 
       // Fetch consults
-      const consultsResponse = await fetch(API_ENDPOINTS.CONSULTS, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const consultsResponse = await fetchWithAuth(API_ENDPOINTS.CONSULTS);
+      if (!consultsResponse) return;
       
       if (consultsResponse.ok) {
         const consultsData = await consultsResponse.json();
@@ -185,11 +210,8 @@ const AdminDashboard = () => {
       }
 
       // Fetch consult custom fields
-      const fieldsResponse = await fetch(API_ENDPOINTS.CONSULT_FIELDS, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const fieldsResponse = await fetchWithAuth(API_ENDPOINTS.CONSULT_FIELDS);
+      if (!fieldsResponse) return;
       
       if (fieldsResponse.ok) {
         const fieldsData = await fieldsResponse.json();
@@ -197,11 +219,8 @@ const AdminDashboard = () => {
       }
 
       // Fetch pages
-      const pagesResponse = await fetch(API_ENDPOINTS.PAGES, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const pagesResponse = await fetchWithAuth(API_ENDPOINTS.PAGES);
+      if (!pagesResponse) return;
       
       if (pagesResponse.ok) {
         const pagesData = await pagesResponse.json();
@@ -216,7 +235,7 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchWithAuth]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -249,7 +268,7 @@ const AdminDashboard = () => {
     setMobileMenuOpen(false);
   };
 
-  const generateActivityLogs = () => {
+  const generateActivityLogs = useCallback(() => {
     const logs = [
       {
         type: 'login',
@@ -295,16 +314,12 @@ const AdminDashboard = () => {
       }
     ];
     setActivityLogs(logs);
-  };
+  }, [user]);
 
-  const loadTrafficStats = async () => {
+  const loadTrafficStats = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_ENDPOINTS.ANALYTICS}/stats?days=30`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetchWithAuth(`${API_ENDPOINTS.ANALYTICS}/stats?days=30`);
+      if (!response) return;
       
       if (response.ok) {
         const data = await response.json();
@@ -331,9 +346,9 @@ const AdminDashboard = () => {
         topPages: []
       });
     }
-  };
+  }, [fetchWithAuth]);
 
-  const loadRecentLogins = () => {
+  const loadRecentLogins = useCallback(() => {
     // Get new signups - sort users by createdAt (signup date)
     const newSignups = users
       .filter(u => u.email && u.createdAt)
@@ -352,9 +367,9 @@ const AdminDashboard = () => {
       }));
     
     setRecentLogins(newSignups);
-  };
+  }, [users]);
 
-  const checkIfOnline = (lastLogin) => {
+  const _checkIfOnline = (lastLogin) => {
     if (!lastLogin) return false;
     const now = new Date();
     const loginDate = new Date(lastLogin);
@@ -683,7 +698,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleUpdatePageStatus = async (pageId, newStatus) => {
+  const _handleUpdatePageStatus = async (pageId, newStatus) => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(API_ENDPOINTS.PAGE_STATUS(pageId), {
@@ -884,7 +899,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const filteredProperties = properties.filter(property =>
+  const _filteredProperties = properties.filter(property =>
     property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     property.location?.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     property.postedBy?.name?.toLowerCase().includes(searchTerm.toLowerCase())

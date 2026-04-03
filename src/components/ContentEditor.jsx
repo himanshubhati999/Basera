@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { API_ENDPOINTS } from '../config/api';
+import { getValidatedStoredToken } from '../utils/authToken';
 import './ContentEditor.css';
 
 const ContentEditor = () => {
@@ -113,6 +114,12 @@ const ContentEditor = () => {
   const handleImageUpload = async (files) => {
     if (!files || files.length === 0) return;
 
+    const token = getValidatedStoredToken();
+    if (!token) {
+      alert('Session expired. Please login again.');
+      return;
+    }
+
     setUploading(true);
     const formData = new FormData();
 
@@ -122,7 +129,6 @@ const ContentEditor = () => {
     });
 
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(API_ENDPOINTS.UPLOAD_MULTIPLE, {
         method: 'POST',
         headers: {
@@ -130,6 +136,10 @@ const ContentEditor = () => {
         },
         body: formData
       });
+
+      if (response.status === 401) {
+        throw new Error('Session expired. Please login again.');
+      }
 
       const data = await response.json();
 
@@ -188,7 +198,11 @@ const ContentEditor = () => {
     try {
       // Only call delete API if image has filename (was uploaded to server)
       if (image.filename) {
-        const token = localStorage.getItem('token');
+        const token = getValidatedStoredToken();
+        if (!token) {
+          throw new Error('Session expired. Please login again.');
+        }
+
         const response = await fetch(API_ENDPOINTS.DELETE_IMAGE, {
           method: 'DELETE',
           headers: {
@@ -197,6 +211,10 @@ const ContentEditor = () => {
           },
           body: JSON.stringify({ filename: image.filename })
         });
+
+        if (response.status === 401) {
+          throw new Error('Session expired. Please login again.');
+        }
 
         if (!response.ok) {
           throw new Error('Failed to delete image from server');
