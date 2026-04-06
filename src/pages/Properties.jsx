@@ -542,9 +542,7 @@ const Properties = () => {
                   <p>📍 {property.location}</p>
                   {property.bedrooms && <p>🛏️ {property.bedrooms} BHK • {property.area} • 🚿 {property.bathrooms} Bath</p>}
                   <p className="property-price">{property.price}</p>
-                  <span className={`status-badge ${property.status}`}>
-                    {property.status === 'ready-to-move' ? 'Ready to Move' : 'Under Construction'}
-                  </span>
+                  
                 </div>
               </div>
             </Link>
