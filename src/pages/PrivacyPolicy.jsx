@@ -104,7 +104,7 @@ const PrivacyPolicy = () => {
               <li><strong>Data Portability:</strong> Request transfer of your data to another service</li>
               <li><strong>Withdraw Consent:</strong> Withdraw consent for data processing at any time</li>
             </ul>
-            <p>To exercise these rights, please contact us at baserainfrahome@gmail.com</p>
+            <p>To exercise these rights, please contact us at BHATIH981@GMAIL.COM</p>
           </section>
 
           <section className="legal-section">
@@ -138,9 +138,9 @@ const PrivacyPolicy = () => {
             <h2>10. Contact Us</h2>
             <p>If you have any questions about this Privacy Policy, please contact us:</p>
             <ul className="contact-info">
-              <li><strong>Email:</strong> baserainfrahome@gmail.com</li>
-              <li><strong>Phone:</strong> +91 98118 02157</li>
-              <li><strong>Address:</strong> 201, IInd Floor, Krishna Apra Royal Plaza, Above ICICI Bank, Alpha Comm. Belt Near Alpha-1, Metro Station, Greater Noida</li>
+              <li><strong>Email:</strong> BHATIH981@GMAIL.COM</li>
+              <li><strong>Phone:</strong> +91 99901 31976</li>
+              <li><strong>Address:</strong> Vishveshwarya Group of institutions GT Road Dadri</li>
             </ul>
           </section>
         </div>

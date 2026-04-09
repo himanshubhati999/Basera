@@ -547,7 +547,7 @@ const PropertyDetail = () => {
       }
     } catch (error) {
       console.error('Form submission error:', error);
-      alert('There was an error submitting your request. Please try again or contact us at +91 98118 02157.');
+      alert('There was an error submitting your request. Please try again or contact us at +91 99901 31976.');
     } finally {
       setIsSubmitting(false);
     }

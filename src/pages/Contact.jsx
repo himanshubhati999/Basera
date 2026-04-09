@@ -146,7 +146,7 @@ const Contact = () => {
         <title>Contact Us - Get in Touch with Basera Infra Home</title>
         <meta 
           name="description" 
-          content="Contact Basera Infra Home for property inquiries in Greater Noida. Visit our office at Alpha-1 Metro Station or call +91 98118 02157. Email: baserainfrahome@gmail.com" 
+          content="Contact Basera Infra Home for property inquiries. Visit our office at Vishveshwarya Group of institutions GT Road Dadri or call +91 99901 31976. Email: BHATIH981@GMAIL.COM" 
         />
         <meta property="og:title" content="Contact Us - Basera Infra Home" />
         <meta property="og:description" content="Get in touch with our real estate experts in Greater Noida for property consultation and inquiries." />
@@ -175,13 +175,13 @@ const Contact = () => {
             />
           </h2>
           <div className="info-item">
-            <p><strong>Address:</strong> 201, IInd Floor, Krishna Apra Royal Plaza, Above ICICI Bank, Alpha Comm. Belt Near Alpha-1, Metro Station, Greater Noida</p>
+            <p><strong>Address:</strong> Vishveshwarya Group of institutions GT Road Dadri</p>
           </div>
           <div className="info-item">
-            <p><strong>Hotline:</strong> <a href="tel:+919811802157">+91 98118 02157</a></p>
+            <p><strong>Hotline:</strong> <a href="tel:+919990131976">+91 99901 31976</a></p>
           </div>
           <div className="info-item">
-            <p><strong>Email:</strong> <a href="mailto:baserainfrahome@gmail.com">baserainfrahome@gmail.com</a></p>
+            <p><strong>Email:</strong> <a href="mailto:BHATIH981@GMAIL.COM">BHATIH981@GMAIL.COM</a></p>
           </div>
           <div className="info-section">
             <h3>Business Hours</h3>
@@ -262,7 +262,7 @@ const Contact = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+91 98118 02157"
+                  placeholder="+91 99901 31976"
                   className={errors.phone ? 'error' : ''}
                   disabled={formState.status === 'submitting'}
                 />

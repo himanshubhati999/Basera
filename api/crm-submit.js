@@ -47,7 +47,7 @@ function saveSubmission(submission) {
 async function sendEmailNotification(submission) {
   // TODO: Integrate with email service (SendGrid, Resend, etc.)
   console.log('Email notification:', {
-    to: 'baserainfrahome@gmail.com',
+    to: 'BHATIH981@GMAIL.COM',
     subject: `New Property Inquiry: ${submission.name}`,
     body: `
       New submission received:

@@ -192,9 +192,9 @@ const TermsOfService = () => {
             <h2>16. Contact Information</h2>
             <p>If you have any questions about these Terms of Service, please contact us:</p>
             <ul className="contact-info">
-              <li><strong>Email:</strong> baserainfrahome@gmail.com</li>
-              <li><strong>Phone:</strong> +91 98118 02157</li>
-              <li><strong>Address:</strong> 201, IInd Floor, Krishna Apra Royal Plaza, Above ICICI Bank, Alpha Comm. Belt Near Alpha-1, Metro Station, Greater Noida</li>
+              <li><strong>Email:</strong> BHATIH981@GMAIL.COM</li>
+              <li><strong>Phone:</strong> +91 99901 31976</li>
+              <li><strong>Address:</strong> Vishveshwarya Group of institutions GT Road Dadri</li>
             </ul>
           </section>
         </div>

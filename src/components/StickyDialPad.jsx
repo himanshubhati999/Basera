@@ -2,14 +2,15 @@ import React from 'react';
 import './StickyDialPad.css';
 
 const StickyDialPad = () => {
-  const phoneNumber = '+919811802157'; // Without spaces for links
+  const callNumber = '+919990131976'; // For tel link
+  const whatsappNumber = '919990131976'; // wa.me requires digits only
 
   const handleCall = () => {
-    window.location.href = `tel:${phoneNumber}`;
+    window.location.href = `tel:${callNumber}`;
   };
 
   const handleWhatsApp = () => {
-    window.open(`https://wa.me/${phoneNumber}`, '_blank');
+    window.open(`https://wa.me/${whatsappNumber}`, '_blank');
   };
 
   return (
